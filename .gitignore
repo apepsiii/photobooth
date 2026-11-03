@@ -1,0 +1,12 @@
+*.db
+*.db-wal
+*.db-shm
+.env
+*.exe
+*.exe~
+storage/photos/raw/*
+storage/photos/final/*
+storage/frames/frame_*
+!storage/photos/raw/.gitkeep
+!storage/photos/final/.gitkeep
+!storage/frames/.gitkeep

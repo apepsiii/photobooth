@@ -1,0 +1,286 @@
+{{define "profile"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+            <header class="page__header">
+              <div class="page__headline">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb__item"><a href="/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb__item" aria-current="page">Profile</li>
+                  </ol>
+                </nav>
+                <h1 class="page__title">Profile</h1>
+              </div>
+              <div class="page__action">
+                <a href="/settings" class="button button--outline button--neutral">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="1.5" d="m14.36 4.079l.927-.927a3.932 3.932 0 0 1 5.561 5.561l-.927.927m-5.56-5.561s.115 1.97 1.853 3.707C17.952 9.524 19.92 9.64 19.92 9.64m-5.56-5.561l-8.522 8.52c-.577.578-.866.867-1.114 1.185a6.6 6.6 0 0 0-.749 1.211c-.173.364-.302.752-.56 1.526l-1.094 3.281m17.6-10.162L11.4 18.16c-.577.577-.866.866-1.184 1.114a6.6 6.6 0 0 1-1.211.749c-.364.173-.751.302-1.526.56l-3.281 1.094m0 0l-.802.268a1.06 1.06 0 0 1-1.342-1.342l.268-.802m1.876 1.876l-1.876-1.876"/>
+                  </svg>
+                  Edit profile
+                </a>
+              </div>
+            </header>
+
+            <div class="page__body">
+              <section class="page__section">
+                <div class="card">
+                    class="card__image aspect-[4/1] object-cover"
+                    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&h=400&q=80"
+                    alt=""
+                    loading="lazy"
+                  />
+                  <div class="card__body">
+                    <div class="flex flex-wrap items-end gap-3 -mt-14">
+                      <span
+                        class="avatar avatar--circle"
+                        data-stisla-avatar
+                        style="--avatar-size: 6rem; box-shadow: 0 0 0 4px var(--color-surface)"
+                      >
+                        <img
+                          class="avatar__image"
+                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2.5&w=192&h=192&q=80"
+                          alt=""
+                        />
+                        <span class="avatar__fallback">{{.UserName}}</span>
+                      </span>
+                      <div class="flex-auto min-w-0">
+                        <h1 class="text-xl font-bold">{{.UserName}}</h1>
+                        <div class="text-muted-foreground">Store Owner · Meridian</div>
+                      </div>
+                      <div class="flex gap-2">
+                        <button type="button" class="button button--outline button--neutral">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12c0 1.6.376 3.112 1.043 4.453c.178.356.237.763.134 1.148l-.595 2.226a1.3 1.3 0 0 0 1.591 1.592l2.226-.596a1.63 1.63 0 0 1 1.149.133A9.96 9.96 0 0 0 12 22Z"/>
+                          </svg>
+                          Message
+                        </button>
+                        <a href="/settings" class="button button--neutral">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="1.5" d="m14.36 4.079l.927-.927a3.932 3.932 0 0 1 5.561 5.561l-.927.927m-5.56-5.561s.115 1.97 1.853 3.707C17.952 9.524 19.92 9.64 19.92 9.64m-5.56-5.561l-8.522 8.52c-.577.578-.866.867-1.114 1.185a6.6 6.6 0 0 0-.749 1.211c-.173.364-.302.752-.56 1.526l-1.094 3.281m17.6-10.162L11.4 18.16c-.577.577-.866.866-1.184 1.114a6.6 6.6 0 0 1-1.211.749c-.364.173-.751.302-1.526.56l-3.281 1.094m0 0l-.802.268a1.06 1.06 0 0 1-1.342-1.342l.268-.802m1.876 1.876l-1.876-1.876"/>
+                          </svg>
+                          Edit profile
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="page__section">
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-12 lg:col-span-4">
+                    <div class="flex flex-col gap-3">
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">About</span></div>
+                        <div class="card__body">
+                          <p class="text-muted-foreground">Coffee obsessive running Meridian since 2024 — sourcing single-origin beans and the gear to brew them well.</p>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Details</span></div>
+                        <ul class="list-group">
+                          <li class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"/>
+                                <path stroke-linecap="round" d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8"/>
+                              </g>
+                            </svg>
+                            <span>Email</span>
+                            <span class="ms-auto text-muted-foreground">admin@meridian.com</span>
+                          </li>
+                          <li class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill="currentColor" d="m16.1 13.359l-.528-.532zm.456-.453l.529.532zm2.417-.317l-.358.66zm1.91 1.039l-.358.659zm.539 3.255l.529.532zm-1.42 1.412l-.53-.531zm-1.326.67l.07.747zm-9.86-4.238l.528-.532zM4.002 5.746l-.749.042zm6.474 1.451l.53.532zm.157-2.654l.6-.449zM9.374 2.86l-.601.45zM6.26 2.575l.53.532zm-1.57 1.56l-.528-.531zm7.372 7.362l.529-.532zm4.567 2.394l.455-.453l-1.058-1.064l-.455.453zm1.985-.643l1.91 1.039l.716-1.318l-1.91-1.038zm2.278 3.103l-1.42 1.413l1.057 1.063l1.42-1.412zm-2.286 1.867c-1.45.136-5.201.015-9.263-4.023l-1.057 1.063c4.432 4.407 8.65 4.623 10.459 4.454zm-9.263-4.023c-3.871-3.85-4.512-7.087-4.592-8.492l-1.498.085c.1 1.768.895 5.356 5.033 9.47zm1.376-6.18l.286-.286L9.95 6.666l-.287.285zm.515-3.921L9.974 2.41l-1.201.899l1.26 1.684zM5.733 2.043l-1.57 1.56l1.058 1.064l1.57-1.56zm4.458 5.44c-.53-.532-.53-.532-.53-.53h-.002l-.003.004a1 1 0 0 0-.127.157c-.054.08-.113.185-.163.318a2.1 2.1 0 0 0-.088 1.071c.134.865.73 2.008 2.256 3.526l1.058-1.064c-1.429-1.42-1.769-2.284-1.832-2.692c-.03-.194.001-.29.01-.312q.009-.02 0-.006a.3.3 0 0 1-.03.039l-.01.01l-.01.009zm1.343 4.546c1.527 1.518 2.676 2.11 3.542 2.242c.443.068.8.014 1.071-.087a1.5 1.5 0 0 0 .42-.236l.05-.045l.007-.006l.003-.003l.001-.002s.002-.001-.527-.533c-.53-.532-.528-.533-.528-.533l.002-.002l.002-.002l.006-.005l.01-.01l.038-.03q.014-.009-.007.002c-.025.009-.123.04-.32.01c-.414-.064-1.284-.404-2.712-1.824zm-1.56-9.62C8.954 1.049 6.95.834 5.733 2.044L6.79 3.107c.532-.529 1.476-.475 1.983.202zM4.752 5.704c-.02-.346.139-.708.469-1.036L4.163 3.604c-.537.534-.96 1.29-.909 2.184zm14.72 12.06c-.274.274-.57.428-.865.455l.139 1.494c.735-.069 1.336-.44 1.784-.885zM11.006 7.73c.985-.979 1.058-2.527.229-3.635l-1.201.899c.403.539.343 1.246-.085 1.673zm9.52 6.558c.817.444.944 1.49.367 2.064l1.058 1.064c1.34-1.333.927-3.557-.71-4.446zm-3.441-.849c.384-.382 1.002-.476 1.53-.19l.716-1.317c-1.084-.59-2.428-.427-3.304.443z"/>
+                            </svg>
+                            <span>Phone</span>
+                            <span class="ms-auto text-muted-foreground">+1 555 0123</span>
+                          </li>
+                          <li class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4 10.143C4 5.646 7.582 2 12 2s8 3.646 8 8.143c0 4.462-2.553 9.67-6.537 11.531a3.45 3.45 0 0 1-2.926 0C6.553 19.812 4 14.606 4 10.144Z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                              </g>
+                            </svg>
+                            <span>Location</span>
+                            <span class="ms-auto text-muted-foreground">San Diego, US</span>
+                          </li>
+                          <li class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                              <g fill="none">
+                                <path stroke="currentColor" stroke-width="1.5" d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"/>
+                                <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M7 4V2.5M17 4V2.5M2.5 9h19"/>
+                                <path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/>
+                              </g>
+                            </svg>
+                            <span>Joined</span>
+                            <span class="ms-auto text-muted-foreground">Jan 2024</span>
+                          </li>
+                          <li class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16" opacity=".5"/>
+                                <path d="M12 18a2 2 0 1 0 0-4a2 2 0 0 0 0 4"/>
+                                <path stroke-linecap="round" d="M6.75 10V8a5.25 5.25 0 0 1 10.5 0v2"/>
+                              </g>
+                            </svg>
+                            <span>Role</span>
+                            <span class="ms-auto"><span class="badge badge--soft badge--primary">Admin</span></span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Stats</span></div>
+                        <div class="card__body">
+                          <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                              <p class="text-2xl font-semibold">1,284</p>
+                              <p class="text-xs text-muted-foreground mt-1">Total Orders</p>
+                            </div>
+                            <div>
+                              <p class="text-2xl font-semibold">248</p>
+                              <p class="text-xs text-muted-foreground mt-1">Products</p>
+                            </div>
+                            <div>
+                              <p class="text-2xl font-semibold">1,482</p>
+                              <p class="text-xs text-muted-foreground mt-1">Customers</p>
+                            </div>
+                            <div>
+                              <p class="text-2xl font-semibold">$48k</p>
+                              <p class="text-xs text-muted-foreground mt-1">Revenue MTD</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-span-12 lg:col-span-8">
+                    <div class="flex flex-col gap-3">
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Recent Activity</span></div>
+                        <div class="card__body">
+                          <ol class="timeline">
+                            <li class="timeline__item">
+                              <span class="timeline__marker timeline__marker--success">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" d="m2 3l.265.088c1.32.44 1.98.66 2.357 1.184S5 5.492 5 6.883V9.5c0 2.828 0 4.243.879 5.121c.878.879 2.293.879 5.121.879h8"/>
+                                    <path d="M7.5 18a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3Zm9 0a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3ZM5 6h11.45c2.055 0 3.083 0 3.528.674c.444.675.04 1.619-.77 3.508l-.429 1c-.378.882-.567 1.322-.942 1.57c-.376.248-.856.248-1.815.248H5"/>
+                                  </g>
+                                </svg>
+                              </span>
+                              <div class="timeline__body">
+                                <div class="timeline__title">Placed order <a href="/orders" class="link">#10428</a></div>
+                                <div class="timeline__time">2 hours ago</div>
+                              </div>
+                            </li>
+                            <li class="timeline__item">
+                              <span class="timeline__marker timeline__marker--warning">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path fill="none" stroke="currentColor" stroke-width="1.5" d="M9.153 5.408C10.42 3.136 11.053 2 12 2s1.58 1.136 2.847 3.408l.328.588c.36.646.54.969.82 1.182s.63.292 1.33.45l.636.144c2.46.557 3.689.835 3.982 1.776c.292.94-.546 1.921-2.223 3.882l-.434.507c-.476.557-.715.836-.822 1.18c-.107.345-.071.717.001 1.46l.066.677c.253 2.617.38 3.925-.386 4.506s-1.918.051-4.22-1.009l-.597-.274c-.654-.302-.981-.452-1.328-.452s-.674.15-1.328.452l-.596.274c-2.303 1.06-3.455 1.59-4.22 1.01c-.767-.582-.64-1.89-.387-4.507l.066-.676c.072-.744.108-1.116 0-1.46c-.106-.345-.345-.624-.821-1.18l-.434-.508c-1.677-1.96-2.515-2.941-2.223-3.882S3.58 8.328 6.04 7.772l.636-.144c.699-.158 1.048-.237 1.329-.45s.46-.536.82-1.182z"/>
+                                </svg>
+                              </span>
+                              <div class="timeline__body">
+                                <div class="timeline__title">Left a 5-star review on Espresso Beans 2kg</div>
+                                <div class="timeline__time">Yesterday</div>
+                              </div>
+                            </li>
+                            <li class="timeline__item">
+                              <span class="timeline__marker timeline__marker--primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="m15.578 3.382l2 1.05c2.151 1.129 3.227 1.693 3.825 2.708C22 8.154 22 9.417 22 11.942v.117c0 2.524 0 3.787-.597 4.801c-.598 1.015-1.674 1.58-3.825 2.709l-2 1.049C13.822 21.539 12.944 22 12 22s-1.822-.46-3.578-1.382l-2-1.05c-2.151-1.129-3.227-1.693-3.825-2.708C2 15.846 2 14.583 2 12.06v-.117c0-2.525 0-3.788.597-4.802c.598-1.015 1.674-1.58 3.825-2.708l2-1.05C10.178 2.461 11.056 2 12 2s1.822.46 3.578 1.382ZM21 7.5l-4 2M12 12L3 7.5m9 4.5v9.5m0-9.5l4.5-2.25l.5-.25m0 0V13m0-3.5l-9.5-5"/>
+                                </svg>
+                              </span>
+                              <div class="timeline__body">
+                                <div class="timeline__title">Added 3 products to the catalog</div>
+                                <div class="timeline__time">Jun 14, 2026</div>
+                              </div>
+                            </li>
+                            <li class="timeline__item">
+                              <span class="timeline__marker">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="6" r="4"/>
+                                    <path d="M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z"/>
+                                  </g>
+                                </svg>
+                              </span>
+                              <div class="timeline__body">
+                                <div class="timeline__title">Updated profile details</div>
+                                <div class="timeline__time">Jun 10, 2026</div>
+                              </div>
+                            </li>
+                            <li class="timeline__item">
+                              <span class="timeline__marker timeline__marker--danger">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12c0 1.6.376 3.112 1.043 4.453c.178.356.237.763.134 1.148l-.595 2.226a1.3 1.3 0 0 0 1.591 1.592l2.226-.596a1.63 1.63 0 0 1 1.149.133A9.96 9.96 0 0 0 12 22Z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5l2 2l5-5"/>
+                                  </g>
+                                </svg>
+                              </span>
+                              <div class="timeline__body">
+                                <div class="timeline__title">Onboarded new customer Globex</div>
+                                <div class="timeline__time">Jun 5, 2026</div>
+                              </div>
+                            </li>
+                          </ol>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header">
+                          <span class="card__title">Recent Orders</span>
+                          <a href="/orders" class="ms-auto button button--ghost button--neutral button--sm">View all</a>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table table--hover table--align-middle">
+                            <thead class="table__head--alt">
+                              <tr>
+                                <th scope="col">Order</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Status</th>
+                                <th scope="col" class="text-end">Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row"><a href="#" class="link"><code>#10428</code></a></th>
+                                <td>Jun 18, 2026</td>
+                                <td><span class="badge badge--soft badge--warning">Pending</span></td>
+                                <td class="text-end font-semibold">$1,490.00</td>
+                              </tr>
+                              <tr>
+                                <th scope="row"><a href="#" class="link"><code>#10426</code></a></th>
+                                <td>Jun 17, 2026</td>
+                                <td><span class="badge badge--soft badge--success">Completed</span></td>
+                                <td class="text-end font-semibold">$8,200.00</td>
+                              </tr>
+                              <tr>
+                                <th scope="row"><a href="#" class="link"><code>#10424</code></a></th>
+                                <td>Jun 15, 2026</td>
+                                <td><span class="badge badge--soft badge--success">Completed</span></td>
+                                <td class="text-end font-semibold">$1,120.00</td>
+                              </tr>
+                              <tr>
+                                <th scope="row"><a href="#" class="link"><code>#10422</code></a></th>
+                                <td>Jun 13, 2026</td>
+                                <td><span class="badge badge--soft badge--info">Shipped</span></td>
+                                <td class="text-end font-semibold">$720.00</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+{{end}}

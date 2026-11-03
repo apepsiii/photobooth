@@ -1,0 +1,167 @@
+{{define "reports"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+            <header class="page__header">
+              <div class="page__headline">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb__item"><a href="/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb__item" aria-current="page">Reports</li>
+                  </ol>
+                </nav>
+                <h1 class="page__title">Reports</h1>
+                <p class="page__description">Revenue, orders, and product performance for Meridian.</p>
+              </div>
+              <div class="page__action">
+                <div class="toggle-group" data-stisla-toggle-group role="radiogroup" aria-label="Date range">
+                  <button type="button" class="toggle" role="radio" aria-checked="false">7d</button>
+                  <button type="button" class="toggle" role="radio" data-state="active" aria-checked="true">30d</button>
+                  <button type="button" class="toggle" role="radio" aria-checked="false">90d</button>
+                </div>
+                <button type="button" class="button button--outline button--neutral">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15M12 3v13m0 0l4-4.375M12 16l-4-4.375"/>
+                  </svg>
+                  Export
+                </button>
+              </div>
+            </header>
+
+            <div class="page__body">
+              <section class="page__section">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div class="card h-full">
+                    <div class="card__body flex-col-reverse md:flex-row gap-4">
+                      <div class="w-full flex flex-col gap-2">
+                        <span class="text-sm text-muted-foreground">Revenue</span>
+                        <div class="text-2xl font-bold">$48,210</div>
+                        <div class="flex items-center gap-2">
+                          <span class="badge badge--soft badge--success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 14l2.293-2.293a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 0 1.414 0L17 10m0 0v2.5m0-2.5h-2.5"/></g></svg>
+                            12%
+                          </span>
+                          <span class="text-xs text-muted-foreground">vs last period</span>
+                        </div>
+                      </div>
+                      <span class="icon-box icon-box--primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 17v1m0-12v1m3 2.5C15 8.12 13.657 7 12 7S9 8.12 9 9.5s1.343 2.5 3 2.5s3 1.12 3 2.5s-1.343 2.5-3 2.5s-3-1.12-3-2.5"/></g></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card h-full">
+                    <div class="card__body flex-col-reverse md:flex-row gap-4">
+                      <div class="w-full flex flex-col gap-2">
+                        <span class="text-sm text-muted-foreground">Orders</span>
+                        <div class="text-2xl font-bold">1,284</div>
+                        <div class="flex items-center gap-2">
+                          <span class="badge badge--soft badge--success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 14l2.293-2.293a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 0 1.414 0L17 10m0 0v2.5m0-2.5h-2.5"/></g></svg>
+                            8%
+                          </span>
+                          <span class="text-xs text-muted-foreground">vs last period</span>
+                        </div>
+                      </div>
+                      <span class="icon-box icon-box--primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="m2 3l.265.088c1.32.44 1.98.66 2.357 1.184S5 5.492 5 6.883V9.5c0 2.828 0 4.243.879 5.121c.878.879 2.293.879 5.121.879h8"/><path d="M7.5 18a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3Zm9 0a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3ZM5 6h11.45c2.055 0 3.083 0 3.528.674c.444.675.04 1.619-.77 3.508l-.429 1c-.378.882-.567 1.322-.942 1.57c-.376.248-.856.248-1.815.248H5"/></g></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card h-full">
+                    <div class="card__body flex-col-reverse md:flex-row gap-4">
+                      <div class="w-full flex flex-col gap-2">
+                        <span class="text-sm text-muted-foreground">Avg. order value</span>
+                        <div class="text-2xl font-bold">$37.55</div>
+                        <div class="flex items-center gap-2">
+                          <span class="badge badge--soft badge--success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 14l2.293-2.293a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 0 1.414 0L17 10m0 0v2.5m0-2.5h-2.5"/></g></svg>
+                            3%
+                          </span>
+                          <span class="text-xs text-muted-foreground">vs last period</span>
+                        </div>
+                      </div>
+                      <span class="icon-box icon-box--primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16.755 2h-9.51c-1.159 0-1.738 0-2.206.163a3.05 3.05 0 0 0-1.881 1.936C3 4.581 3 5.177 3 6.37v14.004c0 .858.985 1.314 1.608.744a.946.946 0 0 1 1.284 0l.483.442a1.657 1.657 0 0 0 2.25 0a1.657 1.657 0 0 1 2.25 0a1.657 1.657 0 0 0 2.25 0a1.657 1.657 0 0 1 2.25 0a1.657 1.657 0 0 0 2.25 0l.483-.442a.946.946 0 0 1 1.284 0c.623.57 1.608.114 1.608-.744V6.37c0-1.193 0-1.79-.158-2.27a3.05 3.05 0 0 0-1.881-1.937C18.493 2 17.914 2 16.755 2Z"/><path stroke-linecap="round" d="M10.5 11H17M7 11h.5M7 7.5h.5m-.5 7h.5m3-7H17m-6.5 7H17"/></g></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card h-full">
+                    <div class="card__body flex-col-reverse md:flex-row gap-4">
+                      <div class="w-full flex flex-col gap-2">
+                        <span class="text-sm text-muted-foreground">Refund rate</span>
+                        <div class="text-2xl font-bold">2.4%</div>
+                        <div class="flex items-center gap-2">
+                          <span class="badge badge--soft badge--danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 10l2.293 2.293a1 1 0 0 0 1.414 0l1.586-1.586a1 1 0 0 1 1.414 0L17 14m0 0v-2.5m0 2.5h-2.5"/></g></svg>
+                            0.6%
+                          </span>
+                          <span class="text-xs text-muted-foreground">vs last period</span>
+                        </div>
+                      </div>
+                      <span class="icon-box icon-box--primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807"/></svg>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="page__section">
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-12 xl:col-span-8">
+                    <div class="card h-full">
+                      <div class="card__header">
+                        <span class="card__title">Revenue over time</span>
+                        <span class="badge badge--soft badge--success ms-auto">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 14l2.293-2.293a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 0 1.414 0L17 10m0 0v2.5m0-2.5h-2.5"/></g></svg>
+                          12%
+                        </span>
+                      </div>
+                      <div class="card__body">
+                        <div id="revenueChart" class="chart"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-span-12 xl:col-span-4">
+                    <div class="card h-full">
+                      <div class="card__header">
+                        <span class="card__title">Sales by category</span>
+                      </div>
+                      <div class="card__body">
+                        <div id="categoryChart" class="chart"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="page__section">
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-12 lg:col-span-6">
+                    <div class="card h-full">
+                      <div class="card__header">
+                        <span class="card__title">Top products</span>
+                      </div>
+                      <div class="card__body">
+                        <div id="topProductsChart" class="chart"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-span-12 lg:col-span-6">
+                    <div class="card h-full">
+                      <div class="card__header">
+                        <span class="card__title">Sales by channel</span>
+                      </div>
+                      <div class="card__body">
+                        <div id="channelChart" class="chart"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+{{end}}

@@ -1,0 +1,261 @@
+{{define "order-detail"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+            <header class="page__header">
+              <div class="page__headline">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb__item"><a href="/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb__item"><a href="/orders">Orders</a></li>
+                    <li class="breadcrumb__item" aria-current="page">#10428</li>
+                  </ol>
+                </nav>
+                <div class="flex items-center flex-wrap gap-3">
+                  <h1 class="page__title">Order #10428</h1>
+                  <span class="badge badge--soft badge--warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2.5 2.5"/></g></svg>
+                    Pending
+                  </span>
+                  <span class="badge badge--soft">Unpaid</span>
+                </div>
+                <p class="page__description">Placed Jun 18, 2026 at 09:24 by Acme Corp.</p>
+              </div>
+              <div class="page__action">
+                <a href="/orders/new" class="button button--outline button--neutral">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" d="m14.36 4.079l.927-.927a3.932 3.932 0 0 1 5.561 5.561l-.927.927m-5.56-5.561s.115 1.97 1.853 3.707C17.952 9.524 19.92 9.64 19.92 9.64m-5.56-5.561l-8.522 8.52c-.577.578-.866.867-1.114 1.185a6.6 6.6 0 0 0-.749 1.211c-.173.364-.302.752-.56 1.526l-1.094 3.281m17.6-10.162L11.4 18.16c-.577.577-.866.866-1.184 1.114a6.6 6.6 0 0 1-1.211.749c-.364.173-.751.302-1.526.56l-3.281 1.094m0 0l-.802.268a1.06 1.06 0 0 1-1.342-1.342l.268-.802m1.876 1.876l-1.876-1.876"/></svg>
+                  Edit
+                </a>
+                <div class="menu">
+                  <button type="button" class="button button--outline button--neutral button--icon-only" data-stisla-menu-trigger="ddDetail" aria-haspopup="menu" aria-expanded="false" aria-controls="ddDetail" aria-label="More actions">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></g></svg>
+                  </button>
+                  <div class="menu__popup w-44" id="ddDetail" data-stisla-menu role="menu" data-state="closed" data-stisla-menu-placement="bottom-end">
+                    <button type="button" class="menu__item" role="menuitem">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none"><path stroke="currentColor" stroke-width="1.5" d="M6 17.983c-1.553-.047-2.48-.22-3.121-.862C2 16.243 2 14.828 2 12s0-4.243.879-5.121C3.757 6 5.172 6 8 6h8c2.828 0 4.243 0 5.121.879C22 7.757 22 9.172 22 12s0 4.243-.879 5.121c-.641.642-1.567.815-3.121.862"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M9 10H6m13 4H5"/><path fill="currentColor" d="m17.121 2.879l-.53.53zm-10.242 0l.53.53zm0 18.242l.53-.53zM18.75 14a.75.75 0 0 0-1.5 0zm-12 0a.75.75 0 0 0-1.5 0zm10.5 2c0 1.435-.002 2.436-.103 3.192c-.099.734-.28 1.122-.556 1.399l1.06 1.06c.603-.601.861-1.36.983-2.26c.118-.878.116-1.998.116-3.391zM12 22.75c1.393 0 2.513.002 3.392-.116c.9-.122 1.658-.38 2.26-.982L16.59 20.59c-.277.277-.665.457-1.4.556c-.755.101-1.756.103-3.191.103zm0-20c1.435 0 2.437.002 3.192.103c.734.099 1.122.28 1.399.556l1.06-1.06c-.601-.603-1.36-.861-2.26-.982c-.878-.119-1.998-.117-3.391-.117zm0-1.5c-1.393 0-2.513-.002-3.392.117c-.9.12-1.658.38-2.26.981L7.41 3.41c.277-.277.665-.457 1.4-.556c.754-.101 1.756-.103 3.191-.103zM5.25 16c0 1.393-.002 2.513.117 3.392c.12.9.38 1.658.981 2.26L7.41 20.59c-.277-.277-.457-.665-.556-1.4c-.101-.755-.103-1.756-.103-3.191zM12 21.25c-1.435 0-2.437-.002-3.192-.103c-.734-.099-1.122-.28-1.399-.556l-1.06 1.06c.601.603 1.36.861 2.26.983c.878.118 1.998.116 3.391.116zm6.732-15.273c-.046-1.542-.208-2.757-1.08-3.629L16.59 3.41c.41.41.595 1.049.642 2.614zm-11.965.046c.047-1.565.231-2.203.642-2.614l-1.06-1.06c-.873.871-1.035 2.086-1.081 3.628zM18.75 16v-2h-1.5v2zm-12 0v-2h-1.5v2z"/><circle cx="17" cy="10" r="1" fill="currentColor"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M15 16.5H9m4 2.5H9"/></g></svg>
+                      Print invoice
+                    </button>
+                    <button type="button" class="menu__item" role="menuitem">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 11c0-2.828 0-4.243.879-5.121C7.757 5 9.172 5 12 5h3c2.828 0 4.243 0 5.121.879C21 6.757 21 8.172 21 11v5c0 2.828 0 4.243-.879 5.121C19.243 22 17.828 22 15 22h-3c-2.828 0-4.243 0-5.121-.879C6 20.243 6 18.828 6 16z"/><path d="M6 19a3 3 0 0 1-3-3v-6c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h4a3 3 0 0 1 3 3"/></g></svg>
+                      Duplicate
+                    </button>
+                    <hr class="menu__separator" role="separator"/>
+                    <button type="button" class="menu__item menu__item--danger" role="menuitem">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807"/></svg>
+                      Refund
+                    </button>
+                  </div>
+                </div>
+                <button type="button" class="button button--primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none"><path fill="currentColor" d="M7.506 15.265a.75.75 0 0 0 1.446-.4zm-1.43-7.99l.724-.2zM4.705 5.92l-.2.723zM3.2 4.725a.75.75 0 1 0-.402 1.445zm16.988 11a.75.75 0 1 0-.378-1.451zm-9.991 1.834c.31 1.12-.37 2.303-1.574 2.616L9 21.626c1.977-.513 3.185-2.502 2.643-4.467zm-1.574 2.616c-1.212.315-2.428-.389-2.74-1.519l-1.446.4c.54 1.955 2.594 3.082 4.563 2.57zm-2.74-1.519c-.31-1.12.37-2.303 1.574-2.616l-.377-1.45c-1.977.513-3.186 2.502-2.643 4.467zm1.574-2.616c1.212-.315 2.428.389 2.74 1.519l1.446-.4c-.54-1.955-2.594-3.082-4.563-2.57zm1.494-1.175L6.8 7.075l-1.446.4l2.152 7.79zM4.904 5.197l-1.703-.472l-.402 1.445l1.704.473zM6.8 7.075a2.71 2.71 0 0 0-1.896-1.878l-.4 1.446c.425.118.742.44.85.831zm4.31 11.01l9.079-2.36l-.378-1.451l-9.079 2.36z"/><path stroke="currentColor" stroke-width="1.5" d="M9.565 8.73c-.485-1.755-.727-2.633-.315-3.324c.411-.692 1.316-.927 3.126-1.398l1.92-.498c1.81-.47 2.715-.706 3.428-.307c.713.4.956 1.277 1.44 3.033l.515 1.862c.485 1.755.728 2.633.316 3.325c-.412.691-1.317.927-3.127 1.397l-1.92.499c-1.81.47-2.715.705-3.428.306c-.713-.4-.955-1.277-1.44-3.032z"/></g></svg>
+                  Mark as shipped
+                </button>
+              </div>
+            </header>
+
+            <div class="page__body">
+              <section class="page__section">
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-12 lg:col-span-8">
+                    <div class="flex flex-col gap-3">
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Items</span></div>
+                        <table class="table table--align-middle">
+                          <thead>
+                            <tr>
+                              <th scope="col">Product</th>
+                              <th scope="col" class="text-end">Qty</th>
+                              <th scope="col" class="text-end">Unit price</th>
+                              <th scope="col" class="text-end">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">
+                                <div class="font-medium">Espresso Beans 2kg</div>
+                                <div class="text-xs text-muted-foreground">SKU ESP-2000</div>
+                              </th>
+                              <td class="text-end">4</td>
+                              <td class="text-end">$32.00</td>
+                              <td class="text-end font-medium">$128.00</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">
+                                <div class="font-medium">Ceramic Pour-Over</div>
+                                <div class="text-xs text-muted-foreground">SKU POU-014</div>
+                              </th>
+                              <td class="text-end">6</td>
+                              <td class="text-end">$45.00</td>
+                              <td class="text-end font-medium">$270.00</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">
+                                <div class="font-medium">Paper Filters (100pk)</div>
+                                <div class="text-xs text-muted-foreground">SKU FIL-100</div>
+                              </th>
+                              <td class="text-end">10</td>
+                              <td class="text-end">$8.50</td>
+                              <td class="text-end font-medium">$85.00</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">
+                                <div class="font-medium">Gift Box</div>
+                                <div class="text-xs text-muted-foreground">SKU GFT-001</div>
+                              </th>
+                              <td class="text-end">2</td>
+                              <td class="text-end">$20.00</td>
+                              <td class="text-end font-medium">$40.00</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="card__footer">
+                          <dl class="order-form__totals">
+                            <div class="order-form__total-row"><dt>Subtotal</dt><dd>$523.00</dd></div>
+                            <div class="order-form__total-row"><dt>Tax (10%)</dt><dd>$52.30</dd></div>
+                            <div class="order-form__total-row"><dt>Shipping</dt><dd>$15.00</dd></div>
+                            <div class="order-form__total-row order-form__total-row--grand"><dt>Total</dt><dd>$590.30</dd></div>
+                          </dl>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-12 md:col-span-6">
+                          <div class="card h-full">
+                            <div class="card__header"><span class="card__title">Timeline</span></div>
+                            <div class="card__body">
+                              <ol class="timeline">
+                                <li class="timeline__item">
+                                  <span class="timeline__marker timeline__marker--success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="m2 3l.265.088c1.32.44 1.98.66 2.357 1.184S5 5.492 5 6.883V9.5c0 2.828 0 4.243.879 5.121c.878.879 2.293.879 5.121.879h8"/><path d="M7.5 18a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3Zm9 0a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3ZM5 6h11.45c2.055 0 3.083 0 3.528.674c.444.675.04 1.619-.77 3.508l-.429 1c-.378.882-.567 1.322-.942 1.57c-.376.248-.856.248-1.815.248H5"/></g></svg>
+                                  </span>
+                                  <div class="timeline__body">
+                                    <div class="timeline__title">Order placed</div>
+                                    <div class="timeline__time">Jun 18, 2026 · 09:24</div>
+                                  </div>
+                                </li>
+                                <li class="timeline__item">
+                                  <span class="timeline__marker timeline__marker--warning">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"/><path stroke-linecap="round" d="M10 16H6m8 0h-1.5M2 10h20"/></g></svg>
+                                  </span>
+                                  <div class="timeline__body">
+                                    <div class="timeline__title">Awaiting payment</div>
+                                    <div class="timeline__time">Invoice sent to billing@acme.co</div>
+                                  </div>
+                                </li>
+                                <li class="timeline__item" data-state="pending">
+                                  <span class="timeline__marker">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="m15.578 3.382l2 1.05c2.151 1.129 3.227 1.693 3.825 2.708C22 8.154 22 9.417 22 11.942v.117c0 2.524 0 3.787-.597 4.801c-.598 1.015-1.674 1.58-3.825 2.709l-2 1.049C13.822 21.539 12.944 22 12 22s-1.822-.46-3.578-1.382l-2-1.05c-2.151-1.129-3.227-1.693-3.825-2.708C2 15.846 2 14.583 2 12.06v-.117c0-2.525 0-3.788.597-4.802c.598-1.015 1.674-1.58 3.825-2.708l2-1.05C10.178 2.461 11.056 2 12 2s1.822.46 3.578 1.382ZM21 7.5l-4 2M12 12L3 7.5m9 4.5v9.5m0-9.5l4.5-2.25l.5-.25m0 0V13m0-3.5l-9.5-5"/></svg>
+                                  </span>
+                                  <div class="timeline__body">
+                                    <div class="timeline__title">Fulfilment</div>
+                                    <div class="timeline__time">Not yet fulfilled</div>
+                                  </div>
+                                </li>
+                                <li class="timeline__item" data-state="pending">
+                                  <span class="timeline__marker">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5"/></g></svg>
+                                  </span>
+                                  <div class="timeline__body">
+                                    <div class="timeline__title">Completed</div>
+                                    <div class="timeline__time">Pending</div>
+                                  </div>
+                                </li>
+                              </ol>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-span-12 md:col-span-6">
+                          <div class="card h-full">
+                            <div class="card__header"><span class="card__title">Shipping address</span></div>
+                            <div class="card__body">
+                              <address>
+                                Acme Corp<br/>
+                                482 Harbor Boulevard<br/>
+                                Suite 300<br/>
+                                San Diego, CA 92101<br/>
+                                United States
+                              </address>
+                              <hr class="separator my-2"/>
+                              <div class="flex items-center gap-2 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true" class="text-muted-foreground"><g fill="none"><path fill="currentColor" d="M7.506 15.265a.75.75 0 0 0 1.446-.4zm-1.43-7.99l.724-.2zM4.705 5.92l-.2.723zM3.2 4.725a.75.75 0 1 0-.402 1.445zm16.988 11a.75.75 0 1 0-.378-1.451zm-9.991 1.834c.31 1.12-.37 2.303-1.574 2.616L9 21.626c1.977-.513 3.185-2.502 2.643-4.467zm-1.574 2.616c-1.212.315-2.428-.389-2.74-1.519l-1.446.4c.54 1.955 2.594 3.082 4.563 2.57zm-2.74-1.519c-.31-1.12.37-2.303 1.574-2.616l-.377-1.45c-1.977.513-3.186 2.502-2.643 4.467zm1.574-2.616c1.212-.315 2.428.389 2.74 1.519l1.446-.4c-.54-1.955-2.594-3.082-4.563-2.57zm1.494-1.175L6.8 7.075l-1.446.4l2.152 7.79zM4.904 5.197l-1.703-.472l-.402 1.445l1.704.473zM6.8 7.075a2.71 2.71 0 0 0-1.896-1.878l-.4 1.446c.425.118.742.44.85.831zm4.31 11.01l9.079-2.36l-.378-1.451l-9.079 2.36z"/><path stroke="currentColor" stroke-width="1.5" d="M9.565 8.73c-.485-1.755-.727-2.633-.315-3.324c.411-.692 1.316-.927 3.126-1.398l1.92-.498c1.81-.47 2.715-.706 3.428-.307c.713.4.956 1.277 1.44 3.033l.515 1.862c.485 1.755.728 2.633.316 3.325c-.412.691-1.317.927-3.127 1.397l-1.92.499c-1.81.47-2.715.705-3.428.306c-.713-.4-.955-1.277-1.44-3.032z"/></g></svg>
+                                <span>Standard (3–5 days)</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-span-12 lg:col-span-4">
+                    <div class="flex flex-col gap-3">
+                      <div class="card">
+                        <div class="card__header">
+                          <span class="card__title">Customer</span>
+                          <a href="/customers" class="link ms-auto text-sm">View</a>
+                        </div>
+                        <div class="card__body">
+                          <div class="flex items-center gap-3">
+                            <span class="avatar avatar--circle" data-stisla-avatar>
+                              <img class="avatar__image" src="https://i.pravatar.cc/96?img=12" alt=""/>
+                              <span class="avatar__fallback">AC</span>
+                            </span>
+                            <div>
+                              <div class="font-medium">Acme Corp</div>
+                              <div class="text-xs text-muted-foreground">14 orders</div>
+                            </div>
+                          </div>
+                        </div>
+                        <hr class="separator"/>
+                        <div class="list-group list-group--seamless">
+                          <div class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true" class="text-muted-foreground"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"/><path stroke-linecap="round" d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8"/></g></svg>
+                            <a href="mailto:billing@acme.co" class="link">billing@acme.co</a>
+                          </div>
+                          <div class="list-group__item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true" class="text-muted-foreground"><path fill="currentColor" d="m16.1 13.359l-.528-.532zm.456-.453l.529.532zm2.417-.317l-.358.66zm1.91 1.039l-.358.659zm.539 3.255l.529.532zm-1.42 1.412l-.53-.531zm-1.326.67l.07.747zm-9.86-4.238l.528-.532zM4.002 5.746l-.749.042zm6.474 1.451l.53.532zm.157-2.654l.6-.449zM9.374 2.86l-.601.45zM6.26 2.575l.53.532zm-1.57 1.56l-.528-.531zm7.372 7.362l.529-.532zm4.567 2.394l.455-.453l-1.058-1.064l-.455.453zm1.985-.643l1.91 1.039l.716-1.318l-1.91-1.038zm2.278 3.103l-1.42 1.413l1.057 1.063l1.42-1.412zm-2.286 1.867c-1.45.136-5.201.015-9.263-4.023l-1.057 1.063c4.432 4.407 8.65 4.623 10.459 4.454zm-9.263-4.023c-3.871-3.85-4.512-7.087-4.592-8.492l-1.498.085c.1 1.768.895 5.356 5.033 9.47zm1.376-6.18l.286-.286L9.95 6.666l-.287.285zm.515-3.921L9.974 2.41l-1.201.899l1.26 1.684zM5.733 2.043l-1.57 1.56l1.058 1.064l1.57-1.56zm4.458 5.44c-.53-.532-.53-.532-.53-.53h-.002l-.003.004a1 1 0 0 0-.127.157c-.054.08-.113.185-.163.318a2.1 2.1 0 0 0-.088 1.071c.134.865.73 2.008 2.256 3.526l1.058-1.064c-1.429-1.42-1.769-2.284-1.832-2.692c-.03-.194.001-.29.01-.312q.009-.02 0-.006a.3.3 0 0 1-.03.039l-.01.01l-.01.009zm1.343 4.546c1.527 1.518 2.676 2.11 3.542 2.242c.443.068.8.014 1.071-.087a1.5 1.5 0 0 0 .42-.236l.05-.045l.007-.006l.003-.003l.001-.002s.002-.001-.527-.533c-.53-.532-.528-.533-.528-.533l.002-.002l.002-.002l.006-.005l.01-.01l.038-.03q.014-.009-.007.002c-.025.009-.123.04-.32.01c-.414-.064-1.284-.404-2.712-1.824zm-1.56-9.62C8.954 1.049 6.95.834 5.733 2.044L6.79 3.107c.532-.529 1.476-.475 1.983.202zM4.752 5.704c-.02-.346.139-.708.469-1.036L4.163 3.604c-.537.534-.96 1.29-.909 2.184zm14.72 12.06c-.274.274-.57.428-.865.455l.139 1.494c.735-.069 1.336-.44 1.784-.885zM11.006 7.73c.985-.979 1.058-2.527.229-3.635l-1.201.899c.403.539.343 1.246-.085 1.673zm9.52 6.558c.817.444.944 1.49.367 2.064l1.058 1.064c1.34-1.333.927-3.557-.71-4.446zm-3.441-.849c.384-.382 1.002-.476 1.53-.19l.716-1.317c-1.084-.59-2.428-.427-3.304.443z"/></svg>
+                            <span>+1 555 0123</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Payment</span></div>
+                        <div class="card__body flex flex-col gap-3">
+                          <div class="flex items-center justify-between">
+                            <span class="text-muted-foreground">Status</span>
+                            <span class="badge badge--soft badge--warning">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2.5 2.5"/></g></svg>
+                              Unpaid
+                            </span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-muted-foreground">Method</span>
+                            <span class="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"/><path stroke-linecap="round" d="M10 16H6m8 0h-1.5M2 10h20"/></g></svg>
+                              Visa ···· 4242
+                            </span>
+                          </div>
+                          <div class="flex items-center justify-between font-semibold">
+                            <span>Amount due</span>
+                            <span>$590.30</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Notes</span></div>
+                        <div class="card__body">
+                          <textarea class="input" rows="3" placeholder="Add a note about this order…"></textarea>
+                          <div class="flex justify-end mt-2">
+                            <button type="button" class="button button--primary button--sm">Save note</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+{{end}}

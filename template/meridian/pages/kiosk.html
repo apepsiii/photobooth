@@ -1,0 +1,1866 @@
+{{define "kiosk"}}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>{{.Config.AppName}} - {{.Config.EventName}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #09090b;
+      color: #f4f4f5;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Screen containers */
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Minimalist Top Bar */
+    .kiosk-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 50;
+      background: linear-gradient(180deg, rgba(9,9,11,0.8) 0%, transparent 100%);
+    }
+
+    .kiosk-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #fafafa;
+    }
+
+    .brand-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.1);
+      color: #a1a1aa;
+    }
+
+    .operator-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #71717a;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .operator-btn:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* Screen 1: Welcome */
+    .welcome-box {
+      text-align: center;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .welcome-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      color: #a1a1aa;
+      margin-bottom: 2rem;
+    }
+
+    .welcome-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #ffffff 40%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.25rem;
+      color: #71717a;
+      font-weight: 400;
+      margin-bottom: 3rem;
+      line-height: 1.5;
+    }
+
+    .start-btn {
+      padding: 1.25rem 3.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 999px;
+      border: none;
+      background: #ffffff;
+      color: #09090b;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(255,255,255,0.25);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: pulseBtn 2s infinite ease-in-out;
+    }
+
+    .start-btn:active {
+      transform: scale(0.96);
+    }
+
+    @keyframes pulseBtn {
+      0%, 100% { box-shadow: 0 0 25px rgba(255,255,255,0.2); }
+      50% { box-shadow: 0 0 45px rgba(255,255,255,0.45); }
+    }
+
+    /* Screen 2: Frame Selection */
+    .frame-grid {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 2rem 0;
+    }
+
+    .frame-card {
+      background: #18181b;
+      border: 2px solid #27272a;
+      border-radius: 16px;
+      width: 260px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .frame-card:hover, .frame-card.selected {
+      border-color: #ffffff;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    }
+
+    .frame-card.selected {
+      background: #27272a;
+    }
+
+    .frame-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 28px;
+      height: 28px;
+      background: #22c55e;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .frame-preview-img {
+      height: 260px;
+      max-width: 100%;
+      object-fit: contain;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    }
+
+    .frame-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fafafa;
+      margin-bottom: 0.25rem;
+      text-align: center;
+    }
+
+    .frame-info {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      text-align: center;
+    }
+
+    /* Screen 3: Camera Capture */
+    .camera-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding-top: 4rem;
+    }
+
+    .camera-viewport {
+      position: relative;
+      width: 64vw;
+      max-width: 860px;
+      aspect-ratio: 4 / 3;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #18181b;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border: 2px solid #27272a;
+    }
+
+    #webcamVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Mirror camera */
+    }
+
+    /* Flash screen effect */
+    #flashOverlay {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.05s ease-out;
+      z-index: 40;
+    }
+
+    /* Glowing Circular Countdown Ring */
+    .countdown-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .countdown-container.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .countdown-circle-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .countdown-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .countdown-bg-circle {
+      fill: rgba(0, 0, 0, 0.4);
+      stroke: rgba(255, 255, 255, 0.2);
+      stroke-width: 6;
+    }
+
+    .countdown-bar-circle {
+      fill: none;
+      stroke: #3b82f6;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 276.46;
+      stroke-dashoffset: 0;
+      filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.9));
+      transition: stroke-dashoffset 0.95s linear;
+    }
+
+    #countdownDisplay {
+      font-size: 7rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 4px 25px rgba(0,0,0,0.9);
+      z-index: 2;
+      line-height: 1;
+    }
+
+    /* Side shots list */
+    .shots-panel {
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .shot-box {
+      width: 100%;
+      height: 130px;
+      border-radius: 12px;
+      background: #18181b;
+      border: 2px dashed #27272a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shot-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .shot-box.current {
+      border-color: #3b82f6;
+      background: rgba(59,130,246,0.05);
+    }
+
+    .shot-box-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #71717a;
+    }
+
+    /* Screen 4: Filter & Review */
+    .review-layout {
+      display: flex;
+      gap: 3rem;
+      align-items: center;
+      justify-content: center;
+      max-width: 1100px;
+      width: 100%;
+      padding-top: 3rem;
+    }
+
+    .preview-canvas-wrap {
+      background: #18181b;
+      padding: 1rem;
+      border-radius: 16px;
+      border: 1px solid #27272a;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #renderCanvas {
+      max-height: 70vh;
+      max-width: 440px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .retake-single-btn {
+      flex: 1;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      color: #a1a1aa;
+      transition: all 0.2s;
+    }
+
+    .retake-single-btn:hover {
+      border-color: #3b82f6;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .retake-single-btn img {
+      width: 100%;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .filters-sidebar {
+      width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .studio-tabs {
+      display: flex;
+      background: #18181b;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid #27272a;
+      gap: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .studio-tab-btn {
+      flex: 1;
+      padding: 0.65rem 0.4rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #a1a1aa;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .studio-tab-btn.active {
+      background: #27272a;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .color-swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .color-swatch {
+      height: 52px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .color-swatch:hover, .color-swatch.active {
+      transform: scale(1.08);
+      border-color: #3b82f6;
+      box-shadow: 0 0 15px rgba(59,130,246,0.6);
+    }
+
+    .color-swatch.active::after {
+      content: '✓';
+      position: absolute;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .cat-chip {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      color: #a1a1aa;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .cat-chip.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+
+    .filter-btn {
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      border: 1px solid #27272a;
+      background: #18181b;
+      color: #fafafa;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.selected {
+      border-color: #3b82f6;
+      background: rgba(59,130,246,0.15);
+      color: #60a5fa;
+    }
+
+    .sticker-btn {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      border-radius: 10px;
+      font-size: 1.4rem;
+      padding: 0.4rem 0.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .sticker-btn:hover, .sticker-btn:active {
+      background: #3f3f46;
+      border-color: #ffffff;
+      transform: scale(1.12);
+    }
+
+    .keypad-btn {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 0.75rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .keypad-btn:active {
+      background: #3b82f6;
+    }
+
+    /* Screen 5: Final & QR */
+    .result-layout {
+      display: flex;
+      gap: 3.5rem;
+      align-items: center;
+      justify-content: center;
+      max-width: 1100px;
+      padding-top: 2rem;
+    }
+
+    .qr-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 1rem;
+      border-radius: 16px;
+      margin: 1.5rem 0;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-box img {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Common Buttons */
+    .action-btn {
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .action-btn-primary {
+      background: #3b82f6;
+      color: #ffffff;
+    }
+
+    .action-btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    .action-btn-outline {
+      background: transparent;
+      border: 1px solid #3f3f46;
+      color: #a1a1aa;
+    }
+
+    .action-btn-outline:hover {
+      border-color: #71717a;
+      color: #fafafa;
+    }
+
+    .countdown-bar {
+      width: 100%;
+      height: 4px;
+      background: #27272a;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .countdown-bar-inner {
+      height: 100%;
+      background: #3b82f6;
+      width: 100%;
+      transition: width 1s linear;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <header class="kiosk-nav">
+    <div class="kiosk-brand">
+      <div class="brand-dot"></div>
+      <span class="brand-title">{{.Config.AppName}}</span>
+      <span class="brand-badge">{{.Config.EventName}}</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <button type="button" class="operator-btn" id="sfxToggleBtn" onclick="toggleAudioSFX()" title="Mute/Unmute Suara">
+        <span id="sfxIcon">🔊</span>
+      </button>
+      <button type="button" class="operator-btn" onclick="openOperatorPin()" title="Menu Operator">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Flash Screen Effect -->
+  <div id="flashOverlay"></div>
+
+  <!-- SCREEN 1: WELCOME -->
+  <section id="screenWelcome" class="screen active">
+    <div class="welcome-box">
+      <div class="welcome-pill">
+        <span>✨</span> {{.Config.SchoolName}} Present
+      </div>
+      <h1 class="welcome-title">Ciptakan Momen Terbaikmu</h1>
+      <p class="welcome-subtitle">Abadikan senyum dan kebersamaan di booth foto sekolah. Praktis, instan, dan cetak langsung atau unduh via QR Code.</p>
+      <button type="button" class="start-btn" onclick="handleStartClick()">
+        Sentuh untuk Memulai &rarr;
+      </button>
+    </div>
+
+    <!-- Modal Input Voucher (Jika Mode Tiket Aktif) -->
+    <div id="modalVoucherInput" style="display: none; position: fixed; inset: 0; background: rgba(9,9,11,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+      <div style="background: #18181b; border: 2px solid #27272a; border-radius: 20px; width: 90%; max-width: 440px; padding: 2rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎟️</div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; color: #fff;">Masukkan Kode Tiket</h2>
+        <p style="color: #71717a; font-size: 0.85rem; margin-bottom: 1.5rem;">Ketik kode kupon dari meja kasir untuk memulai sesi foto.</p>
+
+        <input type="text" id="voucherInputCode" maxlength="10" placeholder="Contoh: TK7482" style="width: 100%; text-align: center; font-family: monospace; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em; padding: 0.75rem; border-radius: 12px; border: 2px solid #3b82f6; background: #09090b; color: #fff; text-transform: uppercase; margin-bottom: 0.75rem;" />
+
+        <div id="voucherInputError" style="color: #ef4444; font-size: 0.85rem; min-height: 1.25rem; margin-bottom: 1rem; font-weight: 600;"></div>
+
+        <!-- Virtual Keypad (Touchscreen Friendly) -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.25rem;">
+          <button type="button" class="keypad-btn" onclick="keypadPress('1')">1</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('2')">2</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('3')">3</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('4')">4</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('5')">5</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('6')">6</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('7')">7</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('8')">8</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('9')">9</button>
+          <button type="button" class="keypad-btn" onclick="keypadClear()" style="color: #ef4444; font-size: 0.9rem;">CLR</button>
+          <button type="button" class="keypad-btn" onclick="keypadPress('0')">0</button>
+          <button type="button" class="keypad-btn" onclick="keypadBackspace()" style="color: #a1a1aa; font-size: 1.1rem;">⌫</button>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" onclick="document.getElementById('modalVoucherInput').style.display='none'" class="action-btn action-btn-outline" style="flex: 1; padding: 0.75rem;">
+            Batal
+          </button>
+          <button type="button" onclick="validateVoucherAndStart()" class="action-btn action-btn-primary" style="flex: 1.5; padding: 0.75rem;">
+            Verifikasi &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: FRAME SELECTION -->
+  <section id="screenFrames" class="screen">
+    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Pilih Template Foto</h2>
+    <p style="color: #71717a; margin-bottom: 1.5rem;">Pilih layout dan gaya frame yang kamu sukai</p>
+    
+    <div class="frame-grid">
+      {{range $i, $f := .Frames}}
+      <div class="frame-card {{if eq $i 0}}selected{{end}}" 
+           onclick="selectFrame({{$f.ID}}, {{$f.TotalShots}}, {{$f.Width}}, {{$f.Height}}, '{{$f.OverlayImage}}', {{$f.SlotsJSON}}, this)">
+        <img src="{{$f.OverlayImage}}" alt="{{$f.Name}}" class="frame-preview-img" />
+        <div class="frame-name">{{$f.Name}}</div>
+        <div class="frame-info">{{if $f.Category}}{{$f.Category}} • {{end}}{{$f.TotalShots}} Shots</div>
+      </div>
+      {{end}}
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+      <button type="button" class="action-btn action-btn-outline" onclick="goToScreen('screenWelcome')">Kembali</button>
+      <button type="button" class="action-btn action-btn-primary" onclick="startCameraSession()">Mulai Foto &rarr;</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: CAMERA CAPTURE -->
+  <section id="screenCamera" class="screen">
+    <div class="camera-layout">
+      <div class="camera-viewport">
+        <video id="webcamVideo" autoplay playsinline muted></video>
+        <div style="position: absolute; top: 14px; right: 14px; z-index: 35; display: flex; gap: 8px;">
+          <button type="button" id="mirrorToggleBtn" onclick="toggleCameraMirror()" style="background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px);">
+            <span>🪞 Cermin: Aktif</span>
+          </button>
+          <button type="button" id="switchCameraBtn" onclick="cycleCameraDevice()" style="display: none; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; align-items: center; gap: 6px; backdrop-filter: blur(4px);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/><circle cx="12" cy="12" r="3"/><path d="m18 22 4-4-4-4"/><path d="M22 18h-8a4 4 0 0 1-4-4V7"/></svg>
+            <span>Ganti Kamera</span>
+          </button>
+        </div>
+        <!-- Circular Glowing Countdown -->
+        <div class="countdown-container" id="countdownContainer">
+          <div class="countdown-circle-wrap">
+            <svg class="countdown-svg" viewBox="0 0 100 100">
+              <circle class="countdown-bg-circle" cx="50" cy="50" r="44"></circle>
+              <circle class="countdown-bar-circle" id="countdownCircleBar" cx="50" cy="50" r="44"></circle>
+            </svg>
+            <div id="countdownDisplay">3</div>
+          </div>
+        </div>
+
+        <!-- Instant Freeze-frame Shot Preview Overlay -->
+        <div id="shotPreviewFreeze" style="position: absolute; inset: 0; z-index: 30; display: none; align-items: center; justify-content: center; background: #000; overflow: hidden; transition: opacity 0.2s ease;">
+          <img id="shotPreviewImg" src="" style="width: 100%; height: 100%; object-fit: cover;" />
+          <div style="position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,0.88); color: #fff; padding: 8px 22px; border-radius: 30px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+            <span style="color: #4ade80; font-size: 1.1rem;">✓</span>
+            <span id="shotPreviewBadgeText">Shot 1 Berhasil Diambil!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shots-panel">
+        <div style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+          Jepretan: <span id="shotProgressText">1 / 3</span>
+        </div>
+        <div id="shotsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Dynamically populated boxes -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 4: FILTER & CUSTOMIZATION -->
+  <section id="screenFilter" class="screen">
+    <div class="review-layout">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+        <div class="preview-canvas-wrap">
+          <canvas id="renderCanvas"></canvas>
+        </div>
+        <!-- Retake Individual Shot Bar -->
+        <div style="width: 100%; max-width: 440px;">
+          <div style="font-size: 0.75rem; color: #71717a; font-weight: 600; text-align: center; margin-bottom: 0.35rem;">
+            Kurang puas dengan pose tertentu? Klik untuk foto ulang:
+          </div>
+          <div id="retakeShotsBar" style="display: flex; gap: 0.5rem; justify-content: center; width: 100%;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <div class="filters-sidebar">
+        <!-- Studio Tabs -->
+        <div class="studio-tabs">
+          <button type="button" class="studio-tab-btn active" id="tabBtnFilters" onclick="switchStudioTab('filters')">
+            🎨 Filter
+          </button>
+          <button type="button" class="studio-tab-btn" id="tabBtnColors" onclick="switchStudioTab('colors')">
+            🌈 Bingkai
+          </button>
+          <button type="button" class="studio-tab-btn" id="tabBtnStickers" onclick="switchStudioTab('stickers')">
+            🎀 Stiker
+          </button>
+          <button type="button" class="studio-tab-btn" id="tabBtnTexts" onclick="switchStudioTab('texts')">
+            ✍️ Teks
+          </button>
+        </div>
+
+        <!-- PANEL 1: FILTERS -->
+        <div id="panelFilters" style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <button type="button" class="filter-btn selected" onclick="applyFilter('normal', this)">
+            <span>Normal (Asli)</span>
+            <span style="font-size: 1.2rem;">🌸</span>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('bw', this)">
+            <span>B&W Classic (Korean Mono)</span>
+            <span style="font-size: 1.2rem;">🎞️</span>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('warm', this)">
+            <span>Warm Retro (Golden Hour)</span>
+            <span style="font-size: 1.2rem;">☀️</span>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('cool', this)">
+            <span>Cool Tokyo (Pastel Mood)</span>
+            <span style="font-size: 1.2rem;">🧊</span>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('soft', this)">
+            <span>Soft Glow (Beauty Skin)</span>
+            <span style="font-size: 1.2rem;">✨</span>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('vintage', this)">
+            <span>Vintage 90s (Film Grain)</span>
+            <span style="font-size: 1.2rem;">📽️</span>
+          </button>
+        </div>
+
+        <!-- PANEL 2: FRAME BACKGROUND COLORS -->
+        <div id="panelColors" style="display: none; flex-direction: column;">
+          <span style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Warna Latar Bingkai</span>
+          <div class="color-swatch-grid">
+            <div class="color-swatch active" style="background: #ffffff; color: #09090b;" onclick="setFrameBgColor('#ffffff', this)" title="Putih Bersih">White</div>
+            <div class="color-swatch" style="background: #18181b; color: #ffffff;" onclick="setFrameBgColor('#18181b', this)" title="Hitam Pekat">Black</div>
+            <div class="color-swatch" style="background: #bae6fd; color: #0369a1;" onclick="setFrameBgColor('#bae6fd', this)" title="Sky Blue">Blue</div>
+            <div class="color-swatch" style="background: #fbcfe8; color: #9d174d;" onclick="setFrameBgColor('#fbcfe8', this)" title="Soft Pink">Pink</div>
+            <div class="color-swatch" style="background: #bbf7d0; color: #166534;" onclick="setFrameBgColor('#bbf7d0', this)" title="Matcha Mint">Mint</div>
+            <div class="color-swatch" style="background: #e9d5ff; color: #6b21a8;" onclick="setFrameBgColor('#e9d5ff', this)" title="Lavender">Lilac</div>
+            <div class="color-swatch" style="background: #fef08a; color: #854d0e;" onclick="setFrameBgColor('#fef08a', this)" title="Butter Yellow">Yellow</div>
+            <div class="color-swatch" style="background: #f5f5f4; color: #44403c;" onclick="setFrameBgColor('#f5f5f4', this)" title="Warm Sand">Sand</div>
+          </div>
+          <small style="display: block; color: #71717a; font-size: 0.75rem; margin-top: 1rem; line-height: 1.4;">
+            Ganti warna latar frame sesuai tema outfit kamu ala Korean photobooth!
+          </small>
+        </div>
+
+        <!-- PANEL 3: STICKERS -->
+        <div id="panelStickers" style="display: none; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Stiker & Props</span>
+            <button type="button" onclick="clearStickers()" style="background: none; border: none; color: #f87171; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Hapus Semua</button>
+          </div>
+
+          <!-- Category Chips -->
+          <div style="display: flex; gap: 0.4rem; overflow-x: auto; margin-bottom: 0.75rem; padding-bottom: 2px;">
+            <button type="button" class="cat-chip active" onclick="filterStickerCategory('all', this)">Semua</button>
+            <button type="button" class="cat-chip" onclick="filterStickerCategory('school', this)">🎓 Sekolah</button>
+            <button type="button" class="cat-chip" onclick="filterStickerCategory('cute', this)">🐱 Cute</button>
+            <button type="button" class="cat-chip" onclick="filterStickerCategory('party', this)">👑 Pesta</button>
+            <button type="button" class="cat-chip" onclick="filterStickerCategory('love', this)">💖 Hati</button>
+          </div>
+
+          <!-- Stickers Grid -->
+          <div id="stickerPaletteGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; max-height: 220px; overflow-y: auto; padding-right: 4px;">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <small style="display: block; color: #71717a; font-size: 0.75rem; margin-top: 0.5rem; line-height: 1.3;">
+            Sentuh stiker untuk menempelkan. Sentuh & geser stiker di foto untuk mengatur posisinya.
+          </small>
+        </div>
+
+        <!-- PANEL 4: CUSTOM TEXT STAMP -->
+        <div id="panelTexts" style="display: none; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Tulis Pesan / Catatan</span>
+            <button type="button" onclick="clearTexts()" style="background: none; border: none; color: #f87171; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Hapus Teks</button>
+          </div>
+          
+          <input type="text" id="customTextInput" maxlength="32" placeholder="Tulis catatan (misal: XII IPA 1 💕)" style="width: 100%; padding: 0.65rem 0.75rem; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; font-size: 0.9rem;" />
+
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 600;">Warna Teks:</span>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="text-color-dot active" onclick="selectTextColor('#ffffff', this)" style="width: 28px; height: 28px; border-radius: 50%; background: #ffffff; border: 3px solid #3b82f6; cursor: pointer;"></button>
+              <button type="button" class="text-color-dot" onclick="selectTextColor('#18181b', this)" style="width: 28px; height: 28px; border-radius: 50%; background: #18181b; border: 2px solid #52525b; cursor: pointer;"></button>
+              <button type="button" class="text-color-dot" onclick="selectTextColor('#f43f5e', this)" style="width: 28px; height: 28px; border-radius: 50%; background: #f43f5e; border: none; cursor: pointer;"></button>
+              <button type="button" class="text-color-dot" onclick="selectTextColor('#38bdf8', this)" style="width: 28px; height: 28px; border-radius: 50%; background: #38bdf8; border: none; cursor: pointer;"></button>
+              <button type="button" class="text-color-dot" onclick="selectTextColor('#facc15', this)" style="width: 28px; height: 28px; border-radius: 50%; background: #facc15; border: none; cursor: pointer;"></button>
+            </div>
+          </div>
+
+          <button type="button" onclick="addCustomTextStamp()" style="padding: 0.75rem; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            + Tempelkan ke Foto
+          </button>
+          
+          <small style="color: #71717a; font-size: 0.75rem; line-height: 1.3;">
+            Teks yang sudah ditempel dapat kamu geser posisinya langsung di atas foto!
+          </small>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <button type="button" class="action-btn action-btn-primary" onclick="submitSession()">
+            Selesai & Lanjut &rarr;
+          </button>
+          <button type="button" class="action-btn action-btn-outline" onclick="startCameraSession()">
+            Foto Ulang (Retake)
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 5: FINAL RESULT & QR DOWNLOAD -->
+  <section id="screenFinal" class="screen">
+    <div class="result-layout">
+      <div class="preview-canvas-wrap">
+        <img id="finalImgDisplay" src="" alt="Hasil Foto" style="max-height: 70vh; max-width: 420px; border-radius: 8px;" />
+      </div>
+
+      <div class="qr-card">
+        <div style="font-size: 0.85rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.05em;">
+          Unduh Softfile
+        </div>
+        <h3 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">Scan QR di Ponsel</h3>
+        <p style="color: #71717a; font-size: 0.85rem; margin-top: 0.25rem;">Buka kamera HP dan arahkan ke QR di bawah untuk mengunduh foto ke galeri.</p>
+
+        <div class="qr-box">
+          <img id="qrImage" src="" alt="QR Code" />
+        </div>
+
+        <div style="font-size: 0.8rem; color: #a1a1aa; font-family: monospace; margin-bottom: 1.5rem;" id="sessionCodeDisplay">
+          Kode Sesi: PB-XXXXX
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+          {{if .Config.PrintEnabled}}
+          <button type="button" id="manualPrintBtn" class="action-btn action-btn-primary" onclick="triggerManualPrint()">
+            🖨️ Cetak Foto Fisik
+          </button>
+          {{end}}
+          <button type="button" class="action-btn action-btn-outline" onclick="finishAndReset()">
+            Selesai (Antrean Berikutnya)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto Reset countdown bar -->
+    <div class="countdown-bar">
+      <div id="resetProgressBar" class="countdown-bar-inner"></div>
+    </div>
+  </section>
+
+  <!-- Audio elements Synthesized via Web Audio API -->
+  <script>
+    // Audio synthesis for countdown beep & shutter
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isAudioMuted = false;
+
+    function toggleAudioSFX() {
+      isAudioMuted = !isAudioMuted;
+      const icon = document.getElementById('sfxIcon');
+      if (icon) icon.innerText = isAudioMuted ? '🔇' : '🔊';
+    }
+    
+    function playBeep(freq = 600, duration = 0.15) {
+      if (isAudioMuted) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playShutter() {
+      if (isAudioMuted) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      playBeep(950, 0.05);
+      setTimeout(() => playBeep(500, 0.08), 60);
+    }
+
+    // App state
+    const appConfig = {
+      countdownSeconds: {{.Config.CountdownSeconds}},
+      kioskPin: "{{.Config.KioskPin}}",
+      autoPrint: {{.Config.AutoPrint}},
+      printEnabled: {{.Config.PrintEnabled}},
+      voucherModeEnabled: {{.Config.VoucherModeEnabled}}
+    };
+
+    let selectedFrame = null;
+    let cameraStream = null;
+    let capturedShots = [];
+    let currentFilter = 'normal';
+    let autoResetTimer = null;
+    let lastSessionData = null;
+    let activeStickers = [];
+    let draggingSticker = null;
+    let dragOffset = { x: 0, y: 0 };
+    let activeVoucherCode = "";
+    let currentFrameBgColor = "#ffffff";
+
+    function setFrameBgColor(color, el) {
+      currentFrameBgColor = color;
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      composeCanvas();
+    }
+
+    function switchStudioTab(tab) {
+      document.getElementById('panelFilters').style.display = tab === 'filters' ? 'flex' : 'none';
+      document.getElementById('panelColors').style.display = tab === 'colors' ? 'flex' : 'none';
+      document.getElementById('panelStickers').style.display = tab === 'stickers' ? 'flex' : 'none';
+      document.getElementById('panelTexts').style.display = tab === 'texts' ? 'flex' : 'none';
+
+      document.getElementById('tabBtnFilters').classList.toggle('active', tab === 'filters');
+      document.getElementById('tabBtnColors').classList.toggle('active', tab === 'colors');
+      document.getElementById('tabBtnStickers').classList.toggle('active', tab === 'stickers');
+      document.getElementById('tabBtnTexts').classList.toggle('active', tab === 'texts');
+
+      if (tab === 'stickers' && document.getElementById('stickerPaletteGrid').children.length === 0) {
+        renderStickerPalette('all');
+      }
+    }
+
+    const stickerCatalog = [
+      { emoji: '🎓', cat: 'school', title: 'Topi Wisuda' },
+      { emoji: '📜', cat: 'school', title: 'Ijazah' },
+      { emoji: '🎒', cat: 'school', title: 'Tas Sekolah' },
+      { emoji: '🏆', cat: 'school', title: 'Piala' },
+      { emoji: '⭐', cat: 'school', title: 'Bintang' },
+      { emoji: '🥇', cat: 'school', title: 'Medali' },
+      { emoji: '📚', cat: 'school', title: 'Buku' },
+      { emoji: '🏫', cat: 'school', title: 'Sekolah' },
+
+      { emoji: '🐱', cat: 'cute', title: 'Kucing' },
+      { emoji: '🐰', cat: 'cute', title: 'Kelinci' },
+      { emoji: '🎀', cat: 'cute', title: 'Pita' },
+      { emoji: '🌸', cat: 'cute', title: 'Bunga' },
+      { emoji: '🧸', cat: 'cute', title: 'Teddy' },
+      { emoji: '🍩', cat: 'cute', title: 'Donat' },
+      { emoji: '🍓', cat: 'cute', title: 'Stroberi' },
+      { emoji: '🍭', cat: 'cute', title: 'Permen' },
+
+      { emoji: '👑', cat: 'party', title: 'Mahkota' },
+      { emoji: '🕶️', cat: 'party', title: 'Kacamata Hitam' },
+      { emoji: '👓', cat: 'party', title: 'Kacamata Retro' },
+      { emoji: '🎩', cat: 'party', title: 'Topi Pesulap' },
+      { emoji: '🥳', cat: 'party', title: 'Pesta' },
+      { emoji: '🎈', cat: 'party', title: 'Balon' },
+      { emoji: '✨', cat: 'party', title: 'Kilau' },
+      { emoji: '✌️', cat: 'party', title: 'Peace' },
+
+      { emoji: '💖', cat: 'love', title: 'Sparkle Heart' },
+      { emoji: '💕', cat: 'love', title: 'Two Hearts' },
+      { emoji: '❤️', cat: 'love', title: 'Red Heart' },
+      { emoji: '🔥', cat: 'love', title: 'Fire' },
+      { emoji: '💯', cat: 'love', title: '100' },
+      { emoji: '🥺', cat: 'love', title: 'Pleading' },
+      { emoji: '😍', cat: 'love', title: 'Heart Eyes' },
+      { emoji: '🤩', cat: 'love', title: 'Star Eyes' }
+    ];
+
+    function renderStickerPalette(cat) {
+      const grid = document.getElementById('stickerPaletteGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const list = cat === 'all' ? stickerCatalog : stickerCatalog.filter(s => s.cat === cat);
+      list.forEach(item => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sticker-btn';
+        btn.innerText = item.emoji;
+        btn.title = item.title;
+        btn.onclick = () => addSticker(item.emoji);
+        grid.appendChild(btn);
+      });
+    }
+
+    function filterStickerCategory(cat, el) {
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderStickerPalette(cat);
+    }
+
+    function handleStartClick() {
+      // Resume audio context on user interaction
+      try {
+        const actx = getAudioCtx();
+        if (actx && actx.state === 'suspended') actx.resume();
+      } catch(e) {}
+
+      if (appConfig.voucherModeEnabled) {
+        document.getElementById('modalVoucherInput').style.display = 'flex';
+        document.getElementById('voucherInputCode').value = '';
+        document.getElementById('voucherInputError').innerText = '';
+        setTimeout(() => document.getElementById('voucherInputCode').focus(), 150);
+      } else {
+        goToScreen('screenFrames');
+      }
+    }
+
+    function keypadPress(val) {
+      const input = document.getElementById('voucherInputCode');
+      if (input.value.length < 10) {
+        input.value += val;
+      }
+    }
+
+    function keypadClear() {
+      document.getElementById('voucherInputCode').value = '';
+      document.getElementById('voucherInputError').innerText = '';
+    }
+
+    function keypadBackspace() {
+      const input = document.getElementById('voucherInputCode');
+      input.value = input.value.slice(0, -1);
+    }
+
+    async function validateVoucherAndStart() {
+      const input = document.getElementById('voucherInputCode');
+      const errEl = document.getElementById('voucherInputError');
+      const code = input.value.trim().toUpperCase();
+
+      if (!code) {
+        errEl.innerText = 'Silakan ketikkan kode tiket.';
+        return;
+      }
+
+      errEl.innerText = 'Memverifikasi tiket...';
+      try {
+        const res = await fetch('/api/vouchers/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: code })
+        });
+        const data = await res.json();
+
+        if (data.valid) {
+          activeVoucherCode = data.code;
+          document.getElementById('modalVoucherInput').style.display = 'none';
+          goToScreen('screenFrames');
+        } else {
+          errEl.innerText = data.message || 'Tiket tidak valid atau sudah digunakan.';
+        }
+      } catch (e) {
+        errEl.innerText = 'Gagal memverifikasi: ' + e.message;
+      }
+    }
+
+    // Initialize with first frame if available
+    window.addEventListener('DOMContentLoaded', () => {
+      const firstCard = document.querySelector('.frame-card');
+      if (firstCard) firstCard.click();
+      setupCanvasStickerInteraction();
+      renderStickerPalette('all');
+    });
+
+    function addSticker(emoji) {
+      const canvas = document.getElementById('renderCanvas');
+      const size = Math.round((canvas.width || 600) * 0.16);
+      activeStickers.push({
+        emoji: emoji,
+        x: (canvas.width || 600) / 2 + (Math.random() * 60 - 30),
+        y: (canvas.height || 1800) / 2 + (Math.random() * 60 - 30),
+        size: size
+      });
+      composeCanvas();
+    }
+
+    function clearStickers() {
+      activeStickers = activeStickers.filter(s => s.type === 'text');
+      composeCanvas();
+    }
+
+    let selectedTextColor = '#ffffff';
+    function selectTextColor(color, el) {
+      selectedTextColor = color;
+      document.querySelectorAll('.text-color-dot').forEach(d => {
+        d.classList.remove('active');
+        d.style.outline = 'none';
+      });
+      el.classList.add('active');
+      el.style.outline = '3px solid #3b82f6';
+    }
+
+    function addCustomTextStamp() {
+      const input = document.getElementById('customTextInput');
+      const text = (input.value || '').trim();
+      if (!text) {
+        alert('Silakan ketik teks terlebih dahulu.');
+        return;
+      }
+
+      const canvas = document.getElementById('renderCanvas');
+      const fontSize = Math.max(22, Math.round(canvas.width * 0.052));
+
+      activeStickers.push({
+        id: Date.now(),
+        type: 'text',
+        text: text,
+        color: selectedTextColor,
+        x: canvas.width / 2,
+        y: canvas.height * 0.88,
+        size: fontSize
+      });
+
+      input.value = '';
+      composeCanvas();
+    }
+
+    function clearTexts() {
+      activeStickers = activeStickers.filter(s => s.type !== 'text');
+      composeCanvas();
+    }
+
+    // Touch & Mouse Dragging for Stickers on Canvas
+    function setupCanvasStickerInteraction() {
+      const canvas = document.getElementById('renderCanvas');
+      if (!canvas) return;
+
+      function getCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY
+        };
+      }
+
+      function onStart(e) {
+        const pt = getCoords(e);
+        for (let i = activeStickers.length - 1; i >= 0; i--) {
+          const st = activeStickers[i];
+          if (st.type === 'text') {
+            const halfW = (st.text.length * st.size * 0.32) + 20;
+            const halfH = st.size * 0.9;
+            if (Math.abs(pt.x - st.x) <= halfW && Math.abs(pt.y - st.y) <= halfH) {
+              draggingSticker = st;
+              dragOffset.x = pt.x - st.x;
+              dragOffset.y = pt.y - st.y;
+              if (e.cancelable) e.preventDefault();
+              break;
+            }
+          } else {
+            const dist = Math.hypot(pt.x - st.x, pt.y - st.y);
+            if (dist <= st.size / 1.3) {
+              draggingSticker = st;
+              dragOffset.x = pt.x - st.x;
+              dragOffset.y = pt.y - st.y;
+              if (e.cancelable) e.preventDefault();
+              break;
+            }
+          }
+        }
+      }
+
+      function onMove(e) {
+        if (!draggingSticker) return;
+        const pt = getCoords(e);
+        draggingSticker.x = pt.x - dragOffset.x;
+        draggingSticker.y = pt.y - dragOffset.y;
+        composeCanvas();
+        if (e.cancelable) e.preventDefault();
+      }
+
+      function onEnd() {
+        draggingSticker = null;
+      }
+
+      canvas.addEventListener('mousedown', onStart);
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+
+      canvas.addEventListener('touchstart', onStart, { passive: false });
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+    }
+
+    function goToScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+    }
+
+    function selectFrame(id, totalShots, w, h, overlay, slots, el) {
+      document.querySelectorAll('.frame-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedFrame = { id, totalShots, w, h, overlay, slots };
+    }
+
+    let videoDevices = [];
+    let currentDeviceIndex = 0;
+    let isMirrored = true;
+
+    function toggleCameraMirror() {
+      isMirrored = !isMirrored;
+      const video = document.getElementById('webcamVideo');
+      const btn = document.getElementById('mirrorToggleBtn');
+      if (isMirrored) {
+        video.style.transform = 'scaleX(-1)';
+        btn.innerHTML = '<span>🪞 Cermin: Aktif</span>';
+      } else {
+        video.style.transform = 'scaleX(1)';
+        btn.innerHTML = '<span>🪞 Cermin: Nonaktif</span>';
+      }
+    }
+
+    async function initCamera() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const btn = document.getElementById('switchCameraBtn');
+        if (btn) btn.style.display = videoDevices.length > 1 ? 'flex' : 'none';
+
+        const constraints = {
+          audio: false,
+          video: {
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          }
+        };
+
+        if (videoDevices.length > 0 && videoDevices[currentDeviceIndex]) {
+          constraints.video.deviceId = { exact: videoDevices[currentDeviceIndex].deviceId };
+        }
+
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(t => t.stop());
+        }
+
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('webcamVideo');
+        video.srcObject = cameraStream;
+        await video.play();
+        return true;
+      } catch (err) {
+        console.error('Camera init error:', err);
+        return false;
+      }
+    }
+
+    async function cycleCameraDevice() {
+      if (videoDevices.length <= 1) return;
+      currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
+      await initCamera();
+    }
+
+    // Camera Session
+    async function startCameraSession() {
+      if (!selectedFrame) {
+        alert('Silakan pilih salah satu frame terlebih dahulu!');
+        return;
+      }
+
+      goToScreen('screenCamera');
+      capturedShots = [];
+
+      // Render shot boxes
+      const listEl = document.getElementById('shotsList');
+      listEl.innerHTML = '';
+      for (let i = 0; i < selectedFrame.totalShots; i++) {
+        const box = document.createElement('div');
+        box.className = 'shot-box' + (i === 0 ? ' current' : '');
+        box.id = `shotBox_${i}`;
+        box.innerHTML = `<span class="shot-box-label">Shot ${i + 1}</span>`;
+        listEl.appendChild(box);
+      }
+      document.getElementById('shotProgressText').innerText = `1 / ${selectedFrame.totalShots}`;
+
+      // Start webcam
+      const ok = await initCamera();
+      if (!ok) {
+        alert('Gagal mengakses kamera. Pastikan webcam terhubung dan izin kamera diizinkan di browser.');
+        goToScreen('screenFrames');
+        return;
+      }
+
+      // Start countdown cycle
+      setTimeout(() => runCaptureCycle(0), 1000);
+    }
+
+    let isSingleRetake = false;
+    let retakeTargetIndex = -1;
+
+    function renderRetakeBar() {
+      const bar = document.getElementById('retakeShotsBar');
+      if (!bar) return;
+      bar.innerHTML = '';
+      capturedShots.forEach((shot, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'retake-single-btn';
+        btn.onclick = () => retakeSingleShot(idx);
+        btn.innerHTML = `
+          <img src="${shot}" />
+          <span>↺ Shot ${idx + 1}</span>
+        `;
+        bar.appendChild(btn);
+      });
+    }
+
+    async function retakeSingleShot(shotIndex) {
+      isSingleRetake = true;
+      retakeTargetIndex = shotIndex;
+      goToScreen('screenCamera');
+
+      // Highlight only target shot box
+      for (let i = 0; i < selectedFrame.totalShots; i++) {
+        const box = document.getElementById(`shotBox_${i}`);
+        if (box) {
+          box.classList.remove('current');
+          if (i === shotIndex) box.classList.add('current');
+        }
+      }
+      document.getElementById('shotProgressText').innerText = `Ulangi Shot ${shotIndex + 1}`;
+
+      const ok = await initCamera();
+      if (!ok) {
+        alert('Kamera tidak dapat diakses.');
+        goToScreen('screenFilter');
+        return;
+      }
+
+      setTimeout(() => runSingleRetakeCycle(shotIndex), 1000);
+    }
+
+    function runSingleRetakeCycle(shotIndex) {
+      const cdContainer = document.getElementById('countdownContainer');
+      const cdDisplay = document.getElementById('countdownDisplay');
+      const cdCircle = document.getElementById('countdownCircleBar');
+      const totalSec = appConfig.countdownSeconds;
+      let count = totalSec;
+      const circumference = 276.46;
+
+      if (cdCircle) cdCircle.style.strokeDashoffset = '0';
+      if (cdDisplay) cdDisplay.innerText = count;
+      if (cdContainer) cdContainer.classList.add('active');
+      playBeep(650, 0.12);
+
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          if (cdDisplay) cdDisplay.innerText = count;
+          const progress = 1 - (count / totalSec);
+          if (cdCircle) cdCircle.style.strokeDashoffset = (circumference * progress) + '';
+          playBeep(650, 0.12);
+        } else {
+          clearInterval(countdownInterval);
+          if (cdCircle) cdCircle.style.strokeDashoffset = circumference + '';
+          if (cdContainer) cdContainer.classList.remove('active');
+          takeSnapshot(shotIndex);
+          isSingleRetake = false;
+          retakeTargetIndex = -1;
+          setTimeout(() => {
+            composeCanvas();
+            goToScreen('screenFilter');
+            renderRetakeBar();
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    async function runCaptureCycle(shotIndex) {
+      if (shotIndex >= selectedFrame.totalShots) {
+        // All shots taken -> go to review
+        composeCanvas();
+        goToScreen('screenFilter');
+        renderRetakeBar();
+        return;
+      }
+
+      document.getElementById('shotProgressText').innerText = `${shotIndex + 1} / ${selectedFrame.totalShots}`;
+      
+      // Update shot boxes indicators
+      for (let i = 0; i < selectedFrame.totalShots; i++) {
+        const box = document.getElementById(`shotBox_${i}`);
+        if (box) {
+          box.classList.remove('current');
+          if (i === shotIndex) box.classList.add('current');
+        }
+      }
+
+      const cdContainer = document.getElementById('countdownContainer');
+      const cdDisplay = document.getElementById('countdownDisplay');
+      const cdCircle = document.getElementById('countdownCircleBar');
+      const totalSec = appConfig.countdownSeconds;
+      let count = totalSec;
+      const circumference = 276.46;
+
+      if (cdCircle) cdCircle.style.strokeDashoffset = '0';
+      if (cdDisplay) cdDisplay.innerText = count;
+      if (cdContainer) cdContainer.classList.add('active');
+      playBeep(650, 0.12);
+
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          if (cdDisplay) cdDisplay.innerText = count;
+          const progress = 1 - (count / totalSec);
+          if (cdCircle) cdCircle.style.strokeDashoffset = (circumference * progress) + '';
+          playBeep(650, 0.12);
+        } else {
+          clearInterval(countdownInterval);
+          if (cdCircle) cdCircle.style.strokeDashoffset = circumference + '';
+          if (cdContainer) cdContainer.classList.remove('active');
+          takeSnapshot(shotIndex);
+          setTimeout(() => runCaptureCycle(shotIndex + 1), 1600);
+        }
+      }, 1000);
+    }
+
+    function takeSnapshot(shotIndex) {
+      const video = document.getElementById('webcamVideo');
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.width = video.videoWidth || 1280;
+      snapCanvas.height = video.videoHeight || 720;
+      const ctx = snapCanvas.getContext('2d');
+
+      // Mirror capture to match preview if enabled
+      if (isMirrored) {
+        ctx.translate(snapCanvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+
+      const shotDataURL = snapCanvas.toDataURL('image/jpeg', 0.92);
+      if (isSingleRetake && retakeTargetIndex >= 0) {
+        capturedShots[retakeTargetIndex] = shotDataURL;
+      } else {
+        capturedShots.push(shotDataURL);
+      }
+
+      // Shutter sound & flash effect
+      playShutter();
+      const flash = document.getElementById('flashOverlay');
+      flash.style.opacity = '1';
+      setTimeout(() => { flash.style.opacity = '0'; }, 150);
+
+      // 1. Instant on-screen freeze preview
+      const freeze = document.getElementById('shotPreviewFreeze');
+      const freezeImg = document.getElementById('shotPreviewImg');
+      const freezeBadge = document.getElementById('shotPreviewBadgeText');
+      if (freeze && freezeImg) {
+        freezeImg.src = shotDataURL;
+        if (freezeBadge) {
+          freezeBadge.innerText = `Shot ${shotIndex + 1} Berhasil Diambil!`;
+        }
+        freeze.style.display = 'flex';
+        setTimeout(() => {
+          freeze.style.display = 'none';
+        }, 1250);
+      }
+
+      // 2. Update sidebar thumbnail with success indicator
+      const box = document.getElementById(`shotBox_${shotIndex}`);
+      if (box) {
+        box.innerHTML = `
+          <img src="${shotDataURL}" />
+          <span style="position: absolute; bottom: 6px; right: 6px; background: #22c55e; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">✓</span>
+        `;
+        box.classList.remove('current');
+      }
+    }
+
+    // Compositing on Canvas
+    function composeCanvas() {
+      const canvas = document.getElementById('renderCanvas');
+      canvas.width = selectedFrame.w;
+      canvas.height = selectedFrame.h;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Draw solid background
+      ctx.fillStyle = currentFrameBgColor || '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. Load overlay image
+      const overlayImg = new Image();
+      overlayImg.src = selectedFrame.overlay;
+      overlayImg.onload = () => {
+        // Draw captured shots into coordinates
+        let slots = selectedFrame.slots;
+        if (typeof slots === 'string') {
+          try { slots = JSON.parse(slots); } catch(e) { slots = []; }
+        }
+
+        const loadPromises = capturedShots.map((shotSrc, idx) => {
+          return new Promise(resolve => {
+            const img = new Image();
+            img.src = shotSrc;
+            img.onload = () => {
+              const slot = slots[idx] || slots[0] || { x: 0, y: 0, w: canvas.width, h: canvas.height };
+              // Crop & fit cover into slot
+              drawImageCover(ctx, img, slot.x, slot.y, slot.w, slot.h, currentFilter);
+              resolve();
+            };
+          });
+        });
+
+        Promise.all(loadPromises).then(() => {
+          // Draw frame overlay on top
+          ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+
+          // Draw stickers & custom texts on top
+          activeStickers.forEach(st => {
+            ctx.save();
+            if (st.type === 'text') {
+              ctx.font = `800 ${st.size || 32}px "Plus Jakarta Sans", sans-serif`;
+              ctx.fillStyle = st.color || '#ffffff';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.shadowColor = 'rgba(0,0,0,0.65)';
+              ctx.shadowBlur = 8;
+              ctx.fillText(st.text, st.x, st.y);
+            } else {
+              ctx.font = `${st.size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.shadowColor = 'rgba(0,0,0,0.35)';
+              ctx.shadowBlur = 8;
+              ctx.fillText(st.emoji, st.x, st.y);
+            }
+            ctx.restore();
+          });
+
+          // School & Event Brand Footer Watermark
+          ctx.save();
+          const isDark = currentFrameBgColor === '#18181b';
+          ctx.fillStyle = isDark ? '#f4f4f5' : '#475569';
+          ctx.font = `600 ${Math.max(12, Math.round(canvas.width * 0.022))}px "Plus Jakarta Sans", sans-serif`;
+          ctx.textAlign = 'center';
+          const branding = '{{.Config.SchoolName}} • {{.Config.EventName}}';
+          ctx.fillText(branding.toUpperCase(), canvas.width / 2, canvas.height - 24);
+          ctx.restore();
+        });
+      };
+    }
+
+    function drawImageCover(ctx, img, x, y, w, h, filterName) {
+      ctx.save();
+      
+      // Apply CSS-like filter in canvas
+      if (filterName === 'bw') {
+        ctx.filter = 'grayscale(100%) contrast(120%)';
+      } else if (filterName === 'warm') {
+        ctx.filter = 'sepia(30%) saturate(130%) contrast(105%) brightness(102%)';
+      } else if (filterName === 'cool') {
+        ctx.filter = 'hue-rotate(185deg) saturate(90%) brightness(105%)';
+      } else if (filterName === 'soft') {
+        ctx.filter = 'brightness(108%) contrast(96%) saturate(108%)';
+      } else if (filterName === 'vintage') {
+        ctx.filter = 'contrast(115%) sepia(20%) saturate(110%) hue-rotate(-8deg)';
+      } else {
+        ctx.filter = 'none';
+      }
+
+      // Calculate aspect ratio cover
+      const imgRatio = img.width / img.height;
+      const slotRatio = w / h;
+      let sW, sH, sX, sY;
+
+      if (imgRatio > slotRatio) {
+        sH = img.height;
+        sW = img.height * slotRatio;
+        sX = (img.width - sW) / 2;
+        sY = 0;
+      } else {
+        sW = img.width;
+        sH = img.width / slotRatio;
+        sX = 0;
+        sY = (img.height - sH) / 2;
+      }
+
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+      ctx.drawImage(img, sX, sY, sW, sH, x, y, w, h);
+      ctx.restore();
+    }
+
+    function applyFilter(filterName, btn) {
+      currentFilter = filterName;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      composeCanvas();
+    }
+
+    // Submit Session to Backend
+    async function submitSession() {
+      const canvas = document.getElementById('renderCanvas');
+      const compositeBase64 = canvas.toDataURL('image/jpeg', 0.95);
+
+      const payload = {
+        frame_id: selectedFrame.id,
+        filter_applied: currentFilter,
+        composite_base64: compositeBase64,
+        raw_photos: capturedShots,
+        print_requested: appConfig.autoPrint,
+        voucher_code: activeVoucherCode
+      };
+
+      try {
+        const res = await fetch('/api/kiosk/finish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          lastSessionData = data;
+          document.getElementById('finalImgDisplay').src = data.composite_url;
+          document.getElementById('sessionCodeDisplay').innerText = `Kode Sesi: ${data.session_code}`;
+          
+          // Generate pure-Go QR Code locally (100% offline)
+          const qrUrl = encodeURIComponent(data.qr_url);
+          document.getElementById('qrImage').src = `/api/qr?text=${qrUrl}`;
+
+          goToScreen('screenFinal');
+          startAutoResetTimer(60);
+        } else {
+          alert('Gagal memproses sesi: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function triggerManualPrint() {
+      if (!lastSessionData) return;
+      fetch(`/admin/sessions/${lastSessionData.session_code}/reprint`, { method: 'POST' });
+      const btn = document.getElementById('manualPrintBtn');
+      if (btn) {
+        btn.innerText = '✓ Mengirim ke Printer...';
+        btn.disabled = true;
+      }
+    }
+
+    function startAutoResetTimer(seconds) {
+      clearInterval(autoResetTimer);
+      const bar = document.getElementById('resetProgressBar');
+      bar.style.width = '100%';
+
+      let remaining = seconds;
+      autoResetTimer = setInterval(() => {
+        remaining--;
+        const pct = (remaining / seconds) * 100;
+        bar.style.width = pct + '%';
+        if (remaining <= 0) {
+          clearInterval(autoResetTimer);
+          finishAndReset();
+        }
+      }, 1000);
+    }
+
+    function finishAndReset() {
+      clearInterval(autoResetTimer);
+      capturedShots = [];
+      activeStickers = [];
+      activeVoucherCode = "";
+      currentFilter = 'normal';
+      currentFrameBgColor = '#ffffff';
+      goToScreen('screenWelcome');
+    }
+
+    function openOperatorPin() {
+      const pin = prompt('Masukkan PIN Operator:');
+      if (pin === appConfig.kioskPin) {
+        window.location.href = '/admin/sessions';
+      } else if (pin !== null) {
+        alert('PIN salah!');
+      }
+    }
+  </script>
+</body>
+</html>
+{{end}}

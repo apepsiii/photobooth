@@ -1,0 +1,139 @@
+{{define "settings_app"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+<div class="page-header" style="margin-bottom: 1.5rem;">
+  <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Pengaturan Kiosk & Printer</h1>
+  <p style="color: var(--text-muted, #64748b); margin-top: 0.25rem;">Konfigurasi identitas acara sekolah, hardware printer, dan jaringan QR code.</p>
+</div>
+
+{{if .Flash}}
+<div class="alert alert--{{.FlashType}}" style="padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">
+  {{.Flash}}
+</div>
+{{end}}
+
+<div style="max-width: 800px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+  <form method="POST" action="/admin/settings">
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
+      1. Identitas Acara & Sekolah
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Aplikasi Kiosk</label>
+        <input type="text" name="app_name" value="{{.Data.Config.AppName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      </div>
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Sekolah / Institusi</label>
+        <input type="text" name="school_name" value="{{.Data.Config.SchoolName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      </div>
+    </div>
+
+    <div style="margin-bottom: 2rem;">
+      <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Acara / Event</label>
+      <input type="text" name="event_name" value="{{.Data.Config.EventName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      <small style="color: #64748b; font-size: 0.75rem;">Akan ditampilkan di layar sambutan Kiosk dan header unduhan smartphone siswa.</small>
+    </div>
+
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
+      2. Perilaku Kiosk & Kamera
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem;">
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Durasi Hitungan Mundur (Countdown)</label>
+        <select name="countdown_seconds" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;">
+          <option value="3" {{if eq .Data.Config.CountdownSeconds 3}}selected{{end}}>3 Detik (Cepat & Dinamis)</option>
+          <option value="5" {{if eq .Data.Config.CountdownSeconds 5}}selected{{end}}>5 Detik (Standar / Cukup untuk pose)</option>
+          <option value="8" {{if eq .Data.Config.CountdownSeconds 8}}selected{{end}}>8 Detik (Rileks / Rombongan)</option>
+        </select>
+      </div>
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">PIN Operator Kiosk</label>
+        <input type="password" name="kiosk_pin" value="{{.Data.Config.KioskPin}}" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+        <small style="color: #64748b; font-size: 0.75rem;">Digunakan operator untuk keluar dari layar Kiosk.</small>
+      </div>
+    </div>
+
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
+      3. Integrasi Hardware Printer Foto
+    </h3>
+
+    <div style="margin-bottom: 1.25rem;">
+      <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+        <input type="checkbox" name="print_enabled" value="true" {{if .Data.Config.PrintEnabled}}checked{{end}} style="width: 18px; height: 18px;" />
+        Aktifkan Layanan Cetak Fisik
+      </label>
+      <small style="display: block; color: #64748b; font-size: 0.75rem; margin-left: 2rem; margin-top: 0.25rem;">
+        Jika dinonaktifkan, Kiosk akan beralih ke <strong>Eco-Digital Mode</strong> (hanya menyediakan QR code untuk unduhan softfile ke smartphone).
+      </small>
+    </div>
+
+    <div style="margin-bottom: 1.25rem;">
+      <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+        <input type="checkbox" name="auto_print" value="true" {{if .Data.Config.AutoPrint}}checked{{end}} style="width: 18px; height: 18px;" />
+        Cetak Otomatis Tanpa Konfirmasi
+      </label>
+      <small style="display: block; color: #64748b; font-size: 0.75rem; margin-left: 2rem; margin-top: 0.25rem;">
+        Foto langsung dikirim ke printer seketika proses render selesai.
+      </small>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Printer di Windows</label>
+        <input type="text" name="printer_name" value="{{.Data.Config.PrinterName}}" placeholder="Kosongkan untuk printer default Windows" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+        <small style="color: #64748b; font-size: 0.75rem;">Contoh: <em>Canon SELPHY CP1300</em> atau <em>EPSON L3210 Series</em></small>
+      </div>
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Jumlah Cetak Default</label>
+        <select name="copies_count" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;">
+          <option value="1" {{if eq .Data.Config.CopiesCount 1}}selected{{end}}>1 Lembar</option>
+          <option value="2" {{if eq .Data.Config.CopiesCount 2}}selected{{end}}>2 Lembar (Untuk 2 orang)</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-weight: 600; font-size: 0.875rem; color: #1e293b;">Uji Coba Koneksi Printer</div>
+        <div style="font-size: 0.75rem; color: #64748b;">Kirim lembar cetak sampel untuk memastikan kertas & tinta printer siap.</div>
+      </div>
+      <button type="submit" form="formTestPrint" class="btn btn--secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; background: #fff; color: #334155; font-weight: 600;">
+        🖨️ Cetak Lembar Uji Coba
+      </button>
+    </div>
+
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
+      4. Konfigurasi Jaringan QR Code (Offline Local Network)
+    </h3>
+
+    <div style="margin-bottom: 2rem;">
+      <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">IP Server Lokal untuk QR Code</label>
+      <input type="text" name="local_server_ip" value="{{.Data.Config.LocalServerIP}}" placeholder="{{.Data.DetectedLocalIP}}" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      <div style="margin-top: 0.5rem; background: #f8fafc; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem; color: #475569; border: 1px solid #e2e8f0;">
+        IP lokal yang terdeteksi otomatis saat ini: <strong>{{.Data.DetectedLocalIP}}</strong>.<br>
+        Pastikan smartphone siswa dan laptop Kiosk ini terhubung ke jaringan WiFi / Hotspot yang sama agar QR Code softfile dapat langsung dibuka tanpa internet luar!
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1.5rem;">
+      <button type="submit" class="btn btn--primary" style="padding: 0.75rem 2rem; background: #2563eb; color: #fff; font-weight: 600; border-radius: 8px; border: none; cursor: pointer;">
+        Simpan Pengaturan
+      </button>
+    </div>
+  </form>
+
+  <form id="formTestPrint" method="POST" action="/admin/sessions/test-print" style="display: none;"></form>
+</div>
+
+<script>
+  if (window.location.search.includes('test_print=ok')) {
+    alert('✓ Perintah uji coba cetak telah dikirim ke printer!');
+    history.replaceState(null, '', window.location.pathname);
+  }
+</script>
+{{end}}
+

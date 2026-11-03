@@ -1,0 +1,502 @@
+{{define "orders"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+            <header class="page__header">
+              <div class="page__headline">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb__item"><a href="/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb__item" aria-current="page">Orders</li>
+                  </ol>
+                </nav>
+                <h1 class="page__title">Orders</h1>
+                <p class="page__description">Manage and track all customer orders.</p>
+              </div>
+              <div class="page__action">
+                <button type="button" class="button button--outline button--neutral">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" d="M12 3v13m0 0l-4-4m4 4l4-4"/>
+                      <path d="M3 17v1a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-1"/>
+                    </g>
+                  </svg>
+                  Export
+                </button>
+                <button type="button" class="button button--primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3"/>
+                    </g>
+                  </svg>
+                  New Order
+                </button>
+              </div>
+            </header>
+
+            <div class="page__body">
+              <section class="page__section">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div class="card">
+                    <div class="card__body">
+                      <p class="text-sm text-muted-foreground">Total Orders</p>
+                      <p class="text-2xl font-semibold mt-1">1,284</p>
+                      <p class="text-xs text-muted-foreground mt-1">
+                        <span class="text-success font-medium">+12%</span> vs last month
+                      </p>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card__body">
+                      <p class="text-sm text-muted-foreground">Pending</p>
+                      <p class="text-2xl font-semibold mt-1">48</p>
+                      <p class="text-xs text-muted-foreground mt-1">
+                        <span class="text-warning font-medium">Needs attention</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card__body">
+                      <p class="text-sm text-muted-foreground">Shipped</p>
+                      <p class="text-2xl font-semibold mt-1">214</p>
+                      <p class="text-xs text-muted-foreground mt-1">
+                        <span class="text-info font-medium">In transit</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card__body">
+                      <p class="text-sm text-muted-foreground">Revenue MTD</p>
+                      <p class="text-2xl font-semibold mt-1">$48,210</p>
+                      <p class="text-xs text-muted-foreground mt-1">
+                        <span class="text-success font-medium">+8%</span> vs last month
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="page__section">
+                <div class="card">
+                  <div class="card__header">
+                    <h3 class="card__title">All Orders</h3>
+                    <div class="ms-auto flex gap-2 items-center flex-wrap">
+                      <div class="input-group input-group--search" style="width:220px">
+                        <span class="input-group__text">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                              <circle cx="11.5" cy="11.5" r="9.5"/>
+                              <path stroke-linecap="round" d="M18.5 18.5L22 22"/>
+                            </g>
+                          </svg>
+                        </span>
+                        <input type="search" id="ordersSearch" class="input" placeholder="Search orders…" aria-label="Search orders"/>
+                      </div>
+                      <div class="menu">
+                        <button type="button" class="button button--outline button--neutral button--sm" id="statusFilterBtn" data-stisla-menu-trigger="statusFilter" aria-haspopup="menu" aria-expanded="false" aria-controls="statusFilter">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="currentColor" d="M3 4.5A1.5 1.5 0 0 1 4.5 3h15A1.5 1.5 0 0 1 21 4.5v1.75a2 2 0 0 1-.586 1.414L15 13.078V19.5a.75.75 0 0 1-1.154.632l-4-2.5A.75.75 0 0 1 9.5 17v-3.922L3.586 7.664A2 2 0 0 1 3 6.25z"/>
+                          </svg>
+                          <span id="statusFilterLabel">All Status</span>
+                        </button>
+                        <div class="menu__popup w-44" id="statusFilter" data-stisla-menu role="menu" data-state="closed">
+                          <button type="button" class="menu__item" role="menuitem" data-filter-status="">All Status</button>
+                          <button type="button" class="menu__item" role="menuitem" data-filter-status="Pending">Pending</button>
+                          <button type="button" class="menu__item" role="menuitem" data-filter-status="Shipped">Shipped</button>
+                          <button type="button" class="menu__item" role="menuitem" data-filter-status="Completed">Completed</button>
+                          <button type="button" class="menu__item" role="menuitem" data-filter-status="Refunded">Refunded</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="table-responsive">
+                    <table class="table table--hover table--align-middle" id="ordersTable">
+                      <thead class="table__head--alt">
+                        <tr>
+                          <th scope="col">
+                            <input type="checkbox" id="selectAll" class="checkbox" aria-label="Select all orders"/>
+                          </th>
+                          <th scope="col" class="sortable" data-col="order" aria-sort="none">
+                            <button type="button" class="sort-btn">
+                              Order
+                              <svg class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M12 5l-4 5h8zm0 14l4-5H8z" opacity=".5"/>
+                              </svg>
+                            </button>
+                          </th>
+                          <th scope="col" class="sortable" data-col="customer" aria-sort="none">
+                            <button type="button" class="sort-btn">
+                              Customer
+                              <svg class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M12 5l-4 5h8zm0 14l4-5H8z" opacity=".5"/>
+                              </svg>
+                            </button>
+                          </th>
+                          <th scope="col" class="sortable" data-col="date" aria-sort="descending">
+                            <button type="button" class="sort-btn">
+                              Date
+                              <svg class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M12 5l-4 5h8zm0 14l4-5H8z" opacity=".5"/>
+                              </svg>
+                            </button>
+                          </th>
+                          <th scope="col" class="text-end sortable" data-col="items" aria-sort="none">
+                            <button type="button" class="sort-btn">
+                              Items
+                              <svg class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M12 5l-4 5h8zm0 14l4-5H8z" opacity=".5"/>
+                              </svg>
+                            </button>
+                          </th>
+                          <th scope="col">Status</th>
+                          <th scope="col" class="text-end sortable" data-col="total" aria-sort="none">
+                            <button type="button" class="sort-btn">
+                              Total
+                              <svg class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill="currentColor" d="M12 5l-4 5h8zm0 14l4-5H8z" opacity=".5"/>
+                              </svg>
+                            </button>
+                          </th>
+                          <th scope="col"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="ordersBody">
+                        <tr data-order="#10428" data-customer="Acme Corp" data-date="2026-06-18" data-items="6" data-status="Pending" data-total="1490.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10428"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10428</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=12" alt=""/>
+                                <span class="avatar__fallback">AC</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Acme Corp</div>
+                                <div class="text-xs text-muted-foreground">billing@acme.co</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 18, 2026</td>
+                          <td class="text-end">6</td>
+                          <td><span class="badge badge--soft badge--warning">Pending</span></td>
+                          <td class="text-end"><span class="font-semibold">$1,490.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10428" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10428" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10428" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-order="#10427" data-customer="Riverway Ltd" data-date="2026-06-17" data-items="2" data-status="Shipped" data-total="580.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10427"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10427</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=32" alt=""/>
+                                <span class="avatar__fallback">RL</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Riverway Ltd</div>
+                                <div class="text-xs text-muted-foreground">ap@riverway.io</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 17, 2026</td>
+                          <td class="text-end">2</td>
+                          <td><span class="badge badge--soft badge--info">Shipped</span></td>
+                          <td class="text-end"><span class="font-semibold">$580.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10427" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10427" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10427" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-order="#10426" data-customer="Northwind Traders" data-date="2026-06-17" data-items="18" data-status="Completed" data-total="8200.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10426"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10426</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=48" alt=""/>
+                                <span class="avatar__fallback">NT</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Northwind Traders</div>
+                                <div class="text-xs text-muted-foreground">orders@northwind.com</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 17, 2026</td>
+                          <td class="text-end">18</td>
+                          <td><span class="badge badge--soft badge--success">Completed</span></td>
+                          <td class="text-end"><span class="font-semibold">$8,200.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10426" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10426" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10426" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-order="#10425" data-customer="Globex" data-date="2026-06-16" data-items="1" data-status="Refunded" data-total="240.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10425"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10425</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=15" alt=""/>
+                                <span class="avatar__fallback">GX</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Globex</div>
+                                <div class="text-xs text-muted-foreground">buy@globex.com</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 16, 2026</td>
+                          <td class="text-end">1</td>
+                          <td><span class="badge badge--soft badge--danger">Refunded</span></td>
+                          <td class="text-end"><span class="font-semibold">$240.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10425" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10425" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10425" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-order="#10424" data-customer="Initech" data-date="2026-06-15" data-items="4" data-status="Completed" data-total="1120.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10424"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10424</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=5" alt=""/>
+                                <span class="avatar__fallback">IN</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Initech</div>
+                                <div class="text-xs text-muted-foreground">po@initech.com</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 15, 2026</td>
+                          <td class="text-end">4</td>
+                          <td><span class="badge badge--soft badge--success">Completed</span></td>
+                          <td class="text-end"><span class="font-semibold">$1,120.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10424" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10424" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10424" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-order="#10423" data-customer="Hooli" data-date="2026-06-14" data-items="7" data-status="Pending" data-total="3450.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10423"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10423</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=22" alt=""/>
+                                <span class="avatar__fallback">HO</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Hooli</div>
+                                <div class="text-xs text-muted-foreground">orders@hooli.com</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 14, 2026</td>
+                          <td class="text-end">7</td>
+                          <td><span class="badge badge--soft badge--warning">Pending</span></td>
+                          <td class="text-end"><span class="font-semibold">$3,450.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10423" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10423" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10423" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-order="#10422" data-customer="Acme Corp" data-date="2026-06-13" data-items="3" data-status="Shipped" data-total="720.00">
+                          <td><input type="checkbox" class="checkbox row-check" aria-label="Select order #10422"/></td>
+                          <th scope="row"><a href="#" class="link"><code>#10422</code></a></th>
+                          <td>
+                            <div class="flex items-center gap-3">
+                              <span class="avatar avatar--sm avatar--circle" data-stisla-avatar>
+                                <img class="avatar__image" src="https://i.pravatar.cc/64?img=12" alt=""/>
+                                <span class="avatar__fallback">AC</span>
+                              </span>
+                              <div>
+                                <div class="font-medium">Acme Corp</div>
+                                <div class="text-xs text-muted-foreground">billing@acme.co</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>Jun 13, 2026</td>
+                          <td class="text-end">3</td>
+                          <td><span class="badge badge--soft badge--info">Shipped</span></td>
+                          <td class="text-end"><span class="font-semibold">$720.00</span></td>
+                          <td>
+                            <div class="menu">
+                              <button type="button" class="button button--ghost button--neutral button--icon-only button--sm" data-stisla-menu-trigger="row-menu-10422" aria-haspopup="menu" aria-expanded="false" aria-controls="row-menu-10422" aria-label="Actions">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-7 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2m14 0a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+                              </button>
+                              <div class="menu__popup w-40" id="row-menu-10422" data-stisla-menu role="menu" data-state="closed">
+                                <a href="#" class="menu__item" role="menuitem">View</a>
+                                <a href="#" class="menu__item" role="menuitem">Edit</a>
+                                <hr class="menu__separator" role="separator"/>
+                                <button type="button" class="menu__item menu__item--danger" role="menuitem">Cancel</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="card__footer flex items-center justify-between flex-wrap gap-3">
+                    <p class="text-sm text-muted-foreground" id="ordersCount">Showing <span id="visibleCount">7</span> of 7 orders</p>
+                    <div class="flex gap-1">
+                      <button type="button" class="button button--outline button--neutral button--sm" disabled aria-label="Previous page">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m15 18l-6-6l6-6"/>
+                        </svg>
+                      </button>
+                      <button type="button" class="button button--primary button--sm" aria-current="page">1</button>
+                      <button type="button" class="button button--outline button--neutral button--sm" aria-label="Next page">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 18l6-6l-6-6"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <script>
+            (function () {
+              var searchInput = document.getElementById('ordersSearch');
+              var tbody = document.getElementById('ordersBody');
+              var visibleCount = document.getElementById('visibleCount');
+              var filterBtns = document.querySelectorAll('[data-filter-status]');
+              var filterLabel = document.getElementById('statusFilterLabel');
+              var activeStatus = '';
+              var sortState = { col: 'date', dir: 'desc' };
+
+              function getRows() {
+                return Array.from(tbody.querySelectorAll('tr'));
+              }
+
+              function filterAndSort() {
+                var query = searchInput.value.trim().toLowerCase();
+                var rows = getRows();
+
+                rows.forEach(function (row) {
+                  var order = (row.dataset.order || '').toLowerCase();
+                  var customer = (row.dataset.customer || '').toLowerCase();
+                  var status = row.dataset.status || '';
+                  var matchSearch = !query || order.includes(query) || customer.includes(query);
+                  var matchStatus = !activeStatus || status === activeStatus;
+                  row.hidden = !(matchSearch && matchStatus);
+                });
+
+                var visible = rows.filter(function (r) { return !r.hidden; });
+
+                visible.sort(function (a, b) {
+                  var col = sortState.col;
+                  var av = a.dataset[col] || '';
+                  var bv = b.dataset[col] || '';
+                  if (col === 'items' || col === 'total') {
+                    av = parseFloat(av) || 0;
+                    bv = parseFloat(bv) || 0;
+                  }
+                  var cmp = av < bv ? -1 : av > bv ? 1 : 0;
+                  return sortState.dir === 'asc' ? cmp : -cmp;
+                });
+
+                visible.forEach(function (row) { tbody.appendChild(row); });
+                visibleCount.textContent = visible.length;
+              }
+
+              searchInput.addEventListener('input', filterAndSort);
+
+              filterBtns.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                  activeStatus = btn.dataset.filterStatus;
+                  filterLabel.textContent = activeStatus || 'All Status';
+                  filterAndSort();
+                });
+              });
+
+              document.querySelectorAll('th.sortable').forEach(function (th) {
+                th.querySelector('.sort-btn').addEventListener('click', function () {
+                  var col = th.dataset.col;
+                  if (sortState.col === col) {
+                    sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+                  } else {
+                    sortState.col = col;
+                    sortState.dir = 'asc';
+                  }
+                  document.querySelectorAll('th.sortable').forEach(function (t) {
+                    t.setAttribute('aria-sort', 'none');
+                  });
+                  th.setAttribute('aria-sort', sortState.dir === 'asc' ? 'ascending' : 'descending');
+                  filterAndSort();
+                });
+              });
+
+              var selectAll = document.getElementById('selectAll');
+              selectAll.addEventListener('change', function () {
+                document.querySelectorAll('.row-check').forEach(function (cb) {
+                  if (!cb.closest('tr').hidden) cb.checked = selectAll.checked;
+                });
+              });
+            })();
+            </script>
+{{end}}

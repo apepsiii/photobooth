@@ -1,0 +1,1243 @@
+{{define "frames"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+<!-- Top Header -->
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0; color: #0f172a;">Template Frame & Visual Slot Studio</h1>
+    <p style="color: var(--text-muted, #64748b); margin-top: 0.25rem; font-size: 0.9rem;">Kelola bingkai overlay foto, kategori acara, visibilitas kiosk, dan mapping slot foto interaktif langsung di layar.</p>
+  </div>
+  <button type="button" class="btn btn--primary" onclick="openFrameEditor()" style="background: #2563eb; color: #fff; padding: 0.65rem 1.35rem; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.25);">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    + Buat Frame Baru
+  </button>
+</div>
+
+<!-- Category Filter Pills -->
+<div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+  <span style="font-size: 0.85rem; font-weight: 600; color: #64748b; margin-right: 0.5rem;">Kategori:</span>
+  <button type="button" class="category-filter active" onclick="filterCategory('all', this)" style="padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid #cbd5e1; background: #2563eb; color: #fff; cursor: pointer; transition: all 0.2s;">
+    Semua ({{len .Data.Frames}})
+  </button>
+  {{range .Data.Categories}}
+  <button type="button" class="category-filter" onclick="filterCategory('{{.}}', this)" style="padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid #cbd5e1; background: #fff; color: #475569; cursor: pointer; transition: all 0.2s;">
+    {{.}}
+  </button>
+  {{end}}
+</div>
+
+<!-- Frame Cards Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;" id="frameCardsGrid">
+  {{range .Data.Frames}}
+  <div class="card frame-card-item" data-category="{{.Category}}" style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 12px; overflow: hidden; background: var(--card-bg, #fff); box-shadow: 0 1px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+    <div style="background: #f8fafc; height: 260px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid #e2e8f0; overflow: hidden;">
+      {{if .OverlayImage}}
+        <img src="{{.OverlayImage}}" alt="{{.Name}}" style="max-height: 240px; max-width: 90%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12));" />
+      {{else}}
+        <div style="color: #94a3b8; font-size: 0.875rem;">(Tanpa Overlay PNG)</div>
+      {{end}}
+      
+      <!-- Category Badge -->
+      <span style="position: absolute; top: 12px; left: 12px; background: rgba(15,23,42,0.85); color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600;">
+        🏷️ {{if .Category}}{{.Category}}{{else}}Umum{{end}}
+      </span>
+
+      <!-- Visibility Status Badge -->
+      <span style="position: absolute; top: 12px; right: 12px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; {{if .IsActive}}background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;{{else}}background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;{{end}}">
+        {{if .IsActive}}🟢 Muncul di Kiosk{{else}}⚪ Disembunyikan{{end}}
+      </span>
+
+      <!-- Dimension & Shots Badge -->
+      <span style="position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.65); color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-family: monospace;">
+        {{.Width}} &times; {{.Height}} px ({{.TotalShots}} Shots)
+      </span>
+    </div>
+
+    <div style="padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1;">
+      <h3 style="margin: 0 0 0.35rem; font-size: 1.1rem; font-weight: 700; color: #0f172a;">{{.Name}}</h3>
+      <p style="font-size: 0.85rem; color: #64748b; margin: 0 0 1rem; line-height: 1.4; flex-grow: 1;">
+        {{if .Description}}{{.Description}}{{else}}<span style="color: #94a3b8; font-style: italic;">Tidak ada deskripsi.</span>{{end}}
+      </p>
+      
+      <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 1rem; flex-wrap: wrap;">
+        <!-- Edit & Mapping Button -->
+        <button type="button" class="btn btn--sm" onclick='openFrameEditor({{.ID}}, {{.Name}}, {{.Category}}, {{.Type}}, {{.Description}}, {{.TotalShots}}, {{.Width}}, {{.Height}}, {{.OverlayImage}}, {{.SlotsJSON}}, {{.IsActive}})' style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+          ✏️ Edit & Mapping Layar
+        </button>
+
+        <div style="display: flex; gap: 0.4rem;">
+          <form method="POST" action="/admin/frames/{{.ID}}/toggle" style="margin: 0;">
+            <button type="submit" class="btn btn--sm" title="{{if .IsActive}}Sembunyikan dari Kiosk{{else}}Tampilkan di Kiosk{{end}}" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569;">
+              {{if .IsActive}}Sembunyikan{{else}}Munculkan{{end}}
+            </button>
+          </form>
+          <form method="POST" action="/admin/frames/{{.ID}}/delete" onsubmit="return confirm('Yakin ingin menghapus template frame ini?')" style="margin: 0;">
+            <button type="submit" class="btn btn--sm" title="Hapus Frame" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">
+              🗑️
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px; color: #94a3b8;">
+    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🖼️</div>
+    <div style="font-weight: 700; color: #334155; font-size: 1.1rem;">Belum ada template frame</div>
+    <p style="margin: 0.5rem 0 1rem; font-size: 0.875rem;">Buat template frame pertama untuk photobooth sekolah Anda.</p>
+    <button type="button" onclick="openFrameEditor()" class="btn btn--primary" style="background: #2563eb; color: #fff; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer;">
+      + Buat Frame Sekarang
+    </button>
+  </div>
+  {{end}}
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL FRAME BUILDER & ADVANCED DIRECT VISUAL SLOT STUDIO        -->
+<!-- ============================================================== -->
+<div id="modalFrameStudio" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); z-index: 2500; align-items: center; justify-content: center; backdrop-filter: blur(6px); padding: 0.75rem;">
+  <div style="background: #fff; border-radius: 16px; width: 100%; max-width: 1320px; height: 96vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);">
+    
+    <!-- Top Header Bar -->
+    <div style="padding: 0.75rem 1.25rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.4rem;">📐</span>
+        <div>
+          <h2 id="studioModalTitle" style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0f172a;">Studio Mapping Slot Frame</h2>
+          <span style="font-size: 0.75rem; color: #64748b;">Geser, ubah ukuran, duplikat, dan hapus kotak slot foto secara instan di layar.</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button type="button" onclick="closeFrameEditor()" style="border: none; background: #e2e8f0; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; color: #475569; font-weight: bold; line-height: 1;">&times;</button>
+      </div>
+    </div>
+
+    <!-- Main Workspace (Split View) -->
+    <form id="frameStudioForm" method="POST" action="/admin/frames" enctype="multipart/form-data" style="display: flex; flex-grow: 1; overflow: hidden; margin: 0;">
+      
+      <!-- Hidden Slots JSON Input -->
+      <input type="hidden" name="slots_json" id="studioSlotsJSON" value="[]" />
+
+      <!-- LEFT SIDEBAR: DUAL-TAB PANEL (Pengaturan Frame & Kelola Slot) -->
+      <div style="width: 380px; min-width: 350px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; background: #ffffff; overflow: hidden;">
+        
+        <!-- Tab Headers -->
+        <div style="display: flex; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+          <button type="button" id="tabBtnSlots" onclick="switchSidebarTab('slots')" style="flex: 1; padding: 0.75rem; font-size: 0.825rem; font-weight: 700; border: none; border-bottom: 2px solid #2563eb; background: #fff; color: #2563eb; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>📸 Kelola Slot Foto</span>
+            <span id="tabSlotBadge" style="background: #2563eb; color: #fff; font-size: 0.7rem; border-radius: 10px; padding: 1px 6px;">3</span>
+          </button>
+          <button type="button" id="tabBtnInfo" onclick="switchSidebarTab('info')" style="flex: 1; padding: 0.75rem; font-size: 0.825rem; font-weight: 700; border: none; border-bottom: 2px solid transparent; background: transparent; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>⚙️ Info Frame & Upload</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: KELOLA SLOT FOTO (FOKUS UTAMA MAPPING) -->
+        <div id="tabContentSlots" style="flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+          
+          <!-- Quick Slot Toolbar -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <button type="button" onclick="addNewSlotCenter()" style="background: #2563eb; color: #fff; border: none; padding: 0.55rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+              <span>+ Tambah Slot Baru</span>
+            </button>
+            <button type="button" id="btnSidebarDuplicate" onclick="duplicateCurrentSlot()" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 0.55rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>📋 Duplikat Slot</span>
+            </button>
+          </div>
+
+          <!-- Active Slot Card / Inspector -->
+          <div id="activeSlotInspectorCard" style="background: #f8fafc; border: 1.5px solid #2563eb; border-radius: 10px; padding: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span id="inspectorSlotDot" style="width: 10px; height: 10px; border-radius: 50%; background: #2563eb;"></span>
+                <span id="inspectorSlotTitle" style="font-weight: 800; font-size: 0.9rem; color: #0f172a;">Slot 1 (Terpilih)</span>
+              </div>
+              <div style="display: flex; gap: 4px;">
+                <button type="button" onclick="duplicateCurrentSlot()" title="Duplikat slot ini" style="background: #fff; border: 1px solid #cbd5e1; border-radius: 5px; padding: 3px 7px; font-size: 0.75rem; cursor: pointer; color: #2563eb; font-weight: 700;">📋 Copy</button>
+                <button type="button" onclick="deleteCurrentSlot()" title="Hapus slot ini" style="background: #fee2e2; border: 1px solid #fecaca; border-radius: 5px; padding: 3px 7px; font-size: 0.75rem; cursor: pointer; color: #ef4444; font-weight: 700;">🗑️ Hapus</button>
+              </div>
+            </div>
+
+            <!-- Alignment Tools -->
+            <div style="display: flex; gap: 0.4rem; margin-bottom: 0.75rem;">
+              <button type="button" onclick="centerSlotX()" style="flex: 1; background: #fff; border: 1px solid #cbd5e1; padding: 4px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; color: #334155;">
+                ↔️ Tengah Horisontal
+              </button>
+              <button type="button" onclick="centerSlotY()" style="flex: 1; background: #fff; border: 1px solid #cbd5e1; padding: 4px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; color: #334155;">
+                ↕️ Tengah Vertikal
+              </button>
+            </div>
+
+            <!-- Coordinate Numbers (Optional fine-tune) -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 0.75rem;">
+              <div>
+                <span style="color: #64748b; font-size: 0.7rem; font-weight: 600;">Posisi X:</span>
+                <input type="number" id="inpSlotX" oninput="manualUpdateSlot('x', this.value)" style="width: 100%; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: monospace; font-size: 0.8rem;" />
+              </div>
+              <div>
+                <span style="color: #64748b; font-size: 0.7rem; font-weight: 600;">Posisi Y:</span>
+                <input type="number" id="inpSlotY" oninput="manualUpdateSlot('y', this.value)" style="width: 100%; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: monospace; font-size: 0.8rem;" />
+              </div>
+              <div>
+                <span style="color: #64748b; font-size: 0.7rem; font-weight: 600;">Lebar:</span>
+                <input type="number" id="inpSlotW" oninput="manualUpdateSlot('w', this.value)" style="width: 100%; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: monospace; font-size: 0.8rem;" />
+              </div>
+              <div>
+                <span style="color: #64748b; font-size: 0.7rem; font-weight: 600;">Tinggi:</span>
+                <input type="number" id="inpSlotH" oninput="manualUpdateSlot('h', this.value)" style="width: 100%; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: monospace; font-size: 0.8rem;" />
+              </div>
+            </div>
+
+            <!-- Micro Nudge Buttons (Geser Halus) -->
+            <div style="margin-top: 0.65rem; border-top: 1px dashed #e2e8f0; padding-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.7rem; color: #64748b; font-weight: 600;">Geser Posisi Halus:</span>
+              <div style="display: flex; gap: 3px;">
+                <button type="button" onclick="nudgeSlot(0, -5)" title="Atas 5px" style="background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; width: 26px; height: 24px; font-size: 11px; cursor: pointer;">▲</button>
+                <button type="button" onclick="nudgeSlot(0, 5)" title="Bawah 5px" style="background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; width: 26px; height: 24px; font-size: 11px; cursor: pointer;">▼</button>
+                <button type="button" onclick="nudgeSlot(-5, 0)" title="Kiri 5px" style="background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; width: 26px; height: 24px; font-size: 11px; cursor: pointer;">◄</button>
+                <button type="button" onclick="nudgeSlot(5, 0)" title="Kanan 5px" style="background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; width: 26px; height: 24px; font-size: 11px; cursor: pointer;">►</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- All Slots List View -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #334155;">Daftar Semua Slot Foto:</span>
+              <span style="font-size: 0.75rem; color: #94a3b8;">Klik untuk memilih</span>
+            </div>
+            <div id="sidebarSlotsList" style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 240px; overflow-y: auto;">
+              <!-- Slot rows inserted dynamically -->
+            </div>
+          </div>
+
+          <!-- Shortcut Tips -->
+          <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 0.65rem; font-size: 0.75rem; color: #1e40af; line-height: 1.4;">
+            💡 <b>Tips Cepat Keyboard:</b><br />
+            • Tekan <b>Delete</b> / <b>Backspace</b> untuk menghapus slot.<br />
+            • Tekan <b>Tombol Panah</b> (↑, ↓, ←, →) untuk menggeser.<br />
+            • Tarik 8 titik lingkaran di layar untuk ubah ukuran.
+          </div>
+
+        </div>
+
+        <!-- TAB 2: INFORMASI FRAME & FILE UPLOAD -->
+        <div id="tabContentInfo" style="flex-grow: 1; overflow-y: auto; padding: 1rem; display: none; flex-direction: column; gap: 1rem;">
+          
+          <!-- Frame Name -->
+          <div>
+            <label style="display: block; font-weight: 700; margin-bottom: 0.3rem; font-size: 0.85rem; color: #1e293b;">Nama Frame <span style="color: #ef4444;">*</span></label>
+            <input type="text" name="name" id="studioName" required placeholder="Contoh: Graduation 2026 Gold Strip" style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem;" />
+          </div>
+
+          <!-- Category & Preset -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div>
+              <label style="display: block; font-weight: 700; margin-bottom: 0.3rem; font-size: 0.8rem; color: #334155;">Kategori Acara</label>
+              <input type="text" name="category" id="studioCategory" list="categorySuggestions" placeholder="Pensi, Wisuda..." style="width: 100%; padding: 0.55rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem;" />
+              <datalist id="categorySuggestions">
+                <option value="Pensi / Event">
+                <option value="Graduation">
+                <option value="Bazaar">
+                <option value="Classic">
+                <option value="Korean Cut">
+                <option value="Birthday">
+              </datalist>
+            </div>
+            <div>
+              <label style="display: block; font-weight: 700; margin-bottom: 0.3rem; font-size: 0.8rem; color: #334155;">Preset Cepat</label>
+              <select name="type" id="studioTypeSelect" onchange="handlePresetChange(this.value)" style="width: 100%; padding: 0.55rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.8rem; background: #fff;">
+                <option value="strip_2x6">2-Strip (3 Foto)</option>
+                <option value="grid_4cut">4-Cut (2x2 Grid)</option>
+                <option value="polaroid">Polaroid (1 Foto)</option>
+                <option value="custom">Custom Bebas</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Menu Munculkan atau Tidak (Visibility Status) -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem;">
+            <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.8rem; color: #1e293b;">
+              Visibilitas Kiosk (Munculkan di Layar?)
+            </label>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.825rem; cursor: pointer; color: #15803d; font-weight: 600;">
+                <input type="radio" name="is_active" id="studioActiveYes" value="1" checked />
+                🟢 Munculkan di Kiosk (Bisa Dipilih)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.825rem; cursor: pointer; color: #64748b; font-weight: 600;">
+                <input type="radio" name="is_active" id="studioActiveNo" value="0" />
+                ⚪ Sembunyikan (Simpan sebagai Draft)
+              </label>
+            </div>
+          </div>
+
+          <!-- Upload File Frame PNG -->
+          <div>
+            <label style="display: block; font-weight: 700; margin-bottom: 0.3rem; font-size: 0.85rem; color: #1e293b;">
+              Upload File Frame PNG (Transparan)
+            </label>
+            <input type="file" name="overlay_file" id="studioFileInput" accept="image/png,image/webp" onchange="handleOverlayFileUpload(this)" style="width: 100%; padding: 0.5rem; border: 1px dashed #94a3b8; border-radius: 8px; font-size: 0.8rem; background: #f8fafc;" />
+            <div id="studioCurrentOverlayText" style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Pilih file PNG transparan untuk melihat frame di layar.</div>
+          </div>
+
+          <!-- Dimensions -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #475569; margin-bottom: 2px;">Lebar (px)</label>
+              <input type="number" name="width" id="studioCanvasWidth" value="600" onchange="updateStageDims()" style="width: 100%; padding: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-family: monospace;" />
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #475569; margin-bottom: 2px;">Tinggi (px)</label>
+              <input type="number" name="height" id="studioCanvasHeight" value="1800" onchange="updateStageDims()" style="width: 100%; padding: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-family: monospace;" />
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #475569; margin-bottom: 2px;">Total Slot</label>
+              <input type="number" name="total_shots" id="studioTotalShots" value="3" readonly style="width: 100%; padding: 0.4rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-family: monospace; background: #f1f5f9; font-weight: 700; color: #2563eb;" />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #475569; margin-bottom: 2px;">Keterangan Acara</label>
+            <input type="text" name="description" id="studioDescription" placeholder="Opsional: Tema stan photobooth" style="width: 100%; padding: 0.45rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;" />
+          </div>
+
+        </div>
+
+        <!-- Sticky Footer Save Button -->
+        <div style="padding: 1rem; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; gap: 0.5rem; margin-top: auto;">
+          <button type="button" onclick="closeFrameEditor()" class="btn btn--secondary" style="flex: 1; padding: 0.65rem; border-radius: 8px; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; font-weight: 600;">Batal</button>
+          <button type="submit" class="btn btn--primary" style="flex: 1.5; padding: 0.65rem; border-radius: 8px; cursor: pointer; background: #2563eb; color: #fff; border: none; font-weight: 700; box-shadow: 0 2px 6px rgba(37,99,235,0.3);">
+            💾 Simpan Frame
+          </button>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: FIGMA/CANVA-STYLE INTERACTIVE SCREEN WORKSPACE -->
+      <div style="flex-grow: 1; background: #0f172a; display: flex; flex-direction: column; overflow: hidden; position: relative; user-select: none;">
+        
+        <!-- Interactive Toolbar -->
+        <div style="padding: 0.65rem 1rem; background: #1e293b; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 0.825rem; flex-wrap: wrap; gap: 0.5rem; z-index: 10;">
+          
+          <!-- Drawing Tools & Actions -->
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button type="button" id="btnDrawTool" onclick="toggleDrawMode()" style="background: #334155; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+              <span>✏️ Tarik & Gambar Slot di Layar</span>
+            </button>
+            <button type="button" onclick="addNewSlotCenter()" style="background: #2563eb; color: #fff; border: none; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <span>+ Tambah Slot Baru</span>
+            </button>
+            <button type="button" onclick="duplicateCurrentSlot()" id="topbarDuplicateBtn" style="background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+              <span>📋 Duplikat</span>
+            </button>
+            <button type="button" onclick="deleteCurrentSlot()" id="topbarDeleteBtn" style="background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+              <span>🗑️ Hapus</span>
+            </button>
+          </div>
+
+          <!-- Presets & View Controls -->
+          <div style="display: flex; gap: 0.65rem; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #cbd5e1; font-size: 0.8rem;">
+              <input type="checkbox" id="toggleDummyPhotos" onchange="renderSlotsDOM()" checked />
+              <span>Foto Contoh Siswa</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #cbd5e1; font-size: 0.8rem;">
+              <input type="checkbox" id="toggleFrameOverlay" onchange="renderOverlay()" checked />
+              <span>Overlay Frame PNG</span>
+            </label>
+            <div style="display: flex; align-items: center; background: rgba(255,255,255,0.1); border-radius: 6px; padding: 2px;">
+              <button type="button" onclick="adjustZoom(-0.1)" title="Zoom Out" style="background: transparent; border: none; color: #fff; width: 26px; height: 26px; cursor: pointer; font-weight: bold;">-</button>
+              <span id="zoomLevelText" style="font-family: monospace; font-size: 0.75rem; padding: 0 4px; min-width: 42px; text-align: center;">Fit</span>
+              <button type="button" onclick="adjustZoom(0.1)" title="Zoom In" style="background: transparent; border: none; color: #fff; width: 26px; height: 26px; cursor: pointer; font-weight: bold;">+</button>
+              <button type="button" onclick="fitToScreen()" title="Reset / Pas Layar" style="background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-left: 2px;">Fit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable Stage Viewport -->
+        <div id="stageViewport" style="flex-grow: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 2.5rem; position: relative;">
+          
+          <!-- Stage Canvas Container -->
+          <div id="stageWrapper" style="position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border-radius: 4px; background: #ffffff; transform-origin: center center; transition: transform 0.08s ease-out;">
+            
+            <!-- Layer 1: Simulated Student Photos Background -->
+            <div id="simulatedPhotosLayer" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;">
+              <!-- Photos are injected dynamically -->
+            </div>
+
+            <!-- Layer 2: Uploaded Transparent Frame Overlay PNG -->
+            <img id="overlayImgElement" src="" alt="Frame Overlay" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; z-index: 3; display: none;" />
+
+            <!-- Layer 3: Interactive DOM Slots Layer (Draggable & Resizable) -->
+            <div id="interactiveSlotsLayer" style="position: absolute; inset: 0; z-index: 5;">
+              <!-- Slot boxes with 8 resize handles injected dynamically -->
+            </div>
+
+            <!-- Layer 4: Marquee Drawing Rubberband Layer -->
+            <div id="drawMarqueeLayer" style="position: absolute; inset: 0; z-index: 6; display: none; cursor: crosshair;">
+              <div id="marqueeBox" style="position: absolute; display: none; border: 2px dashed #38bdf8; background: rgba(56, 189, 248, 0.35); pointer-events: none;"></div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Footer Bar: Active Slot Feedback & Live Coordinates -->
+        <div style="padding: 0.5rem 1.25rem; background: #1e293b; border-top: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; z-index: 10;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span>🖱️ <b>Navigasi Langsung di Layar:</b> Klik & geser kotak slot, atau tarik 8 titik lingkaran untuk mengatur ukuran secara visual.</span>
+          </div>
+          <div id="liveInspectorTag" style="color: #38bdf8; font-weight: 700; font-family: monospace;">
+            Siap
+          </div>
+        </div>
+
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Interactive Slot Box Styles */
+  .slot-box {
+    position: absolute;
+    cursor: move;
+    border: 2px solid #2563eb;
+    background: rgba(37, 99, 235, 0.22);
+    box-sizing: border-box;
+    user-select: none;
+    touch-action: none;
+  }
+  .slot-box:hover {
+    background: rgba(37, 99, 235, 0.32);
+  }
+  .slot-box.selected {
+    border: 2.5px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.25) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.35);
+    z-index: 20;
+  }
+
+  /* Floating Info Pill above/inside slot */
+  .slot-pill {
+    position: absolute;
+    top: -34px;
+    left: 0;
+    background: #0f172a;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    pointer-events: auto;
+    z-index: 30;
+  }
+  .slot-pill.flipped {
+    top: auto;
+    bottom: -34px;
+  }
+  .slot-box.selected .slot-pill {
+    background: #ef4444;
+  }
+  .slot-pill button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+  .slot-pill button:hover {
+    background: rgba(255,255,255,0.4);
+  }
+
+  /* 8 Resize Grab Handles */
+  .slot-handle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 2px solid #2563eb;
+    border-radius: 50%;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.35);
+    z-index: 25;
+    box-sizing: border-box;
+  }
+  .slot-box.selected .slot-handle {
+    border-color: #ef4444;
+    background: #fff;
+  }
+
+  /* Handle placement */
+  .handle-nw { top: -7px; left: -7px; cursor: nwse-resize; }
+  .handle-n  { top: -7px; left: calc(50% - 7px); cursor: ns-resize; }
+  .handle-ne { top: -7px; right: -7px; cursor: nesw-resize; }
+  .handle-e  { top: calc(50% - 7px); right: -7px; cursor: ew-resize; }
+  .handle-se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+  .handle-s  { bottom: -7px; left: calc(50% - 7px); cursor: ns-resize; }
+  .handle-sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+  .handle-w  { top: calc(50% - 7px); left: -7px; cursor: ew-resize; }
+</style>
+
+<script>
+  // Filter category tabs
+  function filterCategory(cat, btn) {
+    document.querySelectorAll('.category-filter').forEach(b => {
+      b.style.background = '#fff';
+      b.style.color = '#475569';
+    });
+    btn.style.background = '#2563eb';
+    btn.style.color = '#fff';
+
+    const cards = document.querySelectorAll('.frame-card-item');
+    cards.forEach(card => {
+      if (cat === 'all' || card.getAttribute('data-category') === cat) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function switchSidebarTab(tab) {
+    document.getElementById('tabContentSlots').style.display = tab === 'slots' ? 'flex' : 'none';
+    document.getElementById('tabContentInfo').style.display = tab === 'info' ? 'flex' : 'none';
+
+    document.getElementById('tabBtnSlots').style.borderBottomColor = tab === 'slots' ? '#2563eb' : 'transparent';
+    document.getElementById('tabBtnSlots').style.color = tab === 'slots' ? '#2563eb' : '#64748b';
+    document.getElementById('tabBtnSlots').style.background = tab === 'slots' ? '#fff' : 'transparent';
+
+    document.getElementById('tabBtnInfo').style.borderBottomColor = tab === 'info' ? '#2563eb' : 'transparent';
+    document.getElementById('tabBtnInfo').style.color = tab === 'info' ? '#2563eb' : '#64748b';
+    document.getElementById('tabBtnInfo').style.background = tab === 'info' ? '#fff' : 'transparent';
+  }
+
+  // Visual Frame Studio State
+  let currentSlots = [];
+  let selectedSlotIndex = -1;
+  let frameWidth = 600;
+  let frameHeight = 1800;
+  let currentZoom = 1;
+  let currentOverlaySrc = '';
+  let isDrawModeActive = false;
+
+  // Dragging & Resizing State (Smooth 60fps with zero DOM churn during drag)
+  let activeAction = null; // 'move', 'nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'drawing'
+  let dragStartMouseX = 0;
+  let dragStartMouseY = 0;
+  let initialSlotProps = { x: 0, y: 0, w: 0, h: 0 };
+  let drawStartPoint = { x: 0, y: 0 };
+
+  const stageWrapper = document.getElementById('stageWrapper');
+  const overlayImgElement = document.getElementById('overlayImgElement');
+  const interactiveSlotsLayer = document.getElementById('interactiveSlotsLayer');
+  const simulatedPhotosLayer = document.getElementById('simulatedPhotosLayer');
+  const drawMarqueeLayer = document.getElementById('drawMarqueeLayer');
+  const marqueeBox = document.getElementById('marqueeBox');
+  const liveInspectorTag = document.getElementById('liveInspectorTag');
+
+  // Palette of vibrant colors for slots
+  const palette = [
+    { border: '#2563eb', fill: 'rgba(37, 99, 235, 0.25)' },
+    { border: '#9333ea', fill: 'rgba(147, 51, 234, 0.25)' },
+    { border: '#059669', fill: 'rgba(5, 150, 105, 0.25)' },
+    { border: '#d97706', fill: 'rgba(217, 119, 6, 0.25)' },
+    { border: '#db2777', fill: 'rgba(219, 39, 119, 0.25)' },
+    { border: '#0891b2', fill: 'rgba(8, 145, 178, 0.25)' }
+  ];
+
+  // Open Frame Editor Studio
+  function openFrameEditor(id, name, category, type, desc, totalShots, w, h, overlay, rawSlots, isActive) {
+    const isEdit = typeof id !== 'undefined' && id !== null;
+    const form = document.getElementById('frameStudioForm');
+    const title = document.getElementById('studioModalTitle');
+
+    currentOverlaySrc = overlay || '';
+    document.getElementById('studioFileInput').value = '';
+    isDrawModeActive = false;
+    updateDrawButtonState();
+    switchSidebarTab('slots');
+
+    if (isEdit) {
+      title.innerText = `Edit & Mapping Frame: ${name}`;
+      form.action = `/admin/frames/${id}/update`;
+      document.getElementById('studioName').value = name || '';
+      document.getElementById('studioCategory').value = category || 'Umum';
+      document.getElementById('studioTypeSelect').value = type || 'custom';
+      document.getElementById('studioDescription').value = desc || '';
+      frameWidth = w || 600;
+      frameHeight = h || 1800;
+
+      if (isActive) {
+        document.getElementById('studioActiveYes').checked = true;
+      } else {
+        document.getElementById('studioActiveNo').checked = true;
+      }
+
+      if (overlay) {
+        document.getElementById('studioCurrentOverlayText').innerHTML = `File frame saat ini: <code style="color:#2563eb">${overlay}</code>. Pilih file baru jika ingin mengganti.`;
+      } else {
+        document.getElementById('studioCurrentOverlayText').innerText = 'Belum ada overlay PNG. Upload file frame transparan.';
+      }
+
+      let parsedSlots = rawSlots;
+      if (typeof parsedSlots === 'string') {
+        try { parsedSlots = JSON.parse(parsedSlots); } catch (e) { parsedSlots = []; }
+      }
+      currentSlots = Array.isArray(parsedSlots) ? parsedSlots : [];
+    } else {
+      title.innerText = 'Buat Template Frame Baru & Mapping Layar';
+      form.action = '/admin/frames';
+      document.getElementById('studioName').value = '';
+      document.getElementById('studioCategory').value = 'Pensi / Event';
+      document.getElementById('studioTypeSelect').value = 'strip_2x6';
+      document.getElementById('studioDescription').value = '';
+      frameWidth = 600;
+      frameHeight = 1800;
+      document.getElementById('studioActiveYes').checked = true;
+      document.getElementById('studioCurrentOverlayText').innerText = 'Upload file PNG transparan untuk mulai mapping posisi foto.';
+
+      // Default to 2-strip slots
+      currentSlots = [
+        { index: 0, x: 40, y: 70, w: 520, h: 420 },
+        { index: 1, x: 40, y: 520, w: 520, h: 420 },
+        { index: 2, x: 40, y: 970, w: 520, h: 420 }
+      ];
+    }
+
+    document.getElementById('studioCanvasWidth').value = frameWidth;
+    document.getElementById('studioCanvasHeight').value = frameHeight;
+
+    selectedSlotIndex = currentSlots.length > 0 ? 0 : -1;
+    document.getElementById('modalFrameStudio').style.display = 'flex';
+
+    updateStageDims();
+    renderOverlay();
+    renderSlotsDOM();
+    syncSidebarInspector();
+    setTimeout(fitToScreen, 80);
+  }
+
+  function closeFrameEditor() {
+    document.getElementById('modalFrameStudio').style.display = 'none';
+  }
+
+  // Update Stage Dimensions
+  function updateStageDims() {
+    frameWidth = parseInt(document.getElementById('studioCanvasWidth').value) || 600;
+    frameHeight = parseInt(document.getElementById('studioCanvasHeight').value) || 1800;
+    stageWrapper.style.width = `${frameWidth}px`;
+    stageWrapper.style.height = `${frameHeight}px`;
+    fitToScreen();
+  }
+
+  // Fit Stage to Viewport with appropriate CSS Scale
+  function fitToScreen() {
+    const vp = document.getElementById('stageViewport');
+    const availW = vp.clientWidth - 80;
+    const availH = vp.clientHeight - 80;
+    if (availW <= 0 || availH <= 0) return;
+
+    const scaleX = availW / frameWidth;
+    const scaleY = availH / frameHeight;
+    currentZoom = Math.min(scaleX, scaleY, 1.25);
+    applyZoom();
+  }
+
+  function adjustZoom(delta) {
+    currentZoom = Math.max(0.15, Math.min(3.0, currentZoom + delta));
+    applyZoom();
+  }
+
+  function applyZoom() {
+    stageWrapper.style.transform = `scale(${currentZoom.toFixed(3)})`;
+    document.getElementById('zoomLevelText').innerText = `${Math.round(currentZoom * 100)}%`;
+  }
+
+  // Render Overlay PNG
+  function renderOverlay() {
+    const show = document.getElementById('toggleFrameOverlay').checked;
+    if (show && currentOverlaySrc) {
+      overlayImgElement.src = currentOverlaySrc;
+      overlayImgElement.style.display = 'block';
+    } else {
+      overlayImgElement.style.display = 'none';
+    }
+  }
+
+  // Handle uploaded overlay image
+  function handleOverlayFileUpload(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentOverlaySrc = e.target.result;
+        const tempImg = new Image();
+        tempImg.src = currentOverlaySrc;
+        tempImg.onload = function() {
+          if (tempImg.naturalWidth && tempImg.naturalHeight) {
+            frameWidth = tempImg.naturalWidth;
+            frameHeight = tempImg.naturalHeight;
+            document.getElementById('studioCanvasWidth').value = frameWidth;
+            document.getElementById('studioCanvasHeight').value = frameHeight;
+            updateStageDims();
+          }
+          renderOverlay();
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // RENDER DOM ELEMENTS ONLY WHEN SLOTS ARE ADDED, REMOVED, OR SELECTED (NOT on every mousemove!)
+  function renderSlotsDOM() {
+    interactiveSlotsLayer.innerHTML = '';
+    simulatedPhotosLayer.innerHTML = '';
+
+    document.getElementById('studioTotalShots').value = currentSlots.length;
+    document.getElementById('tabSlotBadge').innerText = currentSlots.length;
+    document.getElementById('studioSlotsJSON').value = JSON.stringify(currentSlots);
+
+    const showDummy = document.getElementById('toggleDummyPhotos').checked;
+
+    currentSlots.forEach((slot, idx) => {
+      const color = palette[idx % palette.length];
+      const isSelected = idx === selectedSlotIndex;
+
+      // 1. Simulated Student Photo Layer
+      if (showDummy) {
+        const dummyDiv = document.createElement('div');
+        dummyDiv.id = `simPhoto_${idx}`;
+        dummyDiv.style.position = 'absolute';
+        dummyDiv.style.left = `${slot.x}px`;
+        dummyDiv.style.top = `${slot.y}px`;
+        dummyDiv.style.width = `${slot.w}px`;
+        dummyDiv.style.height = `${slot.h}px`;
+        dummyDiv.style.background = `linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%)`;
+        dummyDiv.style.display = 'flex';
+        dummyDiv.style.flexDirection = 'column';
+        dummyDiv.style.alignItems = 'center';
+        dummyDiv.style.justifyContent = 'center';
+        dummyDiv.style.color = '#334155';
+        dummyDiv.style.overflow = 'hidden';
+
+        dummyDiv.innerHTML = `
+          <div style="font-size: ${Math.max(22, Math.round(slot.w * 0.08))}px; margin-bottom: 2px;">👤</div>
+          <div style="font-weight: 800; font-size: ${Math.max(13, Math.round(slot.w * 0.05))}px;">Foto ${idx + 1}</div>
+          <div class="dummy-dims" style="font-size: ${Math.max(11, Math.round(slot.w * 0.038))}px; color: #475569; font-family: monospace;">${slot.w} &times; ${slot.h} px</div>
+        `;
+        simulatedPhotosLayer.appendChild(dummyDiv);
+      }
+
+      // 2. Interactive Draggable & Resizable Slot Box
+      const box = document.createElement('div');
+      box.id = `slotBox_${idx}`;
+      box.className = `slot-box ${isSelected ? 'selected' : ''}`;
+      box.style.left = `${slot.x}px`;
+      box.style.top = `${slot.y}px`;
+      box.style.width = `${slot.w}px`;
+      box.style.height = `${slot.h}px`;
+      box.style.borderColor = color.border;
+      box.style.backgroundColor = color.fill;
+
+      // Click to select & drag slot
+      box.onmousedown = (e) => {
+        if (isDrawModeActive) return;
+        e.stopPropagation();
+        selectSlot(idx);
+        startAction('move', e, slot);
+      };
+
+      // Floating Info Pill & Action Buttons (Flips bottom if too close to top edge)
+      const pill = document.createElement('div');
+      pill.className = `slot-pill ${slot.y < 45 ? 'flipped' : ''}`;
+      pill.innerHTML = `
+        <span>📸 Slot ${idx + 1}</span>
+        <span class="pill-dims" style="color: #93c5fd; font-family: monospace;">${slot.w} &times; ${slot.h}</span>
+        <button type="button" onclick="duplicateSlot(${idx}, event)" title="Duplikat kotak ini">📋 Copy</button>
+        <button type="button" onclick="deleteSlot(${idx}, event)" title="Hapus slot ini" style="color: #fca5a5;">🗑️ Hapus</button>
+      `;
+      box.appendChild(pill);
+
+      // 8 Resize Handles (Only on selected slot for clean view)
+      if (isSelected) {
+        const handlePositions = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+        handlePositions.forEach(pos => {
+          const hEl = document.createElement('div');
+          hEl.className = `slot-handle handle-${pos}`;
+          hEl.onmousedown = (e) => {
+            e.stopPropagation();
+            startAction(pos, e, slot);
+          };
+          box.appendChild(hEl);
+        });
+      }
+
+      interactiveSlotsLayer.appendChild(box);
+    });
+
+    syncSidebarSlotsList();
+    syncSidebarInspector();
+  }
+
+  // Select a Slot
+  function selectSlot(idx) {
+    if (selectedSlotIndex === idx) return;
+    selectedSlotIndex = idx;
+    renderSlotsDOM();
+  }
+
+  // Synchronize Active Slot Inspector in Left Sidebar
+  function syncSidebarInspector() {
+    const card = document.getElementById('activeSlotInspectorCard');
+    const dupBtn = document.getElementById('topbarDuplicateBtn');
+    const delBtn = document.getElementById('topbarDeleteBtn');
+    const sideDupBtn = document.getElementById('btnSidebarDuplicate');
+
+    if (selectedSlotIndex >= 0 && selectedSlotIndex < currentSlots.length) {
+      const s = currentSlots[selectedSlotIndex];
+      card.style.display = 'block';
+      document.getElementById('inspectorSlotTitle').innerText = `Slot ${selectedSlotIndex + 1} (Terpilih)`;
+      document.getElementById('inpSlotX').value = s.x;
+      document.getElementById('inpSlotY').value = s.y;
+      document.getElementById('inpSlotW').value = s.w;
+      document.getElementById('inpSlotH').value = s.h;
+
+      if (dupBtn) dupBtn.style.opacity = '1';
+      if (delBtn) delBtn.style.opacity = '1';
+      if (sideDupBtn) sideDupBtn.style.opacity = '1';
+      liveInspectorTag.innerText = `Slot ${selectedSlotIndex + 1}: Posisi (${s.x}, ${s.y}) | Ukuran ${s.w} × ${s.h} px`;
+    } else {
+      card.style.display = 'none';
+      if (dupBtn) dupBtn.style.opacity = '0.5';
+      if (delBtn) delBtn.style.opacity = '0.5';
+      if (sideDupBtn) sideDupBtn.style.opacity = '0.5';
+      liveInspectorTag.innerText = `${currentSlots.length} slot foto pada template frame`;
+    }
+  }
+
+  // Synchronize All Slots List in Left Sidebar
+  function syncSidebarSlotsList() {
+    const container = document.getElementById('sidebarSlotsList');
+    container.innerHTML = '';
+
+    currentSlots.forEach((slot, idx) => {
+      const isSelected = idx === selectedSlotIndex;
+      const color = palette[idx % palette.length];
+
+      const item = document.createElement('div');
+      item.style.padding = '0.5rem 0.65rem';
+      item.style.borderRadius = '6px';
+      item.style.border = isSelected ? `2px solid ${color.border}` : '1px solid #e2e8f0';
+      item.style.background = isSelected ? '#eff6ff' : '#f8fafc';
+      item.style.display = 'flex';
+      item.style.justifyContent = 'space-between';
+      item.style.alignItems = 'center';
+      item.style.cursor = 'pointer';
+
+      item.onclick = () => selectSlot(idx);
+
+      item.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: ${color.border};"></span>
+          <span style="font-weight: 700; font-size: 0.825rem; color: #1e293b;">Slot ${idx + 1}</span>
+          <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">(${slot.w} &times; ${slot.h} px)</span>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" onclick="duplicateSlot(${idx}, event)" title="Duplikat" style="background: transparent; border: none; font-size: 0.85rem; cursor: pointer; color: #2563eb;">📋</button>
+          <button type="button" onclick="deleteSlot(${idx}, event)" title="Hapus" style="background: transparent; border: none; font-size: 0.85rem; cursor: pointer; color: #ef4444;">🗑️</button>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  // Fast Direct DOM Update during Drag/Resize (60FPS Smooth, No innerHTML Destroyed!)
+  function updateActiveSlotDOM() {
+    if (selectedSlotIndex < 0 || selectedSlotIndex >= currentSlots.length) return;
+    const s = currentSlots[selectedSlotIndex];
+
+    const box = document.getElementById(`slotBox_${selectedSlotIndex}`);
+    if (box) {
+      box.style.left = `${s.x}px`;
+      box.style.top = `${s.y}px`;
+      box.style.width = `${s.w}px`;
+      box.style.height = `${s.h}px`;
+
+      // Update floating pill
+      const pill = box.querySelector('.slot-pill');
+      if (pill) {
+        if (s.y < 45) pill.classList.add('flipped');
+        else pill.classList.remove('flipped');
+        const pillDims = pill.querySelector('.pill-dims');
+        if (pillDims) pillDims.innerText = `${s.w} × ${s.h}`;
+      }
+    }
+
+    const sim = document.getElementById(`simPhoto_${selectedSlotIndex}`);
+    if (sim) {
+      sim.style.left = `${s.x}px`;
+      sim.style.top = `${s.y}px`;
+      sim.style.width = `${s.w}px`;
+      sim.style.height = `${s.h}px`;
+      const dimsText = sim.querySelector('.dummy-dims');
+      if (dimsText) dimsText.innerHTML = `${s.w} &times; ${s.h} px`;
+    }
+
+    // Update inspector input fields
+    document.getElementById('inpSlotX').value = s.x;
+    document.getElementById('inpSlotY').value = s.y;
+    document.getElementById('inpSlotW').value = s.w;
+    document.getElementById('inpSlotH').value = s.h;
+
+    liveInspectorTag.innerText = `Slot ${selectedSlotIndex + 1}: Posisi (${s.x}, ${s.y}) | Ukuran ${s.w} × ${s.h} px`;
+  }
+
+  // Start Moving or Resizing Action
+  function startAction(type, e, slot) {
+    activeAction = type;
+    dragStartMouseX = e.clientX;
+    dragStartMouseY = e.clientY;
+    initialSlotProps = { x: slot.x, y: slot.y, w: slot.w, h: slot.h };
+  }
+
+  // Global Mouse Move Listener (Directly modifies CSS styles for silky-smooth response)
+  window.addEventListener('mousemove', (e) => {
+    if (!activeAction) return;
+
+    // Convert mouse movement to frame pixel coordinates based on zoom scale
+    const deltaX = Math.round((e.clientX - dragStartMouseX) / currentZoom);
+    const deltaY = Math.round((e.clientY - dragStartMouseY) / currentZoom);
+
+    if (activeAction === 'drawing') {
+      handleMarqueeDrawing(e);
+      return;
+    }
+
+    const s = currentSlots[selectedSlotIndex];
+    if (!s) return;
+
+    if (activeAction === 'move') {
+      s.x = Math.max(0, Math.min(frameWidth - initialSlotProps.w, initialSlotProps.x + deltaX));
+      s.y = Math.max(0, Math.min(frameHeight - initialSlotProps.h, initialSlotProps.y + deltaY));
+    } else if (activeAction === 'se') {
+      s.w = Math.max(50, Math.min(frameWidth - s.x, initialSlotProps.w + deltaX));
+      s.h = Math.max(50, Math.min(frameHeight - s.y, initialSlotProps.h + deltaY));
+    } else if (activeAction === 's') {
+      s.h = Math.max(50, Math.min(frameHeight - s.y, initialSlotProps.h + deltaY));
+    } else if (activeAction === 'e') {
+      s.w = Math.max(50, Math.min(frameWidth - s.x, initialSlotProps.w + deltaX));
+    } else if (activeAction === 'nw') {
+      const newW = Math.max(50, initialSlotProps.w - deltaX);
+      const newH = Math.max(50, initialSlotProps.h - deltaY);
+      s.x = Math.max(0, initialSlotProps.x + (initialSlotProps.w - newW));
+      s.y = Math.max(0, initialSlotProps.y + (initialSlotProps.h - newH));
+      s.w = newW;
+      s.h = newH;
+    } else if (activeAction === 'ne') {
+      const newH = Math.max(50, initialSlotProps.h - deltaY);
+      s.y = Math.max(0, initialSlotProps.y + (initialSlotProps.h - newH));
+      s.w = Math.max(50, Math.min(frameWidth - s.x, initialSlotProps.w + deltaX));
+      s.h = newH;
+    } else if (activeAction === 'sw') {
+      const newW = Math.max(50, initialSlotProps.w - deltaX);
+      s.x = Math.max(0, initialSlotProps.x + (initialSlotProps.w - newW));
+      s.w = newW;
+      s.h = Math.max(50, Math.min(frameHeight - s.y, initialSlotProps.h + deltaY));
+    } else if (activeAction === 'n') {
+      const newH = Math.max(50, initialSlotProps.h - deltaY);
+      s.y = Math.max(0, initialSlotProps.y + (initialSlotProps.h - newH));
+      s.h = newH;
+    } else if (activeAction === 'w') {
+      const newW = Math.max(50, initialSlotProps.w - deltaX);
+      s.x = Math.max(0, initialSlotProps.x + (initialSlotProps.w - newW));
+      s.w = newW;
+    }
+
+    updateActiveSlotDOM();
+  });
+
+  // Global Mouse Up Listener
+  window.addEventListener('mouseup', (e) => {
+    if (activeAction === 'drawing') {
+      finishMarqueeDrawing(e);
+    } else if (activeAction) {
+      document.getElementById('studioSlotsJSON').value = JSON.stringify(currentSlots);
+      syncSidebarSlotsList();
+    }
+    activeAction = null;
+  });
+
+  // DRAW MODE: Click and drag anywhere on screen to draw a new slot box
+  function toggleDrawMode() {
+    isDrawModeActive = !isDrawModeActive;
+    updateDrawButtonState();
+  }
+
+  function updateDrawButtonState() {
+    const btn = document.getElementById('btnDrawTool');
+    if (isDrawModeActive) {
+      btn.style.background = '#0284c7';
+      btn.style.borderColor = '#38bdf8';
+      btn.innerHTML = '<span>❌ Klik untuk Batal Gambar</span>';
+      drawMarqueeLayer.style.display = 'block';
+    } else {
+      btn.style.background = '#334155';
+      btn.style.borderColor = 'rgba(255,255,255,0.2)';
+      btn.innerHTML = '<span>✏️ Tarik & Gambar Slot di Layar</span>';
+      drawMarqueeLayer.style.display = 'none';
+      marqueeBox.style.display = 'none';
+    }
+  }
+
+  drawMarqueeLayer.onmousedown = (e) => {
+    if (!isDrawModeActive) return;
+    activeAction = 'drawing';
+    const rect = stageWrapper.getBoundingClientRect();
+    drawStartPoint = {
+      x: Math.round((e.clientX - rect.left) / currentZoom),
+      y: Math.round((e.clientY - rect.top) / currentZoom)
+    };
+    marqueeBox.style.left = `${drawStartPoint.x}px`;
+    marqueeBox.style.top = `${drawStartPoint.y}px`;
+    marqueeBox.style.width = '0px';
+    marqueeBox.style.height = '0px';
+    marqueeBox.style.display = 'block';
+  };
+
+  function handleMarqueeDrawing(e) {
+    const rect = stageWrapper.getBoundingClientRect();
+    const curX = Math.round((e.clientX - rect.left) / currentZoom);
+    const curY = Math.round((e.clientY - rect.top) / currentZoom);
+
+    const x = Math.max(0, Math.min(drawStartPoint.x, curX));
+    const y = Math.max(0, Math.min(drawStartPoint.y, curY));
+    const w = Math.min(frameWidth - x, Math.abs(curX - drawStartPoint.x));
+    const h = Math.min(frameHeight - y, Math.abs(curY - drawStartPoint.y));
+
+    marqueeBox.style.left = `${x}px`;
+    marqueeBox.style.top = `${y}px`;
+    marqueeBox.style.width = `${w}px`;
+    marqueeBox.style.height = `${h}px`;
+  }
+
+  function finishMarqueeDrawing(e) {
+    const rect = stageWrapper.getBoundingClientRect();
+    const curX = Math.round((e.clientX - rect.left) / currentZoom);
+    const curY = Math.round((e.clientY - rect.top) / currentZoom);
+
+    const x = Math.max(0, Math.min(drawStartPoint.x, curX));
+    const y = Math.max(0, Math.min(drawStartPoint.y, curY));
+    const w = Math.min(frameWidth - x, Math.abs(curX - drawStartPoint.x));
+    const h = Math.min(frameHeight - y, Math.abs(curY - drawStartPoint.y));
+
+    if (w >= 40 && h >= 40) {
+      currentSlots.push({
+        index: currentSlots.length,
+        x: Math.round(x),
+        y: Math.round(y),
+        w: Math.round(w),
+        h: Math.round(h)
+      });
+      selectedSlotIndex = currentSlots.length - 1;
+    }
+
+    marqueeBox.style.display = 'none';
+    isDrawModeActive = false;
+    updateDrawButtonState();
+    renderSlotsDOM();
+  }
+
+  // Quick Action: Add Slot in Center of Screen
+  function addNewSlotCenter() {
+    const defaultW = Math.round(frameWidth * 0.85);
+    const defaultH = Math.round(defaultW * 0.72);
+    let defaultY = 60;
+    if (currentSlots.length > 0) {
+      const last = currentSlots[currentSlots.length - 1];
+      defaultY = Math.min(last.y + last.h + 25, frameHeight - defaultH - 20);
+    }
+
+    currentSlots.push({
+      index: currentSlots.length,
+      x: Math.round((frameWidth - defaultW) / 2),
+      y: Math.max(20, defaultY),
+      w: defaultW,
+      h: defaultH
+    });
+
+    selectedSlotIndex = currentSlots.length - 1;
+    renderSlotsDOM();
+  }
+
+  // Duplicate Selected / Specific Slot
+  function duplicateCurrentSlot() {
+    if (selectedSlotIndex >= 0 && selectedSlotIndex < currentSlots.length) {
+      duplicateSlot(selectedSlotIndex);
+    } else {
+      addNewSlotCenter();
+    }
+  }
+
+  function duplicateSlot(idx, event) {
+    if (event) event.stopPropagation();
+    const orig = currentSlots[idx];
+    if (!orig) return;
+
+    currentSlots.push({
+      index: currentSlots.length,
+      x: Math.min(frameWidth - orig.w, orig.x + 30),
+      y: Math.min(frameHeight - orig.h, orig.y + 30),
+      w: orig.w,
+      h: orig.h
+    });
+
+    selectedSlotIndex = currentSlots.length - 1;
+    renderSlotsDOM();
+  }
+
+  // Delete Selected / Specific Slot
+  function deleteCurrentSlot() {
+    if (selectedSlotIndex >= 0 && selectedSlotIndex < currentSlots.length) {
+      deleteSlot(selectedSlotIndex);
+    }
+  }
+
+  function deleteSlot(idx, event) {
+    if (event) event.stopPropagation();
+    currentSlots.splice(idx, 1);
+    currentSlots.forEach((s, i) => s.index = i);
+    selectedSlotIndex = Math.min(selectedSlotIndex, currentSlots.length - 1);
+    renderSlotsDOM();
+  }
+
+  // Alignment Tools (Center X, Center Y)
+  function centerSlotX() {
+    if (selectedSlotIndex < 0 || selectedSlotIndex >= currentSlots.length) return;
+    const s = currentSlots[selectedSlotIndex];
+    s.x = Math.round((frameWidth - s.w) / 2);
+    updateActiveSlotDOM();
+    document.getElementById('studioSlotsJSON').value = JSON.stringify(currentSlots);
+  }
+
+  function centerSlotY() {
+    if (selectedSlotIndex < 0 || selectedSlotIndex >= currentSlots.length) return;
+    const s = currentSlots[selectedSlotIndex];
+    s.y = Math.round((frameHeight - s.h) / 2);
+    updateActiveSlotDOM();
+    document.getElementById('studioSlotsJSON').value = JSON.stringify(currentSlots);
+  }
+
+  // Micro Nudge Buttons
+  function nudgeSlot(dx, dy) {
+    if (selectedSlotIndex < 0 || selectedSlotIndex >= currentSlots.length) return;
+    const s = currentSlots[selectedSlotIndex];
+    s.x = Math.max(0, Math.min(frameWidth - s.w, s.x + dx));
+    s.y = Math.max(0, Math.min(frameHeight - s.h, s.y + dy));
+    updateActiveSlotDOM();
+    document.getElementById('studioSlotsJSON').value = JSON.stringify(currentSlots);
+  }
+
+  // Manual Numeric Input from Sidebar
+  function manualUpdateSlot(prop, val) {
+    if (selectedSlotIndex < 0 || selectedSlotIndex >= currentSlots.length) return;
+    const num = parseInt(val) || 0;
+    currentSlots[selectedSlotIndex][prop] = num;
+    updateActiveSlotDOM();
+    document.getElementById('studioSlotsJSON').value = JSON.stringify(currentSlots);
+  }
+
+  // Preset Layout Selector
+  function handlePresetChange(type) {
+    if (type === 'strip_2x6') {
+      frameWidth = 600;
+      frameHeight = 1800;
+      currentSlots = [
+        { index: 0, x: 40, y: 70, w: 520, h: 420 },
+        { index: 1, x: 40, y: 520, w: 520, h: 420 },
+        { index: 2, x: 40, y: 970, w: 520, h: 420 }
+      ];
+    } else if (type === 'grid_4cut') {
+      frameWidth = 1200;
+      frameHeight = 1800;
+      currentSlots = [
+        { index: 0, x: 50, y: 70, w: 530, h: 680 },
+        { index: 1, x: 620, y: 70, w: 530, h: 680 },
+        { index: 2, x: 50, y: 780, w: 530, h: 680 },
+        { index: 3, x: 620, y: 780, w: 530, h: 680 }
+      ];
+    } else if (type === 'polaroid') {
+      frameWidth = 1200;
+      frameHeight = 1500;
+      currentSlots = [
+        { index: 0, x: 80, y: 80, w: 1040, h: 1040 }
+      ];
+    }
+
+    document.getElementById('studioCanvasWidth').value = frameWidth;
+    document.getElementById('studioCanvasHeight').value = frameHeight;
+    selectedSlotIndex = 0;
+    updateStageDims();
+    renderSlotsDOM();
+  }
+
+  // Deselect when clicking empty space on stage
+  interactiveSlotsLayer.onmousedown = (e) => {
+    if (e.target === interactiveSlotsLayer) {
+      selectedSlotIndex = -1;
+      renderSlotsDOM();
+    }
+  };
+
+  // Keyboard Shortcuts (Arrow keys to nudge, Delete to remove, Ctrl+D to duplicate)
+  window.addEventListener('keydown', (e) => {
+    if (document.getElementById('modalFrameStudio').style.display === 'flex') {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedSlotIndex >= 0) {
+        e.preventDefault();
+        deleteCurrentSlot();
+      } else if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        duplicateCurrentSlot();
+      } else if (e.key === 'Escape') {
+        if (isDrawModeActive) {
+          isDrawModeActive = false;
+          updateDrawButtonState();
+        } else {
+          selectedSlotIndex = -1;
+          renderSlotsDOM();
+        }
+      } else if (selectedSlotIndex >= 0) {
+        const step = e.shiftKey ? 10 : 2;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); nudgeSlot(-step, 0); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); nudgeSlot(step, 0); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); nudgeSlot(0, -step); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); nudgeSlot(0, step); }
+      }
+    }
+  });
+
+  // Auto-resize on window resize
+  window.addEventListener('resize', () => {
+    if (document.getElementById('modalFrameStudio').style.display === 'flex') {
+      fitToScreen();
+    }
+  });
+</script>
+{{end}}

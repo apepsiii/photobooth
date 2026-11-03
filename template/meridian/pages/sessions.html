@@ -1,0 +1,185 @@
+{{define "sessions"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Galeri Riwayat Pemotretan</h1>
+    <p style="color: var(--text-muted, #64748b); margin-top: 0.25rem;">Daftar sesi foto yang telah selesai, status cetak, dan softfile unduhan siswa.</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="/admin/sessions/export-csv" class="btn btn--secondary" style="padding: 0.6rem 1.1rem; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #cbd5e1; color: #334155; display: inline-flex; align-items: center; gap: 6px;">
+      📊 Unduh CSV Laporan
+    </a>
+    <a href="/admin/sessions/export-zip" class="btn btn--secondary" style="padding: 0.6rem 1.1rem; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #cbd5e1; color: #334155; display: inline-flex; align-items: center; gap: 6px;">
+      📦 Unduh ZIP Foto
+    </a>
+    <a href="/kiosk" target="_blank" class="btn btn--primary" style="background: #2563eb; color: #fff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+      Buka Layar Kiosk &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- Stats bar -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Total Sesi Selesai</div>
+    <div style="font-size: 1.85rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem;">{{.Data.TotalSessions}}</div>
+  </div>
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Total Lembar Dicetak</div>
+    <div style="font-size: 1.85rem; font-weight: 700; color: #2563eb; margin-top: 0.25rem;">{{.Data.TotalPrints}}</div>
+  </div>
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Total Unduhan Softfile</div>
+    <div style="font-size: 1.85rem; font-weight: 700; color: #10b981; margin-top: 0.25rem;">{{.Data.TotalDownloads}}</div>
+  </div>
+</div>
+
+<!-- Filter & Search Bar -->
+<div style="background: #fff; padding: 0.85rem 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+  <div style="position: relative; flex: 1; max-width: 400px;">
+    <input type="text" id="sessionSearchInput" onkeyup="filterSessions()" placeholder="🔍 Cari kode sesi (misal: PB-...) atau frame..." style="width: 100%; padding: 0.55rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem;" />
+  </div>
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #475569; background: #f8fafc; padding: 0.4rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; cursor: pointer;">
+      <input type="checkbox" id="autoRefreshToggle" onchange="toggleAutoRefresh(this.checked)" style="cursor: pointer;" />
+      <span id="autoRefreshLabel">🔄 Auto Refresh (10s)</span>
+    </label>
+    <div style="font-size: 0.85rem; color: #64748b;">
+      Menampilkan <strong id="visibleCount">{{len .Data.Sessions}}</strong> dari {{len .Data.Sessions}} sesi
+    </div>
+  </div>
+</div>
+
+<!-- Session Cards Grid -->
+<div id="sessionsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+  {{range .Data.Sessions}}
+  <div class="card session-card" data-code="{{.SessionCode}}" data-frame="{{if .Frame.Name}}{{.Frame.Name}}{{else}}Default{{end}}" style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s;">
+    <div style="height: 280px; background: #f8fafc; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid #e2e8f0; overflow: hidden; cursor: pointer;" onclick="openPreviewModal('{{.CompositePath}}', '{{.SessionCode}}', '{{if .Frame.Name}}{{.Frame.Name}}{{else}}Default Frame{{end}}')">
+      <img src="{{.CompositePath}}" alt="{{.SessionCode}}" style="max-height: 260px; max-width: 90%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12)); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" />
+      <span style="position: absolute; top: 10px; left: 10px; background: rgba(15,23,42,0.85); color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; font-family: monospace;">
+        {{.SessionCode}}
+      </span>
+      <span style="position: absolute; top: 10px; right: 10px; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600;">
+        Filter: {{.FilterApplied}}
+      </span>
+      <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9); color: #334155; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        🔍 Klik Preview
+      </span>
+    </div>
+
+    <div style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #1e293b;">{{if .Frame.Name}}{{.Frame.Name}}{{else}}Default Frame{{end}}</span>
+        <span style="font-size: 0.75rem; color: #94a3b8;">{{.CreatedAt.Format "15:04 - 02 Jan"}}</span>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b; margin-bottom: 1rem; background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 6px;">
+        <span>Cetak: <strong>{{.PrintedCount}}x</strong></span>
+        <span>Unduh: <strong>{{.DownloadedCount}}x</strong></span>
+      </div>
+
+      <div style="display: flex; gap: 0.4rem; justify-content: space-between; align-items: center;">
+        <a href="/d/{{.SessionCode}}" target="_blank" class="btn btn--sm btn--secondary" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; text-decoration: none; color: #475569; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; gap: 4px;">
+          Laman QR &nearr;
+        </a>
+
+        <div style="display: flex; gap: 0.35rem;">
+          <form method="POST" action="/admin/sessions/{{.ID}}/reprint" style="margin: 0;">
+            <input type="hidden" name="copies" value="1" />
+            <button type="submit" class="btn btn--sm btn--primary" title="Cetak 1 lembar ke printer" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer; background: #2563eb; color: #fff; border: none;">
+              🖨️ Cetak
+            </button>
+          </form>
+
+          <form method="POST" action="/admin/sessions/{{.ID}}/delete" onsubmit="return confirm('Yakin ingin menghapus sesi {{.SessionCode}} beserta file fotonya?')" style="margin: 0;">
+            <button type="submit" class="btn btn--sm btn--danger" title="Hapus sesi ini" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; cursor: pointer; background: #ef4444; color: #fff; border: none;">
+              🗑️
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; color: #94a3b8;">
+    <p style="font-size: 1.1rem; margin: 0 0 0.5rem;">Belum ada sesi pemotretan.</p>
+    <p style="font-size: 0.875rem; margin: 0;">Jalankan layar Kiosk untuk mulai mengambil foto!</p>
+  </div>
+  {{end}}
+</div>
+
+<!-- Lightbox Modal Preview -->
+<div id="modalPreview" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 1.5rem;" onclick="closePreviewModal(event)">
+  <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
+    <div style="background: rgba(15,23,42,0.95); padding: 0.75rem 1.25rem; border-radius: 12px 12px 0 0; width: 100%; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+      <div>
+        <span id="modalCode" style="font-family: monospace; font-weight: 700; font-size: 1.1rem; color: #60a5fa;"></span>
+        <span id="modalFrame" style="font-size: 0.85rem; color: #94a3b8; margin-left: 0.75rem;"></span>
+      </div>
+      <button type="button" onclick="document.getElementById('modalPreview').style.display='none'" style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+    <div style="background: #09090b; padding: 1rem; border-radius: 0 0 12px 12px; display: flex; justify-content: center; max-height: calc(90vh - 60px);">
+      <img id="modalImg" src="" alt="Full Preview" style="max-height: 75vh; max-width: 80vw; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+    </div>
+  </div>
+</div>
+
+<script>
+  function openPreviewModal(imgSrc, code, frame) {
+    document.getElementById('modalImg').src = imgSrc;
+    document.getElementById('modalCode').innerText = code;
+    document.getElementById('modalFrame').innerText = frame;
+    document.getElementById('modalPreview').style.display = 'flex';
+  }
+
+  function closePreviewModal(e) {
+    if (e.target.id === 'modalPreview') {
+      document.getElementById('modalPreview').style.display = 'none';
+    }
+  }
+
+  function filterSessions() {
+    const q = document.getElementById('sessionSearchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.session-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      const code = (card.getAttribute('data-code') || '').toLowerCase();
+      const frame = (card.getAttribute('data-frame') || '').toLowerCase();
+      if (code.includes(q) || frame.includes(q)) {
+        card.style.display = 'block';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    document.getElementById('visibleCount').innerText = visible;
+  }
+
+  let autoRefreshTimer = null;
+  function toggleAutoRefresh(enable) {
+    localStorage.setItem('sessions_auto_refresh', enable ? '1' : '0');
+    const label = document.getElementById('autoRefreshLabel');
+    if (enable) {
+      if (label) label.innerText = '🟢 Auto Refresh (10s)';
+      autoRefreshTimer = setInterval(() => { window.location.reload(); }, 10000);
+    } else {
+      if (label) label.innerText = '🔄 Auto Refresh (10s)';
+      clearInterval(autoRefreshTimer);
+    }
+  }
+
+  // Restore state on load
+  if (localStorage.getItem('sessions_auto_refresh') === '1') {
+    const chk = document.getElementById('autoRefreshToggle');
+    if (chk) {
+      chk.checked = true;
+      toggleAutoRefresh(true);
+    }
+  }
+</script>
+{{end}}

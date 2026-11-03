@@ -1,0 +1,218 @@
+{{define "order-new"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+            <header class="page__header">
+              <div class="page__headline">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb__item"><a href="/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb__item"><a href="/orders">Orders</a></li>
+                    <li class="breadcrumb__item" aria-current="page">New order</li>
+                  </ol>
+                </nav>
+                <h1 class="page__title">New order</h1>
+                <p class="page__description">Add products, assign a customer, and set shipping before saving.</p>
+              </div>
+            </header>
+
+            <div class="page__body">
+              <form class="order-form" data-order-form>
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-12 lg:col-span-8">
+                    <div class="flex flex-col gap-3">
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Line items</span></div>
+                        <div class="line-items">
+                          <div class="line-items__head" aria-hidden="true">
+                            <span>Product</span>
+                            <span class="text-end">Qty</span>
+                            <span class="text-end">Unit price</span>
+                            <span class="text-end">Total</span>
+                            <span></span>
+                          </div>
+                          <div data-line-items>
+                            <div class="line-items__row" data-line-row>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Product</span>
+                                <input type="text" class="input" value="Espresso Beans 500g" placeholder="Product name" aria-label="Product name"/>
+                              </div>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Qty</span>
+                                <input type="number" class="input text-end" value="2" min="1" data-qty aria-label="Quantity"/>
+                              </div>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Unit price</span>
+                                <div class="input-group">
+                                  <span class="input-group__text">$</span>
+                                  <input type="number" class="input text-end" value="24.99" min="0" step="0.01" data-price aria-label="Unit price"/>
+                                </div>
+                              </div>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Total</span>
+                                <span class="line-items__total" data-line-total>$0.00</span>
+                              </div>
+                              <div class="line-items__remove">
+                                <button type="button" class="button button--soft button--danger" data-remove-item aria-label="Remove item">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                                  <span class="line-items__remove-text">Remove</span>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="line-items__row" data-line-row>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Product</span>
+                                <input type="text" class="input" value="Travel Mug 350ml" placeholder="Product name" aria-label="Product name"/>
+                              </div>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Qty</span>
+                                <input type="number" class="input text-end" value="1" min="1" data-qty aria-label="Quantity"/>
+                              </div>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Unit price</span>
+                                <div class="input-group">
+                                  <span class="input-group__text">$</span>
+                                  <input type="number" class="input text-end" value="34.50" min="0" step="0.01" data-price aria-label="Unit price"/>
+                                </div>
+                              </div>
+                              <div class="line-items__field">
+                                <span class="line-items__label">Total</span>
+                                <span class="line-items__total" data-line-total>$0.00</span>
+                              </div>
+                              <div class="line-items__remove">
+                                <button type="button" class="button button--soft button--danger" data-remove-item aria-label="Remove item">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                                  <span class="line-items__remove-text">Remove</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="card__body items-end">
+                          <button type="button" class="button button--soft button--primary button--sm" data-add-item>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3"/></g></svg>
+                            Add item
+                          </button>
+                        </div>
+
+                        <div class="card__footer">
+                          <dl class="order-form__totals">
+                            <div class="order-form__total-row"><dt>Subtotal</dt><dd data-subtotal>$0.00</dd></div>
+                            <div class="order-form__total-row"><dt>Tax (10%)</dt><dd data-tax>$0.00</dd></div>
+                            <div class="order-form__total-row"><dt>Shipping</dt><dd data-shipping>$0.00</dd></div>
+                            <div class="order-form__total-row order-form__total-row--grand"><dt>Total</dt><dd data-total>$0.00</dd></div>
+                          </dl>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Shipping address</span></div>
+                        <div class="card__body">
+                          <div class="grid grid-cols-12 gap-4">
+                            <div class="col-span-12">
+                              <div class="field">
+                                <label for="shipName" class="field__label">Full name / Company</label>
+                                <input type="text" class="input" id="shipName" placeholder="Acme Corp"/>
+                              </div>
+                            </div>
+                            <div class="col-span-12">
+                              <div class="field">
+                                <label for="shipAddr" class="field__label">Address</label>
+                                <input type="text" class="input" id="shipAddr" placeholder="482 Harbor Boulevard"/>
+                              </div>
+                            </div>
+                            <div class="col-span-12 sm:col-span-6">
+                              <div class="field">
+                                <label for="shipCity" class="field__label">City</label>
+                                <input type="text" class="input" id="shipCity" placeholder="San Diego"/>
+                              </div>
+                            </div>
+                            <div class="col-span-12 sm:col-span-6">
+                              <div class="field">
+                                <label for="shipZip" class="field__label">ZIP / Postal code</label>
+                                <input type="text" class="input" id="shipZip" placeholder="92101"/>
+                              </div>
+                            </div>
+                            <div class="col-span-12">
+                              <div class="field">
+                                <label for="shipCountry" class="field__label">Country</label>
+                                <select class="select" id="shipCountry">
+                                  <option value="">Select country</option>
+                                  <option value="us" selected>United States</option>
+                                  <option value="gb">United Kingdom</option>
+                                  <option value="ca">Canada</option>
+                                  <option value="au">Australia</option>
+                                  <option value="id">Indonesia</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-span-12 lg:col-span-4">
+                    <div class="flex flex-col gap-3">
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Customer</span></div>
+                        <div class="card__body">
+                          <div class="field">
+                            <label for="orderCustomer" class="field__label">Customer</label>
+                            <select class="select" id="orderCustomer">
+                              <option value="">Search customer…</option>
+                              <option value="acme">Acme Corp</option>
+                              <option value="riverway">Riverway Ltd</option>
+                              <option value="northwind">Northwind Traders</option>
+                              <option value="globex">Globex</option>
+                              <option value="hooli">Hooli</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Payment</span></div>
+                        <div class="card__body">
+                          <div class="field">
+                            <label for="orderPayment" class="field__label">Method</label>
+                            <select class="select" id="orderPayment">
+                              <option value="card">Credit card</option>
+                              <option value="invoice">Invoice</option>
+                              <option value="bank">Bank transfer</option>
+                              <option value="cash">Cash on delivery</option>
+                            </select>
+                          </div>
+                          <div class="field">
+                            <label for="orderShipping" class="field__label">Shipping method</label>
+                            <select class="select" id="orderShipping">
+                              <option value="standard">Standard (3–5 days) — $15.00</option>
+                              <option value="express">Express (1–2 days) — $35.00</option>
+                              <option value="free">Free shipping</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card">
+                        <div class="card__header"><span class="card__title">Notes</span></div>
+                        <div class="card__body">
+                          <textarea class="input" rows="3" placeholder="Internal note about this order…"></textarea>
+                        </div>
+                      </div>
+
+                      <div class="flex flex-col gap-2">
+                        <button type="submit" class="button button--primary">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5.338C3 4.6 3 4.232 3.162 3.96a1.5 1.5 0 0 1 .378-.378C3.812 3.42 4.18 3.42 4.916 3.42H16.5l4.5 4.5v11.742c0 .738 0 1.106-.162 1.378a1.5 1.5 0 0 1-.378.378c-.272.162-.64.162-1.378.162H4.916c-.738 0-1.106 0-1.378-.162a1.5 1.5 0 0 1-.378-.378C3 20.768 3 20.4 3 19.662z"/><path stroke-linecap="round" d="M8 3.42v3.75h7.5V3.42M8 20.58v-5.25h8v5.25"/></g></svg>
+                          Save order
+                        </button>
+                        <a href="/orders" class="button button--ghost button--neutral">Cancel</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+{{end}}

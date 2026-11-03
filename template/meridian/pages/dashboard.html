@@ -1,0 +1,182 @@
+{{define "dashboard"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <div style="display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.35rem;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; box-shadow: 0 0 6px #0284c7;"></span>
+      {{.Data.Config.SchoolName}}
+    </div>
+    <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0; color: #0f172a;">Ringkasan Photobooth · {{.Data.Config.EventName}}</h1>
+    <p style="color: var(--text-muted, #64748b); margin-top: 0.25rem; font-size: 0.9rem;">Pantau pemotretan langsung, kuota cetak printer, dan softfile unduhan siswa secara real-time.</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="/kiosk" target="_blank" class="btn btn--primary" style="background: #2563eb; color: #fff; padding: 0.65rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.3);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Buka Layar Kiosk &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- KPI Stats Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Total Sesi Selesai</span>
+      <span style="font-size: 1.3rem;">📸</span>
+    </div>
+    <div style="font-size: 2rem; font-weight: 800; color: #0f172a; margin-top: 0.35rem;">{{.Data.TotalSessions}}</div>
+    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">Pemotretan booth berhasil</div>
+  </div>
+
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Lembar Dicetak</span>
+      <span style="font-size: 1.3rem;">🖨️</span>
+    </div>
+    <div style="font-size: 2rem; font-weight: 800; color: #2563eb; margin-top: 0.35rem;">{{.Data.TotalPrints}}</div>
+    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">Total foto fisik keluar</div>
+  </div>
+
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Unduhan Softfile</span>
+      <span style="font-size: 1.3rem;">📱</span>
+    </div>
+    <div style="font-size: 2rem; font-weight: 800; color: #10b981; margin-top: 0.35rem;">{{.Data.TotalDownloads}}</div>
+    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">Scan QR di smartphone</div>
+  </div>
+
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Kupon Tersedia</span>
+      <span style="font-size: 1.3rem;">🎟️</span>
+    </div>
+    <div style="font-size: 2rem; font-weight: 800; color: #8b5cf6; margin-top: 0.35rem;">{{.Data.AvailableVouchers}}</div>
+    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">Tiket bazaar belum dipakai</div>
+  </div>
+</div>
+
+<!-- System Health & Offline Network Banner -->
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 14px; padding: 1.5rem; color: #fff; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 1rem; margin-bottom: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e;"></span>
+      <span style="font-weight: 700; font-size: 1.05rem;">Server & Jaringan Lokal Standby (100% Offline)</span>
+    </div>
+    <div style="font-size: 0.85rem; color: #94a3b8; font-family: monospace;">
+      URL Kiosk: <span style="color: #60a5fa; font-weight: 700;">http://{{.Data.LocalIP}}:8090/kiosk</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.85rem;">
+    <div>
+      <div style="color: #94a3b8;">Printer Hardware:</div>
+      <div style="font-weight: 700; margin-top: 2px;">{{if .Data.Config.PrinterName}}{{.Data.Config.PrinterName}}{{else}}Default Windows Printer{{end}}</div>
+    </div>
+    <div>
+      <div style="color: #94a3b8;">Perilaku Cetak:</div>
+      <div style="font-weight: 700; margin-top: 2px;">
+        {{if .Data.Config.PrintEnabled}}
+          {{if .Data.Config.AutoPrint}}Otomatis Cetak (Auto-Print){{else}}Konfirmasi Manual{{end}}
+        {{else}}
+          Eco-Digital Mode (Hanya QR)
+        {{end}}
+      </div>
+    </div>
+    <div>
+      <div style="color: #94a3b8;">Mode Tiket Booth:</div>
+      <div style="font-weight: 700; margin-top: 2px;">
+        {{if .Data.Config.VoucherModeEnabled}}
+          <span style="color: #4ade80;">Wajib Kupon/Tiket</span>
+        {{else}}
+          <span style="color: #93c5fd;">Gratis (Langsung Mulai)</span>
+        {{end}}
+      </div>
+    </div>
+    <div>
+      <div style="color: #94a3b8;">Template Aktif:</div>
+      <div style="font-weight: 700; margin-top: 2px;">{{.Data.ActiveFrames}} Frame Tersedia</div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Action Cards Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <a href="/admin/sessions" style="text-decoration: none; color: inherit; background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+    <div style="width: 48px; height: 48px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+      📸
+    </div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Galeri Riwayat</div>
+      <div style="font-size: 0.75rem; color: #64748b;">Lihat sesi & cetak ulang</div>
+    </div>
+  </a>
+
+  <a href="/admin/frames" style="text-decoration: none; color: inherit; background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+    <div style="width: 48px; height: 48px; border-radius: 10px; background: #fdf2f8; color: #db2777; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+      🖼️
+    </div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Template Frame</div>
+      <div style="font-size: 0.75rem; color: #64748b;">Kelola bingkai & slot koordinat</div>
+    </div>
+  </a>
+
+  <a href="/admin/vouchers" style="text-decoration: none; color: inherit; background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+    <div style="width: 48px; height: 48px; border-radius: 10px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+      🎟️
+    </div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Tiket Bazaar & Pensi</div>
+      <div style="font-size: 0.75rem; color: #64748b;">Buat & cetak lembar tiket</div>
+    </div>
+  </a>
+
+  <a href="/admin/settings" style="text-decoration: none; color: inherit; background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+    <div style="width: 48px; height: 48px; border-radius: 10px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+      ⚙️
+    </div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a;">Pengaturan Booth</div>
+      <div style="font-size: 0.75rem; color: #64748b;">Printer, PIN, & identitas acara</div>
+    </div>
+  </a>
+</div>
+
+<!-- Recent Captures Section -->
+<div style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div>
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin: 0; color: #0f172a;">Jepretan Terbaru (Live Stream)</h2>
+      <p style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">Foto komposit yang baru saja diambil pengunjung di stan.</p>
+    </div>
+    <a href="/admin/sessions" style="color: #2563eb; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+      Lihat Semua Galeri &rarr;
+    </a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
+    {{range .Data.RecentSessions}}
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+      <div style="height: 190px; background: #f8fafc; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f1f5f9; overflow: hidden; position: relative;">
+        <img src="{{.CompositePath}}" alt="{{.SessionCode}}" style="max-height: 180px; max-width: 90%; object-fit: contain;" />
+        <span style="position: absolute; top: 6px; left: 6px; background: rgba(15,23,42,0.85); color: #fff; font-size: 0.65rem; font-family: monospace; padding: 2px 6px; border-radius: 4px; font-weight: 600;">
+          {{.SessionCode}}
+        </span>
+      </div>
+      <div style="padding: 0.65rem 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+        <span style="color: #64748b;">{{.CreatedAt.Format "15:04:05"}}</span>
+        <a href="/d/{{.SessionCode}}" target="_blank" style="color: #2563eb; font-weight: 600; text-decoration: none;">Softfile &nearr;</a>
+      </div>
+    </div>
+    {{else}}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; color: #94a3b8; font-size: 0.875rem;">
+      Belum ada foto yang diambil hari ini. Buka layar Kiosk untuk memulai pemotretan!
+    </div>
+    {{end}}
+  </div>
+</div>
+{{end}}

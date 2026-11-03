@@ -1,0 +1,220 @@
+{{define "vouchers"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+<style>
+  @media print {
+    /* Hide layout chrome when printing coupon sheets */
+    nav, aside, header, .sidebar, .navbar, .page-header, .mode-banner, .stats-row, .vouchers-table-card, footer, button, a {
+      display: none !important;
+    }
+    body, .app-layout, .main-content, .content, main {
+      background: #ffffff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+    .printable-coupons-sheet {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 16px !important;
+      padding: 20px !important;
+    }
+    .coupon-ticket {
+      border: 2px dashed #475569 !important;
+      padding: 16px !important;
+      border-radius: 8px !important;
+      page-break-inside: avoid !important;
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+  }
+
+  @media screen {
+    .printable-coupons-sheet {
+      display: none;
+    }
+  }
+</style>
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Tiket & Voucher Booth (Bazaar / Pensi)</h1>
+    <p style="color: var(--text-muted, #64748b); margin-top: 0.25rem;">Kelola tiket berbayar atau kupon pre-paid untuk penggalangan dana acara sekolah.</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <button type="button" onclick="copyAvailableCodes()" id="copyCodesBtn" class="btn btn--secondary" style="padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+      📋 Salin Kode Tersedia
+    </button>
+    <button type="button" onclick="window.print()" class="btn btn--secondary" style="padding: 0.6rem 1.25rem; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+      🖨️ Cetak Lembar Kupon
+    </button>
+    <button type="button" onclick="document.getElementById('modalGenVouchers').style.display='flex'" class="btn btn--primary" style="background: #2563eb; color: #fff; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer;">
+      + Buat Tiket Baru
+    </button>
+  </div>
+</div>
+
+<!-- Mode Status Banner -->
+<div class="mode-banner" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+      <span style="font-size: 1rem; font-weight: 700;">Status Mode Tiket Kiosk:</span>
+      <span style="padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; {{if .Data.VoucherModeEnabled}}background: #dcfce7; color: #15803d;{{else}}background: #f1f5f9; color: #475569;{{end}}">
+        {{if .Data.VoucherModeEnabled}}Wajib Input Tiket / Voucher{{else}}Mode Gratis (Langsung Mulai){{end}}
+      </span>
+    </div>
+    <p style="font-size: 0.85rem; color: #64748b; margin: 0;">
+      {{if .Data.VoucherModeEnabled}}
+        Siswa wajib memasukkan kode voucher yang valid di layar booth sebelum sesi pemotretan dimulai.
+      {{else}}
+        Siapa saja dapat langsung menyentuh layar untuk foto tanpa memerlukan tiket (cocok untuk Wisuda & Class Meeting).
+      {{end}}
+    </p>
+  </div>
+  <form method="POST" action="/admin/vouchers/toggle-mode" style="margin: 0;">
+    <button type="submit" class="btn {{if .Data.VoucherModeEnabled}}btn--secondary{{else}}btn--primary{{end}}" style="padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+      {{if .Data.VoucherModeEnabled}}Ubah ke Mode Gratis{{else}}Aktifkan Mode Tiket{{end}}
+    </button>
+  </form>
+</div>
+
+<!-- Stats -->
+<div class="stats-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Total Tiket Dibuat</div>
+    <div style="font-size: 1.85rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem;">{{.Data.TotalCount}}</div>
+  </div>
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Tiket Tersedia (Belum Terpakai)</div>
+    <div style="font-size: 1.85rem; font-weight: 700; color: #10b981; margin-top: 0.25rem;">{{.Data.AvailableCount}}</div>
+  </div>
+  <div style="background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Tiket Sudah Digunakan</div>
+    <div style="font-size: 1.85rem; font-weight: 700; color: #64748b; margin-top: 0.25rem;">{{.Data.UsedCount}}</div>
+  </div>
+</div>
+
+<!-- Vouchers Table -->
+<div class="card vouchers-table-card" style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+    <thead>
+      <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #475569; font-weight: 600;">
+        <th style="padding: 0.75rem 1.25rem;">Kode Tiket</th>
+        <th style="padding: 0.75rem 1.25rem;">Status</th>
+        <th style="padding: 0.75rem 1.25rem;">Sesi Terkait</th>
+        <th style="padding: 0.75rem 1.25rem;">Waktu Penggunaan</th>
+        <th style="padding: 0.75rem 1.25rem; text-align: right;">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Data.Vouchers}}
+      <tr style="border-bottom: 1px solid #f1f5f9;">
+        <td style="padding: 0.75rem 1.25rem; font-family: monospace; font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; color: #0f172a;">
+          {{.Code}}
+        </td>
+        <td style="padding: 0.75rem 1.25rem;">
+          {{if .IsUsed}}
+            <span style="background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Terpakai</span>
+          {{else}}
+            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Tersedia</span>
+          {{end}}
+        </td>
+        <td style="padding: 0.75rem 1.25rem; font-family: monospace; color: #2563eb;">
+          {{if .SessionCode}}{{.SessionCode}}{{else}}-{{end}}
+        </td>
+        <td style="padding: 0.75rem 1.25rem; color: #64748b; font-size: 0.8rem;">
+          {{if .UsedAt}}{{.UsedAt.Format "15:04 - 02 Jan 2006"}}{{else}}-{{end}}
+        </td>
+        <td style="padding: 0.75rem 1.25rem; text-align: right;">
+          <form method="POST" action="/admin/vouchers/{{.ID}}/delete" onsubmit="return confirm('Hapus tiket ini?')" style="margin: 0; display: inline;">
+            <button type="submit" style="background: none; border: none; color: #ef4444; font-size: 0.8rem; cursor: pointer; font-weight: 600;">Hapus</button>
+          </form>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 3rem; color: #94a3b8;">
+          Belum ada tiket yang dibuat. Klik tombol "+ Buat Tiket Baru" untuk memulai.
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+
+<!-- PRINTABLE COUPONS SHEET FOR PRINTING ON A4 (Visible only in window.print) -->
+<div class="printable-coupons-sheet">
+  {{range .Data.Vouchers}}
+  {{if not .IsUsed}}
+  <div class="coupon-ticket">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 8px;">
+      <div>
+        <div style="font-size: 0.7rem; font-weight: 800; color: #475569; text-transform: uppercase;">TIKET RESMI PHOTOBOOTH</div>
+        <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">KUPON BAZAAR & PENSI</div>
+      </div>
+      <div style="font-size: 0.65rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 700;">1x SESI</div>
+    </div>
+    <div style="text-align: center; margin: 12px 0;">
+      <div style="font-size: 0.75rem; color: #64748b;">MASUKKAN KODE DI BOOTH:</div>
+      <div style="font-size: 1.7rem; font-weight: 900; font-family: monospace; letter-spacing: 0.15em; color: #09090b; margin-top: 2px;">{{.Code}}</div>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; color: #64748b; border-top: 1px dotted #cbd5e1; padding-top: 6px;">
+      <span>✂️ Gunting sesuai garis</span>
+      <span>1 Lembar Cetak + Softfile</span>
+    </div>
+  </div>
+  {{end}}
+  {{end}}
+</div>
+
+<!-- Modal Generate -->
+<div id="modalGenVouchers" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+  <div style="background: #fff; border-radius: 12px; width: 100%; max-width: 440px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Buat Batch Tiket Baru</h2>
+      <button type="button" onclick="document.getElementById('modalGenVouchers').style.display='none'" style="border: none; background: transparent; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">&times;</button>
+    </div>
+
+    <form method="POST" action="/admin/vouchers/generate">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Jumlah Kupon / Tiket yang Dibuat</label>
+        <select name="count" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;">
+          <option value="10">10 Tiket</option>
+          <option value="20" selected>20 Tiket</option>
+          <option value="50">50 Tiket</option>
+          <option value="100">100 Tiket</option>
+        </select>
+        <small style="display: block; color: #64748b; font-size: 0.75rem; margin-top: 0.35rem;">
+          Sistem akan membuat kode acak unik (contoh: <code>TK8492</code>) yang dapat dicetak panitia.
+        </small>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="document.getElementById('modalGenVouchers').style.display='none'" class="btn btn--secondary" style="padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer;">Batal</button>
+        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.25rem; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 600; border: none; cursor: pointer;">Buat Tiket</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function copyAvailableCodes() {
+    const codes = [
+      {{range .Data.Vouchers}}
+      {{if not .IsUsed}}"{{.Code}}",{{end}}
+      {{end}}
+    ];
+    if (codes.length === 0) {
+      alert('Tidak ada tiket yang tersedia untuk disalin.');
+      return;
+    }
+    navigator.clipboard.writeText(codes.join('\n'));
+    const btn = document.getElementById('copyCodesBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `✓ ${codes.length} Kode Disalin!`;
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  }
+</script>
+{{end}}
