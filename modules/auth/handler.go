@@ -249,7 +249,7 @@ func (h *Handler) LandingPage(c *gin.Context) {
 	var totalSessions int64
 	var totalPrints int64
 	h.db.Table("sessions").Where("status = ?", "completed").Count(&totalSessions)
-	h.db.Table("sessions").Where("print_dispatched = ?", true).Count(&totalPrints)
+	h.db.Table("sessions").Where("printed_count > ?", 0).Count(&totalPrints)
 
 	c.HTML(http.StatusOK, "landing", gin.H{
 		"Config":         cfgMap,

@@ -1395,33 +1395,116 @@
       }
     }
 
+    function stopCamera() {
+      if (cameraStream) {
+        try {
+          cameraStream.getTracks().forEach(t => t.stop());
+        } catch (e) {}
+        cameraStream = null;
+      }
+    }
+
     async function initCamera() {
       try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        videoDevices = devices.filter(d => d.kind === 'videoinput');
-        const btn = document.getElementById('switchCameraBtn');
-        if (btn) btn.style.display = videoDevices.length > 1 ? 'flex' : 'none';
+        stopCamera();
 
-        const constraints = {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('Browser Anda tidak mendukung akses kamera WebRTC.');
+          return false;
+        }
+
+        // Tentukan target deviceId jika sudah terdeteksi dan tidak kosong
+        let targetId = null;
+        if (videoDevices.length > 0 && videoDevices[currentDeviceIndex]) {
+          const dId = videoDevices[currentDeviceIndex].deviceId;
+          if (dId && typeof dId === 'string' && dId.trim() !== '') {
+            targetId = dId.trim();
+          }
+        }
+
+        // Cascade constraints: coba dari resolusi ideal hingga fallback paling kompatibel
+        // CATATAN: Hindari { exact: deviceId } karena memicu OverconstrainedError jika deviceId kosong atau mode kamera tidak pas
+        const candidateConstraints = [];
+
+        if (targetId) {
+          candidateConstraints.push({
+            audio: false,
+            video: {
+              deviceId: { ideal: targetId },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            }
+          });
+          candidateConstraints.push({
+            audio: false,
+            video: {
+              deviceId: { ideal: targetId },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+          candidateConstraints.push({
+            audio: false,
+            video: {
+              deviceId: { ideal: targetId }
+            }
+          });
+        }
+
+        // Fallback generik (kamera depan / webcam default)
+        candidateConstraints.push({
           audio: false,
           video: {
+            facingMode: 'user',
             width: { ideal: 1920 },
             height: { ideal: 1080 }
           }
-        };
+        });
+        candidateConstraints.push({
+          audio: false,
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        candidateConstraints.push({
+          audio: false,
+          video: true
+        });
 
-        if (videoDevices.length > 0 && videoDevices[currentDeviceIndex]) {
-          constraints.video.deviceId = { exact: videoDevices[currentDeviceIndex].deviceId };
+        let lastErr = null;
+        for (const c of candidateConstraints) {
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia(c);
+            if (cameraStream) break;
+          } catch (e) {
+            lastErr = e;
+            console.warn('Candidate constraint attempt failed, trying next fallback:', c, e);
+          }
         }
 
-        if (cameraStream) {
-          cameraStream.getTracks().forEach(t => t.stop());
+        if (!cameraStream) {
+          throw lastErr || new Error('Tidak dapat memperoleh stream kamera.');
         }
 
-        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = document.getElementById('webcamVideo');
         video.srcObject = cameraStream;
-        await video.play();
+        try {
+          await video.play();
+        } catch (playErr) {
+          console.warn('video.play() warning:', playErr);
+        }
+
+        // Setelah izin kamera disetujui, ambil daftar perangkat kamera dengan deviceId & label sebenarnya
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          videoDevices = devices.filter(d => d.kind === 'videoinput' && d.deviceId && d.deviceId.trim() !== '');
+          const btn = document.getElementById('switchCameraBtn');
+          if (btn) btn.style.display = videoDevices.length > 1 ? 'flex' : 'none';
+        } catch (e) {
+          console.warn('enumerateDevices error:', e);
+        }
+
         return true;
       } catch (err) {
         console.error('Camera init error:', err);
@@ -1542,6 +1625,7 @@
           isSingleRetake = false;
           retakeTargetIndex = -1;
           setTimeout(() => {
+            stopCamera();
             composeCanvas();
             goToScreen('screenFilter');
             renderRetakeBar();
@@ -1553,6 +1637,7 @@
     async function runCaptureCycle(shotIndex) {
       if (shotIndex >= selectedFrame.totalShots) {
         // All shots taken -> go to review
+        stopCamera();
         composeCanvas();
         goToScreen('screenFilter');
         renderRetakeBar();
@@ -1844,6 +1929,7 @@
 
     function finishAndReset() {
       clearInterval(autoResetTimer);
+      stopCamera();
       capturedShots = [];
       activeStickers = [];
       activeVoucherCode = "";
