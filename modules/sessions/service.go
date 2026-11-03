@@ -34,9 +34,8 @@ func GenerateSessionCode() string {
 	return "PB-" + string(result)
 }
 
-// SaveBase64Image saves a data URI base64 string to a file on disk.
-func SaveBase64Image(dataURI string, destPath string) error {
-	// Strip data:image/...;base64, prefix
+// SaveBase64File saves a data URI base64 string (image, video, etc.) to a file on disk.
+func SaveBase64File(dataURI string, destPath string) error {
 	idx := strings.Index(dataURI, ";base64,")
 	rawB64 := dataURI
 	if idx != -1 {
@@ -54,6 +53,11 @@ func SaveBase64Image(dataURI string, destPath string) error {
 	}
 
 	return os.WriteFile(destPath, data, 0644)
+}
+
+// SaveBase64Image saves a data URI base64 string to a file on disk.
+func SaveBase64Image(dataURI string, destPath string) error {
+	return SaveBase64File(dataURI, destPath)
 }
 
 // PrintPhoto triggers printing of the composite photo file on the target or default printer.

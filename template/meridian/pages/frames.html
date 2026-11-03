@@ -63,7 +63,7 @@
       
       <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 1rem; flex-wrap: wrap;">
         <!-- Edit & Mapping Button -->
-        <button type="button" class="btn btn--sm" onclick='openFrameEditor({{.ID}}, {{.Name}}, {{.Category}}, {{.Type}}, {{.Description}}, {{.TotalShots}}, {{.Width}}, {{.Height}}, {{.OverlayImage}}, {{.SlotsJSON}}, {{.IsActive}})' style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+        <button type="button" class="btn btn--sm" onclick='openFrameEditor({{.ID}}, {{.Name}}, {{.Category}}, {{.Type}}, {{.Description}}, {{.TotalShots}}, {{.Width}}, {{.Height}}, {{.OverlayImage}}, {{.SlotsJSON}}, {{.IsActive}}, {{.LayerOrder}})' style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
           ✏️ Edit & Mapping Layar
         </button>
 
@@ -272,6 +272,26 @@
                 <input type="radio" name="is_active" id="studioActiveNo" value="0" />
                 ⚪ Sembunyikan (Simpan sebagai Draft)
               </label>
+            </div>
+          </div>
+
+          <!-- Posisi Layering Foto vs Frame -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem;">
+            <label style="display: block; font-weight: 700; margin-bottom: 0.35rem; font-size: 0.8rem; color: #166534;">
+              Posisi Penempelan Foto (Layering Order)
+            </label>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.825rem; cursor: pointer; color: #15803d; font-weight: 600;">
+                <input type="radio" name="layer_order" id="layerOrderPhotoTop" value="photo_on_top" checked />
+                📸 Foto di Atas Template (Canva/Background Solid)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.825rem; cursor: pointer; color: #475569; font-weight: 600;">
+                <input type="radio" name="layer_order" id="layerOrderFrameTop" value="frame_on_top" />
+                🪟 Frame di Atas Foto (PNG Berlubang Transparan)
+              </label>
+            </div>
+            <div style="font-size: 0.72rem; color: #166534; margin-top: 4px;">
+              Pilih <b>"Foto di Atas Template"</b> agar foto menempel presisi di atas kotak desain tanpa perlu membuat lubang transparan.
             </div>
           </div>
 
@@ -562,7 +582,7 @@
   ];
 
   // Open Frame Editor Studio
-  function openFrameEditor(id, name, category, type, desc, totalShots, w, h, overlay, rawSlots, isActive) {
+  function openFrameEditor(id, name, category, type, desc, totalShots, w, h, overlay, rawSlots, isActive, layerOrder) {
     const isEdit = typeof id !== 'undefined' && id !== null;
     const form = document.getElementById('frameStudioForm');
     const title = document.getElementById('studioModalTitle');
@@ -589,6 +609,12 @@
         document.getElementById('studioActiveNo').checked = true;
       }
 
+      if (layerOrder === 'frame_on_top') {
+        document.getElementById('layerOrderFrameTop').checked = true;
+      } else {
+        document.getElementById('layerOrderPhotoTop').checked = true;
+      }
+
       if (overlay) {
         document.getElementById('studioCurrentOverlayText').innerHTML = `File frame saat ini: <code style="color:#2563eb">${overlay}</code>. Pilih file baru jika ingin mengganti.`;
       } else {
@@ -610,7 +636,8 @@
       frameWidth = 600;
       frameHeight = 1800;
       document.getElementById('studioActiveYes').checked = true;
-      document.getElementById('studioCurrentOverlayText').innerText = 'Upload file PNG transparan untuk mulai mapping posisi foto.';
+      document.getElementById('layerOrderPhotoTop').checked = true;
+      document.getElementById('studioCurrentOverlayText').innerText = 'Upload file gambar template untuk mulai mapping posisi foto.';
 
       // Default to 2-strip slots
       currentSlots = [

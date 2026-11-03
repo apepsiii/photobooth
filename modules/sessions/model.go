@@ -12,9 +12,11 @@ import (
 type Session struct {
 	ID              uint           `gorm:"primaryKey" json:"id"`
 	SessionCode     string         `gorm:"size:20;uniqueIndex;not null" json:"session_code"`
+	QueueNumber     int            `gorm:"default:0" json:"queue_number"`
 	FrameID         uint           `json:"frame_id"`
 	Frame           frames.Frame   `gorm:"foreignKey:FrameID" json:"frame"`
 	CompositePath   string         `gorm:"size:255" json:"composite_path"`
+	LivePhotoPath   string         `gorm:"size:255" json:"live_photo_path"`
 	FilterApplied   string         `gorm:"size:50;default:'normal'" json:"filter_applied"`
 	PrintedCount    int            `gorm:"default:0" json:"printed_count"`
 	DownloadedCount int            `gorm:"default:0" json:"downloaded_count"`

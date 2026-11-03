@@ -362,42 +362,99 @@
       line-height: 1;
     }
 
-    /* Side shots list */
+    /* Side live frame preview panel */
     .shots-panel {
-      width: 220px;
+      width: 260px;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      align-items: center;
+      gap: 0.65rem;
     }
 
-    .shot-box {
-      width: 100%;
-      height: 130px;
-      border-radius: 12px;
+    .frame-live-preview-wrap {
+      position: relative;
       background: #18181b;
-      border: 2px dashed #27272a;
+      border: 3px solid #27272a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      width: 100%;
+      height: 68vh;
+      max-height: 580px;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      overflow: hidden;
+      padding: 6px;
     }
 
-    .shot-box img {
+    .frame-live-container {
+      position: relative;
+      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-color: #ffffff;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .frame-live-overlay-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .frame-live-slot {
+      position: absolute;
+      overflow: hidden;
+      background: rgba(39, 39, 42, 0.85);
+      border: 2px dashed rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .frame-live-slot.active {
+      border: 2px solid #3b82f6 !important;
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.95);
+      background: rgba(59, 130, 246, 0.25);
+      animation: slotLivePulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes slotLivePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+      50% { transform: scale(1.02); box-shadow: 0 0 20px rgba(59, 130, 246, 1); }
+    }
+
+    .frame-live-slot.filled {
+      border: 2px solid #22c55e !important;
+      background: #000;
+    }
+
+    .frame-live-slot img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
-    .shot-box.current {
-      border-color: #3b82f6;
-      background: rgba(59,130,246,0.05);
-    }
-
-    .shot-box-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #71717a;
+    .frame-live-slot-badge {
+      position: absolute;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 5;
     }
 
     /* Screen 4: Filter & Review */
@@ -781,7 +838,7 @@
     <div class="frame-grid">
       {{range $i, $f := .Frames}}
       <div class="frame-card {{if eq $i 0}}selected{{end}}" 
-           onclick="selectFrame({{$f.ID}}, {{$f.TotalShots}}, {{$f.Width}}, {{$f.Height}}, '{{$f.OverlayImage}}', {{$f.SlotsJSON}}, this)">
+           onclick="selectFrame({{$f.ID}}, {{$f.TotalShots}}, {{$f.Width}}, {{$f.Height}}, '{{$f.OverlayImage}}', {{$f.SlotsJSON}}, '{{$f.LayerOrder}}', this)">
         <img src="{{$f.OverlayImage}}" alt="{{$f.Name}}" class="frame-preview-img" />
         <div class="frame-name">{{$f.Name}}</div>
         <div class="frame-info">{{if $f.Category}}{{$f.Category}} • {{end}}{{$f.TotalShots}} Shots</div>
@@ -831,11 +888,20 @@
       </div>
 
       <div class="shots-panel">
-        <div style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
-          Jepretan: <span id="shotProgressText">1 / 3</span>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 4px;">
+          <span style="font-size: 0.78rem; font-weight: 800; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Preview Frame</span>
+          <span id="shotProgressBadge" style="background: #2563eb; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 2px 10px; border-radius: 999px;">Pose 1 / 3</span>
         </div>
-        <div id="shotsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
-          <!-- Dynamically populated boxes -->
+
+        <!-- Frame Live Mini-Preview Container -->
+        <div class="frame-live-preview-wrap">
+          <div id="frameLiveContainer" class="frame-live-container">
+            <!-- Mapped slots & frame overlay loaded here -->
+          </div>
+        </div>
+
+        <div id="shotInstructionsText" style="font-size: 0.75rem; color: #71717a; text-align: center;">
+          Pose kamu akan langsung tampil di dalam frame!
         </div>
       </div>
     </div>
@@ -1003,6 +1069,11 @@
         </div>
         <h3 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">Scan QR di Ponsel</h3>
         <p style="color: #71717a; font-size: 0.85rem; margin-top: 0.25rem;">Buka kamera HP dan arahkan ke QR di bawah untuk mengunduh foto ke galeri.</p>
+
+        <div style="background: #18181b; border: 2px solid #27272a; border-radius: 14px; padding: 0.65rem 1rem; width: 100%; text-align: center; margin-top: 0.5rem;">
+          <div style="font-size: 0.72rem; color: #a1a1aa; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Nomor Antrean Anda</div>
+          <div id="finalQueueNumber" style="font-size: 2rem; font-weight: 900; color: #facc15; text-shadow: 0 2px 8px rgba(250, 204, 21, 0.3);">#--</div>
+        </div>
 
         <div class="qr-box">
           <img id="qrImage" src="" alt="QR Code" />
@@ -1372,10 +1443,15 @@
       if (target) target.classList.add('active');
     }
 
-    function selectFrame(id, totalShots, w, h, overlay, slots, el) {
+    function selectFrame(id, totalShots, w, h, overlay, slots, layerOrder, el) {
+      if (!el && typeof layerOrder === 'object') {
+        el = layerOrder;
+        layerOrder = 'photo_on_top';
+      }
       document.querySelectorAll('.frame-card').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedFrame = { id, totalShots, w, h, overlay, slots };
+      if (el) el.classList.add('selected');
+      layerOrder = (layerOrder && typeof layerOrder === 'string') ? layerOrder : 'photo_on_top';
+      selectedFrame = { id, totalShots, w, h, overlay, slots, layerOrder };
     }
 
     let videoDevices = [];
@@ -1518,6 +1594,127 @@
       await initCamera();
     }
 
+    // Live Frame Mini-Preview on the right side
+    function initLiveFramePreview() {
+      const container = document.getElementById('frameLiveContainer');
+      if (!container || !selectedFrame) return;
+
+      container.innerHTML = '';
+      container.style.aspectRatio = `${selectedFrame.w} / ${selectedFrame.h}`;
+      
+      let slots = selectedFrame.slots;
+      if (typeof slots === 'string') {
+        try { slots = JSON.parse(slots); } catch(e) { slots = []; }
+      }
+
+      // Check layering mode (default: photo on top of custom template blocks)
+      const isPhotoOnTop = selectedFrame.layerOrder !== 'frame_on_top';
+
+      // 1. Frame template image
+      const overlayImg = document.createElement('img');
+      overlayImg.src = selectedFrame.overlay;
+      overlayImg.className = 'frame-live-overlay-img';
+      overlayImg.style.zIndex = isPhotoOnTop ? '2' : '15';
+      container.appendChild(overlayImg);
+
+      // 2. Render each slot at proportional position
+      slots.forEach((s, idx) => {
+        const slotEl = document.createElement('div');
+        slotEl.className = 'frame-live-slot' + (idx === 0 ? ' active' : '');
+        slotEl.id = `liveSlot_${idx}`;
+        slotEl.style.left = `${(s.x / selectedFrame.w) * 100}%`;
+        slotEl.style.top = `${(s.y / selectedFrame.h) * 100}%`;
+        slotEl.style.width = `${(s.w / selectedFrame.w) * 100}%`;
+        slotEl.style.height = `${(s.h / selectedFrame.h) * 100}%`;
+        if (s.r) {
+          slotEl.style.borderRadius = `${(s.r / selectedFrame.w) * 100}%`;
+        }
+        slotEl.style.zIndex = isPhotoOnTop ? '10' : '3';
+        slotEl.innerHTML = `<span class="frame-live-slot-badge">Shot ${idx + 1}</span>`;
+        container.appendChild(slotEl);
+      });
+
+      updateLiveSlotActive(0);
+    }
+
+    function updateLiveSlotActive(shotIndex) {
+      if (!selectedFrame) return;
+      const badge = document.getElementById('shotProgressBadge');
+      if (badge) badge.innerText = `Pose ${shotIndex + 1} / ${selectedFrame.totalShots}`;
+
+      let slots = selectedFrame.slots;
+      if (typeof slots === 'string') {
+        try { slots = JSON.parse(slots); } catch(e) { slots = []; }
+      }
+
+      for (let i = 0; i < selectedFrame.totalShots; i++) {
+        const slotEl = document.getElementById(`liveSlot_${i}`);
+        if (slotEl) {
+          slotEl.classList.remove('active');
+          if (i === shotIndex) {
+            slotEl.classList.add('active');
+          }
+        }
+      }
+    }
+
+    function fillLiveSlotWithPhoto(shotIndex, shotDataURL) {
+      const slotEl = document.getElementById(`liveSlot_${shotIndex}`);
+      if (slotEl) {
+        slotEl.classList.remove('active');
+        slotEl.classList.add('filled');
+        slotEl.innerHTML = `
+          <img src="${shotDataURL}" />
+          <span style="position: absolute; bottom: 4px; right: 4px; background: #22c55e; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,0.5);">✓</span>
+        `;
+      }
+    }
+
+    // Live Photo Video Clip Recording per Shot
+    let shotVideoClips = [];
+    let currentClipRecorder = null;
+    let currentClipChunks = [];
+
+    function startLiveClipRecording(shotIndex) {
+      if (!cameraStream) return;
+      try {
+        currentClipChunks = [];
+        let mimeType = 'video/mp4';
+        if (MediaRecorder.isTypeSupported('video/mp4;codecs="avc1.42E01E"')) {
+          mimeType = 'video/mp4;codecs="avc1.42E01E"';
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+          mimeType = 'video/mp4';
+        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+          mimeType = 'video/webm;codecs=vp9';
+        } else if (MediaRecorder.isTypeSupported('video/webm')) {
+          mimeType = 'video/webm';
+        }
+
+        currentClipRecorder = new MediaRecorder(cameraStream, { mimeType, videoBitsPerSecond: 2500000 });
+        currentClipRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) currentClipChunks.push(e.data);
+        };
+        currentClipRecorder.onstop = () => {
+          if (currentClipChunks.length > 0) {
+            const blob = new Blob(currentClipChunks, { type: mimeType });
+            const clipURL = URL.createObjectURL(blob);
+            shotVideoClips[shotIndex] = clipURL;
+          }
+        };
+        currentClipRecorder.start();
+      } catch (err) {
+        console.warn('Live clip recorder start error:', err);
+      }
+    }
+
+    function stopLiveClipRecording() {
+      if (currentClipRecorder && currentClipRecorder.state === 'recording') {
+        try {
+          currentClipRecorder.stop();
+        } catch (e) {}
+      }
+    }
+
     // Camera Session
     async function startCameraSession() {
       if (!selectedFrame) {
@@ -1527,18 +1724,10 @@
 
       goToScreen('screenCamera');
       capturedShots = [];
+      shotVideoClips = [];
 
-      // Render shot boxes
-      const listEl = document.getElementById('shotsList');
-      listEl.innerHTML = '';
-      for (let i = 0; i < selectedFrame.totalShots; i++) {
-        const box = document.createElement('div');
-        box.className = 'shot-box' + (i === 0 ? ' current' : '');
-        box.id = `shotBox_${i}`;
-        box.innerHTML = `<span class="shot-box-label">Shot ${i + 1}</span>`;
-        listEl.appendChild(box);
-      }
-      document.getElementById('shotProgressText').innerText = `1 / ${selectedFrame.totalShots}`;
+      // Initialize right-side interactive live frame preview
+      initLiveFramePreview();
 
       // Start webcam
       const ok = await initCamera();
@@ -1577,15 +1766,8 @@
       retakeTargetIndex = shotIndex;
       goToScreen('screenCamera');
 
-      // Highlight only target shot box
-      for (let i = 0; i < selectedFrame.totalShots; i++) {
-        const box = document.getElementById(`shotBox_${i}`);
-        if (box) {
-          box.classList.remove('current');
-          if (i === shotIndex) box.classList.add('current');
-        }
-      }
-      document.getElementById('shotProgressText').innerText = `Ulangi Shot ${shotIndex + 1}`;
+      // Update right-side frame preview active slot
+      updateLiveSlotActive(shotIndex);
 
       const ok = await initCamera();
       if (!ok) {
@@ -1598,6 +1780,9 @@
     }
 
     function runSingleRetakeCycle(shotIndex) {
+      updateLiveSlotActive(shotIndex);
+      startLiveClipRecording(shotIndex);
+
       const cdContainer = document.getElementById('countdownContainer');
       const cdDisplay = document.getElementById('countdownDisplay');
       const cdCircle = document.getElementById('countdownCircleBar');
@@ -1621,6 +1806,7 @@
           clearInterval(countdownInterval);
           if (cdCircle) cdCircle.style.strokeDashoffset = circumference + '';
           if (cdContainer) cdContainer.classList.remove('active');
+          stopLiveClipRecording();
           takeSnapshot(shotIndex);
           isSingleRetake = false;
           retakeTargetIndex = -1;
@@ -1629,7 +1815,7 @@
             composeCanvas();
             goToScreen('screenFilter');
             renderRetakeBar();
-          }, 1000);
+          }, 1250);
         }
       }, 1000);
     }
@@ -1644,16 +1830,8 @@
         return;
       }
 
-      document.getElementById('shotProgressText').innerText = `${shotIndex + 1} / ${selectedFrame.totalShots}`;
-      
-      // Update shot boxes indicators
-      for (let i = 0; i < selectedFrame.totalShots; i++) {
-        const box = document.getElementById(`shotBox_${i}`);
-        if (box) {
-          box.classList.remove('current');
-          if (i === shotIndex) box.classList.add('current');
-        }
-      }
+      updateLiveSlotActive(shotIndex);
+      startLiveClipRecording(shotIndex);
 
       const cdContainer = document.getElementById('countdownContainer');
       const cdDisplay = document.getElementById('countdownDisplay');
@@ -1678,6 +1856,7 @@
           clearInterval(countdownInterval);
           if (cdCircle) cdCircle.style.strokeDashoffset = circumference + '';
           if (cdContainer) cdContainer.classList.remove('active');
+          stopLiveClipRecording();
           takeSnapshot(shotIndex);
           setTimeout(() => runCaptureCycle(shotIndex + 1), 1600);
         }
@@ -1726,15 +1905,8 @@
         }, 1250);
       }
 
-      // 2. Update sidebar thumbnail with success indicator
-      const box = document.getElementById(`shotBox_${shotIndex}`);
-      if (box) {
-        box.innerHTML = `
-          <img src="${shotDataURL}" />
-          <span style="position: absolute; bottom: 6px; right: 6px; background: #22c55e; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">✓</span>
-        `;
-        box.classList.remove('current');
-      }
+      // 2. Put photo directly inside the Live Frame Preview on the right panel
+      fillLiveSlotWithPhoto(shotIndex, shotDataURL);
     }
 
     // Compositing on Canvas
@@ -1752,65 +1924,81 @@
       const overlayImg = new Image();
       overlayImg.src = selectedFrame.overlay;
       overlayImg.onload = () => {
-        // Draw captured shots into coordinates
         let slots = selectedFrame.slots;
         if (typeof slots === 'string') {
           try { slots = JSON.parse(slots); } catch(e) { slots = []; }
         }
 
-        const loadPromises = capturedShots.map((shotSrc, idx) => {
-          return new Promise(resolve => {
-            const img = new Image();
-            img.src = shotSrc;
-            img.onload = () => {
-              const slot = slots[idx] || slots[0] || { x: 0, y: 0, w: canvas.width, h: canvas.height };
-              // Crop & fit cover into slot
-              drawImageCover(ctx, img, slot.x, slot.y, slot.w, slot.h, currentFilter);
-              resolve();
-            };
-          });
-        });
+        // Layering order: photo on top of custom template blocks (default) vs frame overlay on top
+        const isPhotoOnTop = selectedFrame.layerOrder !== 'frame_on_top';
 
-        Promise.all(loadPromises).then(() => {
-          // Draw frame overlay on top
+        const drawPhotos = () => {
+          const loadPromises = capturedShots.map((shotSrc, idx) => {
+            return new Promise(resolve => {
+              const img = new Image();
+              img.src = shotSrc;
+              img.onload = () => {
+                const slot = slots[idx] || slots[0] || { x: 0, y: 0, w: canvas.width, h: canvas.height };
+                drawImageCover(ctx, img, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
+                resolve();
+              };
+              img.onerror = () => resolve();
+            });
+          });
+          return Promise.all(loadPromises);
+        };
+
+        if (isPhotoOnTop) {
+          // A. Draw template frame FIRST as the background card
           ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
-
-          // Draw stickers & custom texts on top
-          activeStickers.forEach(st => {
-            ctx.save();
-            if (st.type === 'text') {
-              ctx.font = `800 ${st.size || 32}px "Plus Jakarta Sans", sans-serif`;
-              ctx.fillStyle = st.color || '#ffffff';
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.shadowColor = 'rgba(0,0,0,0.65)';
-              ctx.shadowBlur = 8;
-              ctx.fillText(st.text, st.x, st.y);
-            } else {
-              ctx.font = `${st.size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.shadowColor = 'rgba(0,0,0,0.35)';
-              ctx.shadowBlur = 8;
-              ctx.fillText(st.emoji, st.x, st.y);
-            }
-            ctx.restore();
+          // B. Draw photos precisely ON TOP of the template's designated slot blocks!
+          drawPhotos().then(() => {
+            drawDecorationsOnContext(ctx, canvas);
           });
-
-          // School & Event Brand Footer Watermark
-          ctx.save();
-          const isDark = currentFrameBgColor === '#18181b';
-          ctx.fillStyle = isDark ? '#f4f4f5' : '#475569';
-          ctx.font = `600 ${Math.max(12, Math.round(canvas.width * 0.022))}px "Plus Jakarta Sans", sans-serif`;
-          ctx.textAlign = 'center';
-          const branding = '{{.Config.SchoolName}} • {{.Config.EventName}}';
-          ctx.fillText(branding.toUpperCase(), canvas.width / 2, canvas.height - 24);
-          ctx.restore();
-        });
+        } else {
+          // Frame overlay on top (cutout mode)
+          drawPhotos().then(() => {
+            ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+            drawDecorationsOnContext(ctx, canvas);
+          });
+        }
       };
     }
 
-    function drawImageCover(ctx, img, x, y, w, h, filterName) {
+    function drawDecorationsOnContext(ctx, canvas) {
+      activeStickers.forEach(st => {
+        ctx.save();
+        if (st.type === 'text') {
+          ctx.font = `800 ${st.size || 32}px "Plus Jakarta Sans", sans-serif`;
+          ctx.fillStyle = st.color || '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(0,0,0,0.65)';
+          ctx.shadowBlur = 8;
+          ctx.fillText(st.text, st.x, st.y);
+        } else {
+          ctx.font = `${st.size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(0,0,0,0.35)';
+          ctx.shadowBlur = 8;
+          ctx.fillText(st.emoji, st.x, st.y);
+        }
+        ctx.restore();
+      });
+
+      // School & Event Brand Footer Watermark
+      ctx.save();
+      const isDark = currentFrameBgColor === '#18181b';
+      ctx.fillStyle = isDark ? '#f4f4f5' : '#475569';
+      ctx.font = `600 ${Math.max(12, Math.round(canvas.width * 0.022))}px "Plus Jakarta Sans", sans-serif`;
+      ctx.textAlign = 'center';
+      const branding = '{{.Config.SchoolName}} • {{.Config.EventName}}';
+      ctx.fillText(branding.toUpperCase(), canvas.width / 2, canvas.height - 24);
+      ctx.restore();
+    }
+
+    function drawImageCover(ctx, img, x, y, w, h, filterName, radius = 0) {
       ctx.save();
       
       // Apply CSS-like filter in canvas
@@ -1829,24 +2017,30 @@
       }
 
       // Calculate aspect ratio cover
-      const imgRatio = img.width / img.height;
+      const imgWidth = img.videoWidth || img.width || 1;
+      const imgHeight = img.videoHeight || img.height || 1;
+      const imgRatio = imgWidth / imgHeight;
       const slotRatio = w / h;
       let sW, sH, sX, sY;
 
       if (imgRatio > slotRatio) {
-        sH = img.height;
-        sW = img.height * slotRatio;
-        sX = (img.width - sW) / 2;
+        sH = imgHeight;
+        sW = imgHeight * slotRatio;
+        sX = (imgWidth - sW) / 2;
         sY = 0;
       } else {
-        sW = img.width;
-        sH = img.width / slotRatio;
+        sW = imgWidth;
+        sH = imgWidth / slotRatio;
         sX = 0;
-        sY = (img.height - sH) / 2;
+        sY = (imgHeight - sH) / 2;
       }
 
       ctx.beginPath();
-      ctx.rect(x, y, w, h);
+      if (radius > 0 && ctx.roundRect) {
+        ctx.roundRect(x, y, w, h, radius);
+      } else {
+        ctx.rect(x, y, w, h);
+      }
       ctx.clip();
       ctx.drawImage(img, sX, sY, sW, sH, x, y, w, h);
       ctx.restore();
@@ -1859,15 +2053,153 @@
       composeCanvas();
     }
 
+    // Generate Animated MP4 Live Photo inside frame
+    async function generateLivePhotoVideoMP4() {
+      if (!shotVideoClips || shotVideoClips.length === 0) return "";
+
+      try {
+        const animCanvas = document.createElement('canvas');
+        animCanvas.width = selectedFrame.w;
+        animCanvas.height = selectedFrame.h;
+        const actx = animCanvas.getContext('2d');
+
+        // Prepare video elements for each shot clip
+        const vElements = await Promise.all(shotVideoClips.map((clipURL) => {
+          return new Promise((resolve) => {
+            if (!clipURL) return resolve(null);
+            const vid = document.createElement('video');
+            vid.src = clipURL;
+            vid.muted = true;
+            vid.loop = true;
+            vid.playsInline = true;
+            vid.oncanplay = () => {
+              vid.play().then(() => resolve(vid)).catch(() => resolve(vid));
+            };
+            vid.onerror = () => resolve(null);
+          });
+        }));
+
+        let slots = selectedFrame.slots;
+        if (typeof slots === 'string') {
+          try { slots = JSON.parse(slots); } catch (e) { slots = []; }
+        }
+
+        const isPhotoOnTop = selectedFrame.layerOrder !== 'frame_on_top';
+        const overlayImg = new Image();
+        overlayImg.src = selectedFrame.overlay;
+        await new Promise(r => { overlayImg.onload = r; overlayImg.onerror = r; });
+
+        // Stream from canvas
+        const animStream = animCanvas.captureStream(25);
+        let mimeType = 'video/mp4';
+        if (MediaRecorder.isTypeSupported('video/mp4;codecs="avc1.42E01E"')) {
+          mimeType = 'video/mp4;codecs="avc1.42E01E"';
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+          mimeType = 'video/mp4';
+        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+          mimeType = 'video/webm;codecs=vp9';
+        } else if (MediaRecorder.isTypeSupported('video/webm')) {
+          mimeType = 'video/webm';
+        }
+
+        const animRecorder = new MediaRecorder(animStream, { mimeType, videoBitsPerSecond: 3000000 });
+        const animChunks = [];
+        animRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) animChunks.push(e.data);
+        };
+
+        animRecorder.start();
+
+        // Render animation loop for 3.2 seconds
+        const startTime = Date.now();
+        const duration = 3200;
+
+        await new Promise((resolve) => {
+          function renderLoop() {
+            const now = Date.now();
+            if (now - startTime >= duration) {
+              resolve();
+              return;
+            }
+
+            actx.fillStyle = currentFrameBgColor || '#ffffff';
+            actx.fillRect(0, 0, animCanvas.width, animCanvas.height);
+
+            const drawVideos = () => {
+              vElements.forEach((vid, idx) => {
+                const slot = slots[idx] || slots[0] || { x: 0, y: 0, w: animCanvas.width, h: animCanvas.height };
+                if (vid && vid.readyState >= 2) {
+                  drawImageCover(actx, vid, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
+                } else if (capturedShots[idx]) {
+                  const fallbackImg = new Image();
+                  fallbackImg.src = capturedShots[idx];
+                  drawImageCover(actx, fallbackImg, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
+                }
+              });
+            };
+
+            if (isPhotoOnTop) {
+              actx.drawImage(overlayImg, 0, 0, animCanvas.width, animCanvas.height);
+              drawVideos();
+            } else {
+              drawVideos();
+              actx.drawImage(overlayImg, 0, 0, animCanvas.width, animCanvas.height);
+            }
+
+            drawDecorationsOnContext(actx, animCanvas);
+            requestAnimationFrame(renderLoop);
+          }
+          requestAnimationFrame(renderLoop);
+        });
+
+        animRecorder.stop();
+        await new Promise(r => { animRecorder.onstop = r; });
+
+        vElements.forEach(v => {
+          if (v) { v.pause(); v.src = ''; }
+        });
+
+        const finalVideoBlob = new Blob(animChunks, { type: mimeType });
+        return await blobToBase64(finalVideoBlob);
+      } catch (err) {
+        console.warn('Live photo video generation error:', err);
+        return "";
+      }
+    }
+
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
     // Submit Session to Backend
     async function submitSession() {
       const canvas = document.getElementById('renderCanvas');
       const compositeBase64 = canvas.toDataURL('image/jpeg', 0.95);
 
+      const submitBtn = document.querySelector('#screenFilter .action-btn-primary');
+      const originalText = submitBtn ? submitBtn.innerText : '';
+      if (submitBtn) {
+        submitBtn.innerText = '⏳ Membuat Live Photo & Cetak...';
+        submitBtn.disabled = true;
+      }
+
+      let livePhotoBase64 = "";
+      try {
+        livePhotoBase64 = await generateLivePhotoVideoMP4();
+      } catch (e) {
+        console.warn('Live photo failed to generate:', e);
+      }
+
       const payload = {
         frame_id: selectedFrame.id,
         filter_applied: currentFilter,
         composite_base64: compositeBase64,
+        live_photo_base64: livePhotoBase64,
         raw_photos: capturedShots,
         print_requested: appConfig.autoPrint,
         voucher_code: activeVoucherCode
@@ -1885,6 +2217,9 @@
           lastSessionData = data;
           document.getElementById('finalImgDisplay').src = data.composite_url;
           document.getElementById('sessionCodeDisplay').innerText = `Kode Sesi: ${data.session_code}`;
+          if (document.getElementById('finalQueueNumber')) {
+            document.getElementById('finalQueueNumber').innerText = `#${data.queue_number || '--'}`;
+          }
           
           // Generate pure-Go QR Code locally (100% offline)
           const qrUrl = encodeURIComponent(data.qr_url);
@@ -1897,6 +2232,11 @@
         }
       } catch (err) {
         alert('Error: ' + err.message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.innerText = originalText;
+          submitBtn.disabled = false;
+        }
       }
     }
 
@@ -1930,6 +2270,12 @@
     function finishAndReset() {
       clearInterval(autoResetTimer);
       stopCamera();
+      if (shotVideoClips && shotVideoClips.length > 0) {
+        shotVideoClips.forEach(url => {
+          try { URL.revokeObjectURL(url); } catch(e) {}
+        });
+        shotVideoClips = [];
+      }
       capturedShots = [];
       activeStickers = [];
       activeVoucherCode = "";

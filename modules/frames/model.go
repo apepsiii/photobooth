@@ -28,8 +28,9 @@ type Frame struct {
 	TotalShots   int       `gorm:"default:3" json:"total_shots"`
 	Width        int       `gorm:"default:600" json:"width"`
 	Height       int       `gorm:"default:1800" json:"height"`
-	OverlayImage string    `gorm:"size:255" json:"overlay_image"` // Path to transparent PNG overlay
+	OverlayImage string    `gorm:"size:255" json:"overlay_image"` // Path to transparent PNG overlay or background template
 	SlotsJSON    string    `gorm:"type:text" json:"slots_json"`   // JSON array of PhotoSlot
+	LayerOrder   string    `gorm:"size:50;default:'photo_on_top'" json:"layer_order"` // photo_on_top (default) or frame_on_top
 	IsActive     bool      `gorm:"default:true" json:"is_active"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

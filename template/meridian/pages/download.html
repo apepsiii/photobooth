@@ -4,10 +4,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Unduh Foto - {{.Config.AppName}}</title>
+  <title>Softfile Foto - No. Antrean #{{if .Session.QueueNumber}}{{.Session.QueueNumber}}{{else}}{{.Session.ID}}{{end}} - {{.Config.AppName}}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -16,7 +16,7 @@
     }
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: #f8fafc;
+      background: #f1f5f9;
       color: #0f172a;
       min-height: 100vh;
       display: flex;
@@ -31,241 +31,380 @@
       flex-direction: column;
       align-items: center;
     }
-    .badge {
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      text-align: center;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.25rem;
-    }
-    .subtitle {
-      font-size: 0.9rem;
-      color: #64748b;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .tab-nav {
-      display: flex;
-      background: #e2e8f0;
-      padding: 4px;
-      border-radius: 12px;
+
+    /* Queue Header Banner */
+    .queue-banner {
       width: 100%;
+      background: #0f172a;
+      color: #ffffff;
+      border: 3px solid #000000;
+      border-radius: 18px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 5px 5px 0 #000000;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .queue-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .queue-num {
+      font-size: 2.25rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #facc15;
+      text-shadow: 2px 2px 0 #000;
+      letter-spacing: -0.02em;
+    }
+    .session-code-pill {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 6px 12px;
+      text-align: right;
+    }
+    .session-code-text {
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #ffffff;
+    }
+
+    /* Tab switcher */
+    .file-tabs {
+      display: flex;
+      width: 100%;
+      background: #e2e8f0;
+      border: 2px solid #000;
+      border-radius: 12px;
+      padding: 4px;
       margin-bottom: 1.25rem;
       gap: 4px;
+      box-shadow: 3px 3px 0 #000;
     }
-    .tab-btn {
+    .file-tab-btn {
       flex: 1;
-      padding: 0.6rem 0.5rem;
+      padding: 0.75rem 0.5rem;
       border: none;
-      border-radius: 9px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #64748b;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: #475569;
       background: transparent;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
     }
-    .tab-btn.active {
-      background: #ffffff;
-      color: #0f172a;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    .file-tab-btn.active {
+      background: #000000;
+      color: #ffffff;
     }
-    .boomerang-box {
-      display: none;
+
+    /* Preview card styles */
+    .preview-card {
       width: 100%;
-      position: relative;
+      background: #ffffff;
+      border: 3px solid #000000;
+      border-radius: 18px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 5px 5px 0 #000000;
+      display: flex;
       flex-direction: column;
       align-items: center;
     }
-    .boomerang-view {
+    .card-header-tag {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.85rem;
+      border: 1.5px solid #000;
+    }
+    .tag-photo {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .tag-video {
+      background: #fef08a;
+      color: #854d0e;
+    }
+
+    .media-box {
       width: 100%;
-      height: 380px;
-      border-radius: 16px;
+      border-radius: 12px;
       overflow: hidden;
+      border: 2px solid #000000;
       background: #0f172a;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      margin-bottom: 1rem;
       position: relative;
     }
-    .boomerang-view img {
+    .media-box img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: opacity 0.1s ease;
-    }
-    .boomerang-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(0,0,0,0.65);
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      backdrop-filter: blur(4px);
-    }
-    .photo-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 1rem;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04);
-      border: 1px solid #e2e8f0;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .photo-card img {
-      max-width: 100%;
       max-height: 520px;
       object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      margin-bottom: 1.25rem;
+      display: block;
     }
-    .download-btn {
+    .media-box video {
       width: 100%;
-      padding: 1rem;
-      background: #2563eb;
-      color: #ffffff;
-      font-size: 1.05rem;
-      font-weight: 700;
+      max-height: 520px;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+
+    /* Download action buttons */
+    .btn-download-main {
+      width: 100%;
+      padding: 0.95rem 1rem;
       border-radius: 12px;
+      border: 2px solid #000000;
+      font-size: 1rem;
+      font-weight: 800;
       text-decoration: none;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #000000;
+      transition: all 0.15s ease;
+      margin-bottom: 0.5rem;
+    }
+    .btn-download-main:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+    .btn-photo-download {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-video-download {
+      background: #16a34a;
+      color: #ffffff;
+    }
+
+    .aux-buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 0.5rem;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-      transition: background 0.2s;
+      width: 100%;
+      margin-top: 0.25rem;
     }
-    .download-btn:active {
-      background: #1d4ed8;
+    .btn-aux {
+      padding: 0.65rem 0.5rem;
+      background: #f8fafc;
+      color: #334155;
+      border: 2px solid #000;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-decoration: none;
+      box-shadow: 2px 2px 0 #000;
+      transition: all 0.15s;
     }
+    .btn-aux:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    /* Raw individual shots */
     .raw-section {
       width: 100%;
-      margin-top: 1rem;
+      margin-top: 0.5rem;
     }
     .raw-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.6rem;
       color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .raw-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
     }
     .raw-card {
       background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+      border: 2px solid #000;
+      border-radius: 10px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      box-shadow: 2px 2px 0 #000;
     }
     .raw-card img {
       width: 100%;
-      height: 120px;
+      aspect-ratio: 1;
       object-fit: cover;
     }
     .raw-card a {
-      padding: 0.5rem;
+      padding: 0.4rem 0.2rem;
       text-align: center;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #2563eb;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #0f172a;
       text-decoration: none;
-      background: #f8fafc;
-      border-top: 1px solid #f1f5f9;
+      background: #e2e8f0;
+      border-top: 1px solid #000;
     }
+
     .footer {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       font-size: 0.75rem;
-      color: #94a3b8;
+      color: #64748b;
       text-align: center;
     }
   </style>
 </head>
 <body>
+
   <div class="container">
-    <div class="badge">{{.Config.SchoolName}}</div>
-    <h1 class="title">{{.Config.EventName}}</h1>
-    <p class="subtitle">Softfile Photobooth kamu sudah siap diunduh!</p>
 
-    <!-- Tabs -->
-    <div class="tab-nav">
-      <button type="button" class="tab-btn active" id="tabPhotoBtn" onclick="switchTab('photo')">
-        🖼️ Foto Cetak
+    <!-- Queue & Session Banner -->
+    <div class="queue-banner">
+      <div>
+        <div class="queue-label">
+          <span>🎫</span> NOMOR ANTREAN
+        </div>
+        <div class="queue-num">
+          #{{if .Session.QueueNumber}}{{.Session.QueueNumber}}{{else}}{{.Session.ID}}{{end}}
+        </div>
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
+          {{.Config.SchoolName}} • {{.Config.EventName}}
+        </div>
+      </div>
+
+      <div class="session-code-pill">
+        <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Kode Sesi</div>
+        <div class="session-code-text">{{.Session.SessionCode}}</div>
+        <div style="font-size: 0.65rem; color: #38bdf8; margin-top: 2px;">✓ Selesai</div>
+      </div>
+    </div>
+
+    <!-- Tab Switcher between Static Photo and MP4 Live Photo -->
+    <div class="file-tabs">
+      <button type="button" class="file-tab-btn active" id="tabBtnPhoto" onclick="switchFileTab('photo')">
+        📸 Foto Cetak (Gambar)
       </button>
-      <button type="button" class="tab-btn" id="tabBoomerangBtn" onclick="switchTab('boomerang')">
-        🎬 Boomerang Loop
+      <button type="button" class="file-tab-btn" id="tabBtnVideo" onclick="switchFileTab('video')">
+        🎬 Live Photo (MP4)
       </button>
     </div>
 
-    <!-- Tab 1: Static Composite Photo Card -->
-    <div id="photoTab" class="photo-card">
-      <img src="{{.Session.CompositePath}}" alt="Foto Photobooth" />
-      <a href="{{.Session.CompositePath}}" download="{{.Session.SessionCode}}_photobooth.jpg" class="download-btn">
+    <!-- PREVIEW 1: FOTO CETAK (GAMBAR) -->
+    <div id="cardPhotoPreview" class="preview-card">
+      <div class="card-header-tag tag-photo">
+        <span>📸</span> Foto Komposit Cetak (High-Resolution)
+      </div>
+
+      <div class="media-box">
+        <img src="{{.Session.CompositePath}}" alt="Foto Cetak {{.Session.SessionCode}}" id="mainPhotoImg" />
+      </div>
+
+      <!-- Main Download Button for Photo -->
+      <a href="{{.Session.CompositePath}}" download="{{.Session.SessionCode}}_photo.jpg" class="btn-download-main btn-photo-download">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Simpan Foto ke Galeri
+        Simpan Foto ke Galeri (JPG)
       </a>
 
-      <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.75rem;">
-        <button type="button" onclick="sharePhoto()" style="flex: 1; padding: 0.75rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-          📤 Bagikan Foto
+      <!-- Share & Copy Link -->
+      <div class="aux-buttons-grid">
+        <button type="button" class="btn-aux" onclick="shareToWhatsApp()">
+          💬 Kirim ke WhatsApp
         </button>
-        <button type="button" onclick="copyLink()" id="copyLinkBtn" style="padding: 0.75rem 1rem; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 12px; font-weight: 600; font-size: 0.875rem; cursor: pointer;">
-          🔗 Salin Link
+        <button type="button" class="btn-aux" onclick="copySessionLink()" id="copyBtn">
+          🔗 Salin Link Foto
         </button>
       </div>
     </div>
 
-    <!-- Tab 2: Animated Boomerang Reel -->
-    <div id="boomerangTab" class="photo-card" style="display: none;">
-      <div class="boomerang-view">
-        <img id="boomerangImg" src="{{.Session.CompositePath}}" alt="Boomerang Reel" />
-        <span class="boomerang-badge">✦ BOOMERANG REEL</span>
+    <!-- PREVIEW 2: LIVE PHOTO (VIDEO MP4) -->
+    <div id="cardVideoPreview" class="preview-card" style="display: none;">
+      <div class="card-header-tag tag-video">
+        <span>🎬</span> Live Photo Frame (Format MP4)
       </div>
-      <p style="font-size: 0.8rem; color: #64748b; margin: 1rem 0 0.5rem; text-align: center;">
-        Animasi bergerak otomatis dari sesi foto kamu untuk di-upload ke Instagram Stories / TikTok!
+
+      <div class="media-box">
+        {{if .Session.LivePhotoPath}}
+        <video id="liveVideoPlayer" src="{{.Session.LivePhotoPath}}" autoplay loop muted playsinline controls></video>
+        {{else}}
+        <!-- Fallback to GIF or Boomerang if live MP4 was not captured -->
+        <img id="fallbackGif" src="/d/{{.Session.SessionCode}}/gif" alt="Live Photo Reel" />
+        {{end}}
+      </div>
+
+      <p style="font-size: 0.78rem; color: #64748b; text-align: center; margin-bottom: 0.75rem;">
+        Animasi bergerak di dalam frame template — siap di-upload ke Instagram Story, TikTok, atau status WA!
       </p>
-      <a href="/d/{{.Session.SessionCode}}/gif" download="{{.Session.SessionCode}}_boomerang.gif" class="download-btn" style="background: #2563eb; margin-top: 0.5rem;">
+
+      <!-- Main Download Button for MP4 Video -->
+      {{if .Session.LivePhotoPath}}
+      <a href="{{.Session.LivePhotoPath}}" download="{{.Session.SessionCode}}_live.mp4" class="btn-download-main btn-video-download">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Simpan File Animasi GIF (.gif)
+        Simpan Video Live Photo (.MP4)
       </a>
-      <button type="button" class="download-btn" onclick="toggleBoomerangPlay()" id="boomerangPlayBtn" style="background: #0f172a; margin-top: 0.5rem;">
-        ⏸️ Jeda Animasi
-      </button>
+      {{else}}
+      <a href="/d/{{.Session.SessionCode}}/gif" download="{{.Session.SessionCode}}_live.gif" class="btn-download-main btn-video-download">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Simpan File Animasi (.GIF)
+      </a>
+      {{end}}
+
+      <div class="aux-buttons-grid">
+        <button type="button" class="btn-aux" onclick="shareToWhatsApp()">
+          💬 Kirim ke WhatsApp
+        </button>
+        <button type="button" class="btn-aux" onclick="copySessionLink()">
+          🔗 Salin Link Video
+        </button>
+      </div>
     </div>
 
+    <!-- Individual Raw Camera Shots -->
     {{if .Session.Photos}}
     <div class="raw-section">
-      <h3 class="raw-title">Foto Individual (Raw Shots)</h3>
+      <div class="raw-title">
+        <span>📸</span> Foto Mentah Tiap Pose (Raw Shots)
+      </div>
       <div class="raw-grid">
         {{range .Session.Photos}}
         <div class="raw-card">
-          <img src="{{.PhotoPath}}" alt="Shot {{.ShotOrder}}" />
-          <a href="{{.PhotoPath}}" download="Shot_{{.ShotOrder}}.jpg">
-            Unduh Shot {{.ShotOrder}} &darr;
+          <img src="{{.PhotoPath}}" alt="Pose {{.ShotOrder}}" />
+          <a href="{{.PhotoPath}}" download="Pose_{{.ShotOrder}}.jpg">
+            Shot {{.ShotOrder}} &darr;
           </a>
         </div>
         {{end}}
@@ -274,98 +413,59 @@
     {{end}}
 
     <div class="footer">
-      <p>Kode Sesi: <strong>{{.Session.SessionCode}}</strong></p>
-      <p style="margin-top: 0.25rem;">{{.Config.AppName}} &bull; Offline Local Photobooth System</p>
+      <p>Sesi Foto: <strong>{{.Session.SessionCode}}</strong> &bull; No. Antrean #{{if .Session.QueueNumber}}{{.Session.QueueNumber}}{{else}}{{.Session.ID}}{{end}}</p>
+      <p style="margin-top: 4px;">{{.Config.AppName}} &bull; 100% Offline Wi-Fi Photobooth</p>
     </div>
+
   </div>
 
   <script>
-    const rawPhotos = [
-      {{range .Session.Photos}}
-      "{{.PhotoPath}}",
-      {{end}}
-    ];
-
-    let boomerangInterval = null;
-    let isPlaying = true;
-    let bIndex = 0;
-    let bDirection = 1;
-
-    function switchTab(tab) {
-      const photoTab = document.getElementById('photoTab');
-      const boomerangTab = document.getElementById('boomerangTab');
-      const photoBtn = document.getElementById('tabPhotoBtn');
-      const boomerangBtn = document.getElementById('tabBoomerangBtn');
+    function switchFileTab(tab) {
+      const cardPhoto = document.getElementById('cardPhotoPreview');
+      const cardVideo = document.getElementById('cardVideoPreview');
+      const btnPhoto = document.getElementById('tabBtnPhoto');
+      const btnVideo = document.getElementById('tabBtnVideo');
+      const videoEl = document.getElementById('liveVideoPlayer');
 
       if (tab === 'photo') {
-        photoTab.style.display = 'flex';
-        boomerangTab.style.display = 'none';
-        photoBtn.classList.add('active');
-        boomerangBtn.classList.remove('active');
-        stopBoomerang();
+        cardPhoto.style.display = 'flex';
+        cardVideo.style.display = 'none';
+        btnPhoto.classList.add('active');
+        btnVideo.classList.remove('active');
+        if (videoEl) videoEl.pause();
       } else {
-        photoTab.style.display = 'none';
-        boomerangTab.style.display = 'flex';
-        photoBtn.classList.remove('active');
-        boomerangBtn.classList.add('active');
-        startBoomerang();
-      }
-    }
-
-    function startBoomerang() {
-      if (!rawPhotos || rawPhotos.length === 0) return;
-      clearInterval(boomerangInterval);
-      const img = document.getElementById('boomerangImg');
-
-      boomerangInterval = setInterval(() => {
-        if (!isPlaying) return;
-        img.src = rawPhotos[bIndex];
-        
-        bIndex += bDirection;
-        if (bIndex >= rawPhotos.length - 1) {
-          bDirection = -1;
-        } else if (bIndex <= 0) {
-          bDirection = 1;
+        cardPhoto.style.display = 'none';
+        cardVideo.style.display = 'flex';
+        btnPhoto.classList.remove('active');
+        btnVideo.classList.add('active');
+        if (videoEl) {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(e => console.log('Autoplay blocked:', e));
         }
-      }, 350);
-    }
-
-    function stopBoomerang() {
-      clearInterval(boomerangInterval);
-    }
-
-    function toggleBoomerangPlay() {
-      isPlaying = !isPlaying;
-      const btn = document.getElementById('boomerangPlayBtn');
-      if (isPlaying) {
-        btn.innerText = '⏸️ Jeda Animasi';
-      } else {
-        btn.innerText = '▶️ Putar Animasi';
       }
     }
 
-    async function sharePhoto() {
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'Foto Photobooth - {{.Config.EventName}}',
-            text: 'Lihat foto photobooth kami di {{.Config.EventName}} ({{.Config.SchoolName}})!',
-            url: window.location.href,
-          });
-        } catch (e) {}
-      } else {
-        copyLink();
-      }
+    function shareToWhatsApp() {
+      const url = window.location.href;
+      const text = encodeURIComponent(`Halo! Lihat hasil foto dan live photo photobooth antrean #{{if .Session.QueueNumber}}{{.Session.QueueNumber}}{{else}}{{.Session.ID}}{{end}} kita di sini: ${url}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
-    function copyLink() {
-      navigator.clipboard.writeText(window.location.href);
-      const btn = document.getElementById('copyLinkBtn');
-      btn.innerText = '✓ Tersalin!';
-      setTimeout(() => { btn.innerText = '🔗 Salin Link'; }, 2000);
+    function copySessionLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('copyBtn');
+        if (btn) {
+          const original = btn.innerText;
+          btn.innerText = '✓ Berhasil Disalin!';
+          setTimeout(() => { btn.innerText = original; }, 2000);
+        } else {
+          alert('Tautan foto berhasil disalin!');
+        }
+      }).catch(() => {
+        prompt('Salin tautan ini:', window.location.href);
+      });
     }
   </script>
 </body>
 </html>
 {{end}}
-

@@ -72,6 +72,10 @@ func (h *Handler) CreateFrame(c *gin.Context) {
 	width, _ := strconv.Atoi(c.PostForm("width"))
 	height, _ := strconv.Atoi(c.PostForm("height"))
 	slotsJSON := c.PostForm("slots_json")
+	layerOrder := c.PostForm("layer_order")
+	if layerOrder == "" {
+		layerOrder = "photo_on_top"
+	}
 
 	// Munculkan atau tidak (Active status)
 	isActiveVal := c.PostForm("is_active")
@@ -110,6 +114,7 @@ func (h *Handler) CreateFrame(c *gin.Context) {
 		Height:       height,
 		OverlayImage: overlayPath,
 		SlotsJSON:    slotsJSON,
+		LayerOrder:   layerOrder,
 		IsActive:     isActive,
 	}
 
@@ -151,6 +156,9 @@ func (h *Handler) UpdateFrame(c *gin.Context) {
 	}
 	if sJSON := c.PostForm("slots_json"); sJSON != "" {
 		f.SlotsJSON = sJSON
+	}
+	if lo := c.PostForm("layer_order"); lo != "" {
+		f.LayerOrder = lo
 	}
 
 	// Munculkan atau tidak

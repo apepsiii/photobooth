@@ -45,6 +45,7 @@ type FinishPayload struct {
 	FrameID         uint     `json:"frame_id"`
 	FilterApplied   string   `json:"filter_applied"`
 	CompositeBase64 string   `json:"composite_base64"`
+	LivePhotoBase64 string   `json:"live_photo_base64,omitempty"`
 	RawPhotos       []string `json:"raw_photos"`
 	PrintRequested  bool     `json:"print_requested"`
 	VoucherCode     string   `json:"voucher_code,omitempty"`
@@ -70,11 +71,29 @@ func (h *Handler) FinishSession(c *gin.Context) {
 		return
 	}
 
+	// 1b. Save Live Photo (MP4) if provided
+	livePhotoPathWeb := ""
+	if strings.TrimSpace(payload.LivePhotoBase64) != "" {
+		liveFilename := fmt.Sprintf("%s_live.mp4", sessionCode)
+		livePathDisk := filepath.Join("storage", "photos", "final", liveFilename)
+		if err := sessions.SaveBase64File(payload.LivePhotoBase64, livePathDisk); err == nil {
+			livePhotoPathWeb = "/storage/photos/final/" + liveFilename
+		}
+	}
+
+	// Calculate daily queue number (antrean)
+	var todayCount int64
+	todayStart := time.Now().Truncate(24 * time.Hour)
+	h.db.Model(&sessions.Session{}).Where("created_at >= ?", todayStart).Count(&todayCount)
+	queueNum := int(todayCount) + 1
+
 	// 2. Create Session database record
 	sess := sessions.Session{
 		SessionCode:   sessionCode,
+		QueueNumber:   queueNum,
 		FrameID:       payload.FrameID,
 		CompositePath: compositePathWeb,
+		LivePhotoPath: livePhotoPathWeb,
 		FilterApplied: payload.FilterApplied,
 		Status:        "completed",
 		CreatedAt:     time.Now(),
@@ -120,11 +139,13 @@ func (h *Handler) FinishSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success":       true,
-		"session_code":  sessionCode,
-		"qr_url":        qrDownloadURL,
-		"composite_url": compositePathWeb,
-		"printed":       shouldPrint,
+		"success":        true,
+		"session_code":   sessionCode,
+		"queue_number":   queueNum,
+		"qr_url":         qrDownloadURL,
+		"composite_url":  compositePathWeb,
+		"live_photo_url": livePhotoPathWeb,
+		"printed":        shouldPrint,
 	})
 }
 
