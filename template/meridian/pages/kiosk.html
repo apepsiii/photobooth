@@ -1659,15 +1659,24 @@
     }
 
     function fillLiveSlotWithPhoto(shotIndex, shotDataURL) {
-      const slotEl = document.getElementById(`liveSlot_${shotIndex}`);
-      if (slotEl) {
-        slotEl.classList.remove('active');
-        slotEl.classList.add('filled');
-        slotEl.innerHTML = `
-          <img src="${shotDataURL}" />
-          <span style="position: absolute; bottom: 4px; right: 4px; background: #22c55e; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,0.5);">✓</span>
-        `;
+      if (!selectedFrame) return;
+      let slots = selectedFrame.slots;
+      if (typeof slots === 'string') {
+        try { slots = JSON.parse(slots); } catch(e) { slots = []; }
       }
+      slots.forEach((s, idx) => {
+        if (idx === shotIndex || (idx % selectedFrame.totalShots === shotIndex)) {
+          const slotEl = document.getElementById(`liveSlot_${idx}`);
+          if (slotEl) {
+            slotEl.classList.remove('active');
+            slotEl.classList.add('filled');
+            slotEl.innerHTML = `
+              <img src="${shotDataURL}" />
+              <span style="position: absolute; bottom: 4px; right: 4px; background: #22c55e; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,0.5);">✓</span>
+            `;
+          }
+        }
+      });
     }
 
     // Live Photo Video Clip Recording per Shot
@@ -1933,12 +1942,14 @@
         const isPhotoOnTop = selectedFrame.layerOrder !== 'frame_on_top';
 
         const drawPhotos = () => {
-          const loadPromises = capturedShots.map((shotSrc, idx) => {
+          const loadPromises = slots.map((slot, idx) => {
             return new Promise(resolve => {
+              const shotIdx = idx % capturedShots.length;
+              const shotSrc = capturedShots[shotIdx];
+              if (!shotSrc) return resolve();
               const img = new Image();
               img.src = shotSrc;
               img.onload = () => {
-                const slot = slots[idx] || slots[0] || { x: 0, y: 0, w: canvas.width, h: canvas.height };
                 drawImageCover(ctx, img, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
                 resolve();
               };
@@ -2126,13 +2137,14 @@
             actx.fillRect(0, 0, animCanvas.width, animCanvas.height);
 
             const drawVideos = () => {
-              vElements.forEach((vid, idx) => {
-                const slot = slots[idx] || slots[0] || { x: 0, y: 0, w: animCanvas.width, h: animCanvas.height };
+              slots.forEach((slot, idx) => {
+                const shotIdx = idx % capturedShots.length;
+                const vid = vElements[shotIdx];
                 if (vid && vid.readyState >= 2) {
                   drawImageCover(actx, vid, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
-                } else if (capturedShots[idx]) {
+                } else if (capturedShots[shotIdx]) {
                   const fallbackImg = new Image();
-                  fallbackImg.src = capturedShots[idx];
+                  fallbackImg.src = capturedShots[shotIdx];
                   drawImageCover(actx, fallbackImg, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
                 }
               });

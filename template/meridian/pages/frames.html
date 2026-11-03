@@ -63,7 +63,21 @@
       
       <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 1rem; flex-wrap: wrap;">
         <!-- Edit & Mapping Button -->
-        <button type="button" class="btn btn--sm" onclick='openFrameEditor({{.ID}}, {{.Name}}, {{.Category}}, {{.Type}}, {{.Description}}, {{.TotalShots}}, {{.Width}}, {{.Height}}, {{.OverlayImage}}, {{.SlotsJSON}}, {{.IsActive}}, {{.LayerOrder}})' style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+        <textarea id="frameSlotsRaw_{{.ID}}" style="display:none;">{{.SlotsJSON}}</textarea>
+        <button type="button" class="btn btn--sm"
+          data-id="{{.ID}}"
+          data-name="{{.Name}}"
+          data-category="{{.Category}}"
+          data-type="{{.Type}}"
+          data-desc="{{.Description}}"
+          data-shots="{{.TotalShots}}"
+          data-w="{{.Width}}"
+          data-h="{{.Height}}"
+          data-overlay="{{.OverlayImage}}"
+          data-active="{{.IsActive}}"
+          data-layer="{{.LayerOrder}}"
+          onclick="editFrameFromCard(this)"
+          style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
           ✏️ Edit & Mapping Layar
         </button>
 
@@ -282,11 +296,11 @@
             </label>
             <div style="display: flex; flex-direction: column; gap: 0.4rem;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 0.825rem; cursor: pointer; color: #15803d; font-weight: 600;">
-                <input type="radio" name="layer_order" id="layerOrderPhotoTop" value="photo_on_top" checked />
+                <input type="radio" name="layer_order" id="layerOrderPhotoTop" value="photo_on_top" onchange="syncLayerOrderPreview()" checked />
                 📸 Foto di Atas Template (Canva/Background Solid)
               </label>
               <label style="display: flex; align-items: center; gap: 8px; font-size: 0.825rem; cursor: pointer; color: #475569; font-weight: 600;">
-                <input type="radio" name="layer_order" id="layerOrderFrameTop" value="frame_on_top" />
+                <input type="radio" name="layer_order" id="layerOrderFrameTop" value="frame_on_top" onchange="syncLayerOrderPreview()" />
                 🪟 Frame di Atas Foto (PNG Berlubang Transparan)
               </label>
             </div>
@@ -383,7 +397,7 @@
         <div id="stageViewport" style="flex-grow: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 2.5rem; position: relative;">
           
           <!-- Stage Canvas Container -->
-          <div id="stageWrapper" style="position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border-radius: 4px; background: #ffffff; transform-origin: center center; transition: transform 0.08s ease-out;">
+          <div id="stageWrapper" style="position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border-radius: 4px; background: #ffffff; transform-origin: center center; flex-shrink: 0;">
             
             <!-- Layer 1: Simulated Student Photos Background -->
             <div id="simulatedPhotosLayer" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;">
@@ -581,6 +595,38 @@
     { border: '#0891b2', fill: 'rgba(8, 145, 178, 0.25)' }
   ];
 
+  // Open Frame Editor from Card Button
+  function editFrameFromCard(btn) {
+    const id = btn.getAttribute('data-id');
+    const name = btn.getAttribute('data-name');
+    const category = btn.getAttribute('data-category');
+    const type = btn.getAttribute('data-type');
+    const desc = btn.getAttribute('data-desc');
+    const totalShots = parseInt(btn.getAttribute('data-shots')) || 3;
+    const w = parseInt(btn.getAttribute('data-w')) || 600;
+    const h = parseInt(btn.getAttribute('data-h')) || 1800;
+    const overlay = btn.getAttribute('data-overlay');
+    const isActive = btn.getAttribute('data-active') === 'true';
+    const layerOrder = btn.getAttribute('data-layer') || 'frame_on_top';
+    const rawSlotsEl = document.getElementById(`frameSlotsRaw_${id}`);
+    const rawSlots = rawSlotsEl ? rawSlotsEl.value : '[]';
+    openFrameEditor(id, name, category, type, desc, totalShots, w, h, overlay, rawSlots, isActive, layerOrder);
+  }
+
+  // Sync Layer Order Visual Representation in Studio Stage
+  function syncLayerOrderPreview() {
+    const isFrameOnTop = document.getElementById('layerOrderFrameTop').checked;
+    if (isFrameOnTop) {
+      // Frame template is ON TOP of the photos (cutout window mode)
+      simulatedPhotosLayer.style.zIndex = '1';
+      overlayImgElement.style.zIndex = '3';
+    } else {
+      // Photos are ON TOP of the template (background card mode)
+      simulatedPhotosLayer.style.zIndex = '3';
+      overlayImgElement.style.zIndex = '1';
+    }
+  }
+
   // Open Frame Editor Studio
   function openFrameEditor(id, name, category, type, desc, totalShots, w, h, overlay, rawSlots, isActive, layerOrder) {
     const isEdit = typeof id !== 'undefined' && id !== null;
@@ -617,6 +663,20 @@
 
       if (overlay) {
         document.getElementById('studioCurrentOverlayText').innerHTML = `File frame saat ini: <code style="color:#2563eb">${overlay}</code>. Pilih file baru jika ingin mengganti.`;
+        // Verify natural dimensions of existing overlay
+        const checkImg = new Image();
+        checkImg.src = overlay;
+        checkImg.onload = function() {
+          if (checkImg.naturalWidth && checkImg.naturalHeight) {
+            if (frameWidth !== checkImg.naturalWidth || frameHeight !== checkImg.naturalHeight) {
+              frameWidth = checkImg.naturalWidth;
+              frameHeight = checkImg.naturalHeight;
+              document.getElementById('studioCanvasWidth').value = frameWidth;
+              document.getElementById('studioCanvasHeight').value = frameHeight;
+              updateStageDims();
+            }
+          }
+        };
       } else {
         document.getElementById('studioCurrentOverlayText').innerText = 'Belum ada overlay PNG. Upload file frame transparan.';
       }
@@ -654,6 +714,7 @@
     document.getElementById('modalFrameStudio').style.display = 'flex';
 
     updateStageDims();
+    syncLayerOrderPreview();
     renderOverlay();
     renderSlotsDOM();
     syncSidebarInspector();
@@ -669,7 +730,11 @@
     frameWidth = parseInt(document.getElementById('studioCanvasWidth').value) || 600;
     frameHeight = parseInt(document.getElementById('studioCanvasHeight').value) || 1800;
     stageWrapper.style.width = `${frameWidth}px`;
+    stageWrapper.style.minWidth = `${frameWidth}px`;
+    stageWrapper.style.maxWidth = `${frameWidth}px`;
     stageWrapper.style.height = `${frameHeight}px`;
+    stageWrapper.style.minHeight = `${frameHeight}px`;
+    stageWrapper.style.maxHeight = `${frameHeight}px`;
     fitToScreen();
   }
 
@@ -723,7 +788,38 @@
             document.getElementById('studioCanvasWidth').value = frameWidth;
             document.getElementById('studioCanvasHeight').value = frameHeight;
             updateStageDims();
+
+            // Auto-detect transparency
+            try {
+              const testCanvas = document.createElement('canvas');
+              testCanvas.width = Math.min(100, tempImg.naturalWidth);
+              testCanvas.height = Math.min(100, tempImg.naturalHeight);
+              const tctx = testCanvas.getContext('2d');
+              tctx.drawImage(tempImg, 0, 0, testCanvas.width, testCanvas.height);
+              const pData = tctx.getImageData(0, 0, testCanvas.width, testCanvas.height).data;
+              let hasTransparency = false;
+              for (let i = 3; i < pData.length; i += 4) {
+                if (pData[i] < 200) {
+                  hasTransparency = true;
+                  break;
+                }
+              }
+              if (hasTransparency) {
+                document.getElementById('layerOrderFrameTop').checked = true;
+              } else {
+                document.getElementById('layerOrderPhotoTop').checked = true;
+              }
+              syncLayerOrderPreview();
+            } catch (err) {
+              console.warn('Transparency check error:', err);
+            }
           }
+          renderOverlay();
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  }
           renderOverlay();
         };
       };
