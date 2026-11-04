@@ -31,6 +31,10 @@ func NewHandler(db *gorm.DB, cfg *core.Config) *Handler {
 
 // KioskPage renders the fullscreen interactive photobooth interface.
 func (h *Handler) KioskPage(c *gin.Context) {
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+
 	cfgMap := settings.GetConfig(h.db, h.cfg.Port)
 	activeFrames, _ := frames.ListActive(h.db)
 

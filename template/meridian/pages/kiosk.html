@@ -1527,11 +1527,10 @@
           });
         }
 
-        // Fallback generik (kamera depan / webcam default)
+        // Fallback generik (webcam default / kamera apa pun yang tersedia)
         candidateConstraints.push({
           audio: false,
           video: {
-            facingMode: 'user',
             width: { ideal: 1920 },
             height: { ideal: 1080 }
           }
@@ -1541,6 +1540,12 @@
           video: {
             width: { ideal: 1280 },
             height: { ideal: 720 }
+          }
+        });
+        candidateConstraints.push({
+          audio: false,
+          video: {
+            facingMode: { ideal: 'user' }
           }
         });
         candidateConstraints.push({
@@ -1741,7 +1746,7 @@
       // Start webcam
       const ok = await initCamera();
       if (!ok) {
-        alert('Gagal mengakses kamera. Pastikan webcam terhubung dan izin kamera diizinkan di browser.');
+        alert('Gagal mengakses kamera!\n\nKemungkinan penyebab:\n1. Browser menahan cache halaman lama (Solusi: Tekan Ctrl + F5 di keyboard).\n2. Izin kamera belum diizinkan (Klik ikon gembok / kamera di address bar browser).\n3. Webcam sedang dipakai aplikasi lain (seperti OBS, Zoom, atau Windows Camera).\n4. Kabel webcam USB terlepas.');
         goToScreen('screenFrames');
         return;
       }
