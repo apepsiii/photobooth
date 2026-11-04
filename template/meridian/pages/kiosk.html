@@ -837,8 +837,15 @@
     
     <div class="frame-grid">
       {{range $i, $f := .Frames}}
-      <div class="frame-card {{if eq $i 0}}selected{{end}}" 
-           onclick="selectFrame({{$f.ID}}, {{$f.TotalShots}}, {{$f.Width}}, {{$f.Height}}, '{{$f.OverlayImage}}', {{$f.SlotsJSON}}, '{{$f.LayerOrder}}', this)">
+      <textarea id="kioskSlotsRaw_{{$f.ID}}" style="display:none;">{{$f.SlotsJSON}}</textarea>
+      <div class="frame-card {{if eq $i 0}}selected{{end}}"
+           data-id="{{$f.ID}}"
+           data-shots="{{$f.TotalShots}}"
+           data-w="{{$f.Width}}"
+           data-h="{{$f.Height}}"
+           data-overlay="{{$f.OverlayImage}}"
+           data-layer="{{$f.LayerOrder}}"
+           onclick="chooseFrame(this)">
         <img src="{{$f.OverlayImage}}" alt="{{$f.Name}}" class="frame-preview-img" />
         <div class="frame-name">{{$f.Name}}</div>
         <div class="frame-info">{{if $f.Category}}{{$f.Category}} • {{end}}{{$f.TotalShots}} Shots</div>
@@ -1308,7 +1315,7 @@
     // Initialize with first frame if available
     window.addEventListener('DOMContentLoaded', () => {
       const firstCard = document.querySelector('.frame-card');
-      if (firstCard) firstCard.click();
+      if (firstCard) chooseFrame(firstCard);
       setupCanvasStickerInteraction();
       renderStickerPalette('all');
     });
@@ -1443,6 +1450,22 @@
       if (target) target.classList.add('active');
     }
 
+    function chooseFrame(el) {
+      if (!el) return;
+      const id = parseInt(el.getAttribute('data-id')) || 1;
+      const totalShots = parseInt(el.getAttribute('data-shots')) || 3;
+      const w = parseInt(el.getAttribute('data-w')) || 600;
+      const h = parseInt(el.getAttribute('data-h')) || 1800;
+      const overlay = el.getAttribute('data-overlay') || '';
+      const layerOrder = el.getAttribute('data-layer') || 'photo_on_top';
+      const rawSlotsEl = document.getElementById(`kioskSlotsRaw_${id}`);
+      let slots = [];
+      if (rawSlotsEl && rawSlotsEl.value) {
+        try { slots = JSON.parse(rawSlotsEl.value); } catch(e) { slots = []; }
+      }
+      selectFrame(id, totalShots, w, h, overlay, slots, layerOrder, el);
+    }
+
     function selectFrame(id, totalShots, w, h, overlay, slots, layerOrder, el) {
       if (!el && typeof layerOrder === 'object') {
         el = layerOrder;
@@ -1451,7 +1474,10 @@
       document.querySelectorAll('.frame-card').forEach(c => c.classList.remove('selected'));
       if (el) el.classList.add('selected');
       layerOrder = (layerOrder && typeof layerOrder === 'string') ? layerOrder : 'photo_on_top';
-      selectedFrame = { id, totalShots, w, h, overlay, slots, layerOrder };
+      if (typeof slots === 'string') {
+        try { slots = JSON.parse(slots); } catch (e) { slots = []; }
+      }
+      selectedFrame = { id, totalShots, w, h, overlay, slots: slots || [], layerOrder };
     }
 
     let videoDevices = [];
@@ -1934,10 +1960,7 @@
       ctx.fillStyle = currentFrameBgColor || '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 2. Load overlay image
-      const overlayImg = new Image();
-      overlayImg.src = selectedFrame.overlay;
-      overlayImg.onload = () => {
+      function doRender(overlayImg) {
         let slots = selectedFrame.slots;
         if (typeof slots === 'string') {
           try { slots = JSON.parse(slots); } catch(e) { slots = []; }
@@ -1947,18 +1970,19 @@
         const isPhotoOnTop = selectedFrame.layerOrder !== 'frame_on_top';
 
         const drawPhotos = () => {
+          if (!capturedShots || capturedShots.length === 0) return Promise.resolve();
           const loadPromises = slots.map((slot, idx) => {
             return new Promise(resolve => {
               const shotIdx = idx % capturedShots.length;
               const shotSrc = capturedShots[shotIdx];
               if (!shotSrc) return resolve();
               const img = new Image();
-              img.src = shotSrc;
               img.onload = () => {
                 drawImageCover(ctx, img, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
                 resolve();
               };
               img.onerror = () => resolve();
+              img.src = shotSrc;
             });
           });
           return Promise.all(loadPromises);
@@ -1966,7 +1990,9 @@
 
         if (isPhotoOnTop) {
           // A. Draw template frame FIRST as the background card
-          ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+          if (overlayImg && overlayImg.naturalWidth) {
+            ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+          }
           // B. Draw photos precisely ON TOP of the template's designated slot blocks!
           drawPhotos().then(() => {
             drawDecorationsOnContext(ctx, canvas);
@@ -1974,11 +2000,28 @@
         } else {
           // Frame overlay on top (cutout mode)
           drawPhotos().then(() => {
-            ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+            if (overlayImg && overlayImg.naturalWidth) {
+              ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+            }
             drawDecorationsOnContext(ctx, canvas);
           });
         }
+      }
+
+      // 2. Load overlay image
+      const overlayImg = new Image();
+      let hasRendered = false;
+      overlayImg.onload = () => {
+        if (!hasRendered) { hasRendered = true; doRender(overlayImg); }
       };
+      overlayImg.onerror = () => {
+        if (!hasRendered) { hasRendered = true; doRender(null); }
+      };
+      overlayImg.src = selectedFrame.overlay;
+      if (overlayImg.complete && overlayImg.naturalWidth) {
+        hasRendered = true;
+        doRender(overlayImg);
+      }
     }
 
     function drawDecorationsOnContext(ctx, canvas) {
