@@ -18,18 +18,25 @@ type Setting struct {
 
 // ConfigMap holds typed settings for the photobooth application.
 type ConfigMap struct {
-	AppName          string `json:"app_name"`
-	EventName        string `json:"event_name"`
-	SchoolName       string `json:"school_name"`
-	CountdownSeconds int    `json:"countdown_seconds"`
-	PrintEnabled     bool   `json:"print_enabled"`
-	AutoPrint        bool   `json:"auto_print"`
-	CopiesCount      int    `json:"copies_count"`
-	PrinterName      string `json:"printer_name"`
-	KioskPin         string `json:"kiosk_pin"`
+	AppName            string `json:"app_name"`
+	EventName          string `json:"event_name"`
+	SchoolName         string `json:"school_name"`
+	CountdownSeconds   int    `json:"countdown_seconds"`
+	PrintEnabled       bool   `json:"print_enabled"`
+	AutoPrint          bool   `json:"auto_print"`
+	CopiesCount        int    `json:"copies_count"`
+	PrinterName        string `json:"printer_name"`
+	KioskPin           string `json:"kiosk_pin"`
 	LocalServerIP      string `json:"local_server_ip"`
 	Port               string `json:"port"`
 	VoucherModeEnabled bool   `json:"voucher_mode_enabled"`
+	PaymentModeEnabled bool   `json:"payment_mode_enabled"`
+	PriceSingle        int    `json:"price_single"`
+	PriceDouble        int    `json:"price_double"`
+	QRISStaticCode     string `json:"qris_static_code"`
+	PaperCapacity      int    `json:"paper_capacity"`
+	PaperUsed          int    `json:"paper_used"`
+	PaperRemaining     int    `json:"paper_remaining"`
 }
 
 // AutoMigrate migrates the Setting model.

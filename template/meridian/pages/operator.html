@@ -1,0 +1,712 @@
+{{define "operator"}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Operator Remote Controller &bull; {{.Config.AppName}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #09090b;
+      color: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 2rem;
+    }
+    /* Top Bar */
+    .topbar {
+      background: #18181b;
+      border-bottom: 1px solid #27272a;
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .brand-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .brand-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #27272a;
+      color: #a1a1aa;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+    .status-dot.online {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseDot 2s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.15); }
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Card */
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 1.15rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #a1a1aa;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Kiosk Status Card */
+    .screen-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #27272a;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+    .screen-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .screen-time {
+      font-size: 0.75rem;
+      color: #71717a;
+    }
+
+    /* Paper Gauge */
+    .gauge-wrapper {
+      margin-top: 0.5rem;
+    }
+    .gauge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+    }
+    .gauge-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .gauge-max {
+      font-size: 0.85rem;
+      color: #71717a;
+    }
+    .progress-track {
+      background: #27272a;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: #10b981;
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+    .progress-fill.warning {
+      background: #f59e0b;
+    }
+    .progress-fill.danger {
+      background: #ef4444;
+    }
+
+    /* Action Buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .btn-action {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 1rem 0.75rem;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      text-align: center;
+      transition: transform 0.1s, background 0.15s, border-color 0.15s;
+    }
+    .btn-action:active {
+      transform: scale(0.96);
+    }
+    .btn-action-icon {
+      font-size: 1.6rem;
+    }
+    .btn-shutter {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-color: #3b82f6;
+      grid-column: span 2;
+      padding: 1.15rem;
+    }
+    .btn-shutter:active {
+      background: #1e40af;
+    }
+    .btn-reset {
+      background: #450a0a;
+      border-color: #7f1d1d;
+      color: #fca5a5;
+    }
+    .btn-voucher {
+      background: #064e3b;
+      border-color: #047857;
+      color: #6ee7b7;
+    }
+
+    /* Last Photo Card */
+    .last-photo-box {
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+    }
+    .last-photo-thumb {
+      width: 80px;
+      height: 110px;
+      background: #27272a;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #3f3f46;
+    }
+    .last-photo-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .last-photo-code {
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: monospace;
+      color: #fff;
+    }
+    .last-photo-meta {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+    }
+    .btn-reprint {
+      margin-top: 0.4rem;
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      padding: 0.55rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      width: fit-content;
+    }
+    .btn-reprint:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Voucher Result Card */
+    .voucher-result-box {
+      display: none;
+      background: #09090b;
+      border: 2px dashed #10b981;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+    .voucher-code-display {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      font-family: monospace;
+      color: #34d399;
+      margin: 0.25rem 0;
+      user-select: all;
+    }
+
+    /* PIN Gate Overlay */
+    .pin-gate {
+      position: fixed;
+      inset: 0;
+      background: #09090b;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .pin-box {
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+    .pin-input {
+      width: 100%;
+      background: #18181b;
+      border: 2px solid #3f3f46;
+      border-radius: 12px;
+      font-size: 1.75rem;
+      text-align: center;
+      font-family: monospace;
+      padding: 0.75rem;
+      color: #fff;
+      margin: 1rem 0;
+      letter-spacing: 0.3em;
+    }
+    .pin-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    .btn-pin-submit {
+      width: 100%;
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.85rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #18181b;
+      border: 1px solid #3f3f46;
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 90;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PIN Protection Gate -->
+  <div id="pinGate" class="pin-gate" style="display: none;">
+    <div class="pin-box">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff;">Autentikasi Operator</h2>
+      <p style="color: #71717a; font-size: 0.8rem; margin-top: 0.25rem;">Masukkan PIN Kiosk untuk mengakses panel remote controller.</p>
+      <input type="password" id="inputPin" class="pin-input" maxlength="6" placeholder="••••" autocomplete="off" />
+      <div id="pinError" style="color: #ef4444; font-size: 0.8rem; margin-bottom: 0.75rem; min-height: 1.2rem;"></div>
+      <button type="button" class="btn-pin-submit" onclick="verifyPin()">Buka Akses Controller &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <header class="topbar">
+    <div class="brand-title">
+      <span>📱</span> Operator Remote <span class="brand-badge">Booth Control</span>
+    </div>
+    <div class="status-pill">
+      <div id="statusDot" class="status-dot"></div>
+      <span id="statusText">Menghubungkan...</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- Card 1: Kiosk Live Status -->
+    <div class="card">
+      <div class="card-title">
+        <span>Status Layar Kiosk</span>
+        <span id="lastSeenText" style="font-size: 0.7rem; font-weight: 500; text-transform: none;">Memeriksa...</span>
+      </div>
+      <div class="screen-indicator">
+        <div>
+          <div id="screenLabel" class="screen-name">Memeriksa Kiosk...</div>
+          <div id="screenSub" class="screen-time">Mendeteksi aktivitas booth</div>
+        </div>
+        <div style="font-size: 1.5rem;">🖥️</div>
+      </div>
+    </div>
+
+    <!-- Card 2: Remote Control Deck -->
+    <div class="card">
+      <div class="card-title">Aksi Cepat Operator</div>
+      <div class="action-grid">
+        <!-- Big Remote Shutter Trigger -->
+        <button type="button" class="btn-action btn-shutter" onclick="triggerRemoteShutter()">
+          <span class="btn-action-icon">📸</span>
+          <span>Trigger Remote Shutter</span>
+          <small style="font-size: 0.7rem; opacity: 0.8; font-weight: normal;">Mulai countdown kamera dari HP</small>
+        </button>
+
+        <!-- Quick Voucher Ticket -->
+        <button type="button" class="btn-action btn-voucher" onclick="generateQuickVoucher()">
+          <span class="btn-action-icon">🎟️</span>
+          <span>Kupon Instan</span>
+          <small style="font-size: 0.7rem; opacity: 0.8; font-weight: normal;">Buat tiket 1 sesi</small>
+        </button>
+
+        <!-- Force Reset to Standby -->
+        <button type="button" class="btn-action btn-reset" onclick="confirmForceReset()">
+          <span class="btn-action-icon">🔄</span>
+          <span>Force Reset</span>
+          <small style="font-size: 0.7rem; opacity: 0.8; font-weight: normal;">Kembali ke standby</small>
+        </button>
+      </div>
+
+      <!-- Quick Voucher Output -->
+      <div id="voucherResultBox" class="voucher-result-box">
+        <span style="font-size: 0.75rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Kode Tiket Baru Dibuat:</span>
+        <div id="voucherCodeText" class="voucher-code-display">------</div>
+        <small style="color: #a1a1aa; font-size: 0.75rem;">Berikan kode ini ke tamu untuk dimasukkan di layar booth.</small>
+      </div>
+    </div>
+
+    <!-- Card 3: Paper & Ribbon Roll Gauge -->
+    <div class="card">
+      <div class="card-title">
+        <span>Stok Kertas & Ribbon</span>
+        <button type="button" onclick="promptResetPaper()" style="background: none; border: none; color: #3b82f6; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-decoration: underline;">Reload Roll</button>
+      </div>
+      <div class="gauge-wrapper">
+        <div class="gauge-header">
+          <div>
+            <span id="paperRemaining" class="gauge-val">--</span>
+            <span class="gauge-max"> lembar sisa</span>
+          </div>
+          <span id="paperPercent" style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa;">--%</span>
+        </div>
+        <div class="progress-track">
+          <div id="paperProgress" class="progress-fill" style="width: 100%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.75rem; color: #71717a;">
+          <span>Terpakai: <strong id="paperUsed" style="color: #fff;">--</strong></span>
+          <span>Kapasitas: <strong id="paperCapacity" style="color: #fff;">--</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Last Session & Fast Reprint -->
+    <div class="card">
+      <div class="card-title">Sesi Terakhir Tercatat</div>
+      <div id="lastSessionEmpty" style="padding: 1rem; text-align: center; color: #71717a; font-size: 0.85rem;">
+        Belum ada sesi foto yang tersimpan hari ini.
+      </div>
+      <div id="lastSessionBox" class="last-photo-box" style="display: none;">
+        <img id="lastPhotoImg" src="" alt="Thumbnail" class="last-photo-thumb" />
+        <div class="last-photo-info">
+          <div id="lastPhotoCode" class="last-photo-code">#---</div>
+          <div id="lastPhotoMeta" class="last-photo-meta">Waktu: --:--:--</div>
+          <div id="lastPhotoPrints" class="last-photo-meta">Tercetak: 0x</div>
+          <button type="button" id="btnReprint" class="btn-reprint" onclick="reprintLastSession()">
+            <span>🖨️</span> Cetak Ulang (Reprint)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem; font-size: 0.8rem;">
+      <a href="/admin/dashboard" style="color: #71717a; text-decoration: none;">Admin Dashboard</a>
+      <span style="color: #3f3f46;">&bull;</span>
+      <a href="/live-wall" target="_blank" style="color: #3b82f6; text-decoration: none;">Live Projector Wall ↗</a>
+      <span style="color: #3f3f46;">&bull;</span>
+      <a href="/kiosk" target="_blank" style="color: #71717a; text-decoration: none;">Buka Kiosk</a>
+    </div>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">Aksi Berhasil</div>
+
+  <script>
+    const EXPECTED_PIN = "{{.Config.KioskPin}}";
+    let pollInterval = null;
+
+    // Toast helper
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Security Gate
+    function checkAuth() {
+      const savedPin = localStorage.getItem('op_pin');
+      if (!savedPin || savedPin !== EXPECTED_PIN) {
+        document.getElementById('pinGate').style.display = 'flex';
+        document.getElementById('inputPin').focus();
+      } else {
+        document.getElementById('pinGate').style.display = 'none';
+        initPolling();
+      }
+    }
+
+    function verifyPin() {
+      const val = document.getElementById('inputPin').value.trim();
+      if (val === EXPECTED_PIN) {
+        localStorage.setItem('op_pin', val);
+        document.getElementById('pinGate').style.display = 'none';
+        initPolling();
+      } else {
+        document.getElementById('pinError').innerText = 'PIN salah. Cek pengaturan kiosk.';
+        document.getElementById('inputPin').value = '';
+      }
+    }
+
+    // Status Polling
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/operator/status');
+        if (!res.ok) return;
+        const data = await res.json();
+        renderStatus(data);
+      } catch (e) {
+        document.getElementById('statusDot').className = 'status-dot';
+        document.getElementById('statusText').innerText = 'Offline';
+      }
+    }
+
+    function renderStatus(data) {
+      const dot = document.getElementById('statusDot');
+      const txt = document.getElementById('statusText');
+      if (data.online) {
+        dot.className = 'status-dot online';
+        txt.innerText = 'Online';
+      } else {
+        dot.className = 'status-dot';
+        txt.innerText = 'Offline / Terputus';
+      }
+
+      document.getElementById('lastSeenText').innerText = 'Ping: ' + data.last_seen_ago;
+      document.getElementById('screenLabel').innerText = data.screen_label || 'Standby';
+      document.getElementById('screenSub').innerText = 'Layar saat ini: ' + data.current_screen;
+
+      // Paper Gauge
+      const cap = data.paper_capacity || 100;
+      const rem = data.paper_remaining >= 0 ? data.paper_remaining : 0;
+      const used = data.paper_used || 0;
+      const pct = Math.max(0, Math.min(100, Math.round((rem / cap) * 100)));
+
+      document.getElementById('paperRemaining').innerText = rem;
+      document.getElementById('paperCapacity').innerText = cap;
+      document.getElementById('paperUsed').innerText = used;
+      document.getElementById('paperPercent').innerText = pct + '%';
+
+      const fill = document.getElementById('paperProgress');
+      fill.style.width = pct + '%';
+      if (pct <= 15) {
+        fill.className = 'progress-fill danger';
+      } else if (pct <= 35) {
+        fill.className = 'progress-fill warning';
+      } else {
+        fill.className = 'progress-fill';
+      }
+
+      // Last Session
+      if (data.last_session && data.last_session.code) {
+        document.getElementById('lastSessionEmpty').style.display = 'none';
+        document.getElementById('lastSessionBox').style.display = 'flex';
+        document.getElementById('lastPhotoImg').src = data.last_session.image_url;
+        document.getElementById('lastPhotoCode').innerText = '#' + data.last_session.code;
+        document.getElementById('lastPhotoMeta').innerText = 'Waktu: ' + data.last_session.created_at;
+        document.getElementById('lastPhotoPrints').innerText = 'Tercetak: ' + (data.last_session.printed_count || 0) + 'x';
+      } else {
+        document.getElementById('lastSessionEmpty').style.display = 'block';
+        document.getElementById('lastSessionBox').style.display = 'none';
+      }
+    }
+
+    function initPolling() {
+      fetchStatus();
+      if (!pollInterval) {
+        pollInterval = setInterval(fetchStatus, 2500);
+      }
+    }
+
+    // Remote Actions
+    async function triggerRemoteShutter() {
+      try {
+        const res = await fetch('/api/operator/command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: 'shutter' })
+        });
+        if (res.ok) {
+          showToast('📸 Perintah Shutter terkirim ke Kiosk!');
+        }
+      } catch (e) {
+        showToast('Gagal mengirim perintah: ' + e.message);
+      }
+    }
+
+    async function confirmForceReset() {
+      if (!confirm('Yakin ingin mereset layar Kiosk kembali ke Standby? Sesi yang sedang berjalan akan dibatalkan.')) {
+        return;
+      }
+      try {
+        const res = await fetch('/api/operator/command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: 'reset' })
+        });
+        if (res.ok) {
+          showToast('🔄 Kiosk berhasil direset ke Layar Standby.');
+          fetchStatus();
+        }
+      } catch (e) {
+        showToast('Gagal mereset: ' + e.message);
+      }
+    }
+
+    async function generateQuickVoucher() {
+      try {
+        const res = await fetch('/api/operator/quick-voucher', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('voucherResultBox').style.display = 'block';
+          document.getElementById('voucherCodeText').innerText = data.code;
+          showToast('🎟️ Tiket baru: ' + data.code);
+        } else {
+          showToast('Gagal membuat tiket: ' + (data.error || 'Server error'));
+        }
+      } catch (e) {
+        showToast('Gagal menghubungi server: ' + e.message);
+      }
+    }
+
+    async function promptResetPaper() {
+      const capStr = prompt('Masukkan kapasitas roll kertas baru (lembar):', '100');
+      if (capStr === null) return;
+      const cap = parseInt(capStr) || 100;
+      try {
+        const res = await fetch('/api/operator/reset-paper', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ capacity: cap })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('📜 Counter roll kertas berhasil direset ke ' + cap + ' lembar!');
+          fetchStatus();
+        }
+      } catch (e) {
+        showToast('Gagal reset kertas: ' + e.message);
+      }
+    }
+
+    async function reprintLastSession() {
+      const btn = document.getElementById('btnReprint');
+      btn.disabled = true;
+      btn.innerText = 'Mengirim cetak...';
+      try {
+        const res = await fetch('/api/operator/reprint-last', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('🖨️ ' + data.message);
+          fetchStatus();
+        } else {
+          showToast('Gagal cetak: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (e) {
+        showToast('Gagal spool printer: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🖨️</span> Cetak Ulang (Reprint)';
+      }
+    }
+
+    // Enter key for PIN input
+    document.getElementById('inputPin').addEventListener('keyup', e => {
+      if (e.key === 'Enter') verifyPin();
+    });
+
+    // Start
+    checkAuth();
+  </script>
+</body>
+</html>
+{{end}}

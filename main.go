@@ -28,6 +28,7 @@ func main() {
 		&sessions.Session{},
 		&sessions.SessionPhoto{},
 		&vouchers.Voucher{},
+		&kiosk.PaymentOrder{},
 	)
 
 	// 4. Seed default admin user.

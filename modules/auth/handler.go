@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 
 	"mastergin/core"
 	"mastergin/middleware"
+	"mastergin/modules/kiosk"
 	"mastergin/modules/settings"
 )
 
@@ -257,6 +259,137 @@ func (h *Handler) LandingPage(c *gin.Context) {
 		"ActiveFrames":   activeFrames,
 		"TotalSessions":  totalSessions,
 		"TotalPrints":    totalPrints,
+	})
+}
+
+// AnalyticsPage renders the comprehensive financial & photobooth performance dashboard.
+func (h *Handler) AnalyticsPage(c *gin.Context) {
+	var totalSessions int64
+	var totalPrints int64
+	var totalDownloads int64
+	h.db.Table("sessions").Count(&totalSessions)
+	h.db.Table("sessions").Select("COALESCE(SUM(printed_count), 0)").Scan(&totalPrints)
+	h.db.Table("sessions").Select("COALESCE(SUM(downloaded_count), 0)").Scan(&totalDownloads)
+
+	// QRIS Revenue
+	var qrisRevenue int64
+	var qrisPaidOrders int64
+	h.db.Table("payment_orders").Where("status = ?", "paid").Select("COALESCE(SUM(amount), 0)").Scan(&qrisRevenue)
+	h.db.Table("payment_orders").Where("status = ?", "paid").Count(&qrisPaidOrders)
+
+	// Voucher Stats
+	var totalVouchers int64
+	var usedVouchers int64
+	h.db.Table("vouchers").Count(&totalVouchers)
+	h.db.Table("vouchers").Where("is_used = ?", true).Count(&usedVouchers)
+
+	cfgMap := settings.GetConfig(h.db, h.cfg.Port)
+	voucherRevenue := int64(usedVouchers) * int64(cfgMap.PriceSingle)
+	totalGrossRevenue := qrisRevenue + voucherRevenue
+
+	// Paper & Consumables Estimations (assuming Rp 1,500 / photo print paper & ribbon ink cost)
+	paperUsed := int64(cfgMap.PaperUsed)
+	costPerSheet := int64(1500)
+	estimatedCost := paperUsed * costPerSheet
+	estimatedNetProfit := totalGrossRevenue - estimatedCost
+	if estimatedNetProfit < 0 && totalGrossRevenue == 0 {
+		estimatedNetProfit = 0
+	}
+
+	// Hourly Traffic Distribution (07 - 22)
+	type HourlyStat struct {
+		Hour  string `json:"hour"`
+		Count int    `json:"count"`
+	}
+	var hourlyRaw []HourlyStat
+	h.db.Raw("SELECT strftime('%H', created_at) as hour, count(*) as count FROM sessions WHERE created_at IS NOT NULL GROUP BY hour ORDER BY hour").Scan(&hourlyRaw)
+
+	// Build 24-hour map
+	hourlyMap := make(map[string]int)
+	maxHourlyCount := 1
+	for _, hr := range hourlyRaw {
+		hourlyMap[hr.Hour] = hr.Count
+		if hr.Count > maxHourlyCount {
+			maxHourlyCount = hr.Count
+		}
+	}
+
+	type HourBar struct {
+		Label     string
+		Count     int
+		HeightPct int
+	}
+	var hourlyBars []HourBar
+	for hIdx := 7; hIdx <= 22; hIdx++ {
+		hStr := fmt.Sprintf("%02d", hIdx)
+		cnt := hourlyMap[hStr]
+		pct := int((float64(cnt) / float64(maxHourlyCount)) * 100)
+		if cnt > 0 && pct < 12 {
+			pct = 12
+		}
+		hourlyBars = append(hourlyBars, HourBar{
+			Label:     hStr + ":00",
+			Count:     cnt,
+			HeightPct: pct,
+		})
+	}
+
+	// Frame Leaderboard
+	type FrameLeaderboard struct {
+		FrameID    uint
+		FrameName  string
+		UsageCount int
+	}
+	var topFrames []FrameLeaderboard
+	h.db.Raw(`
+		SELECT f.id as frame_id, f.name as frame_name, count(s.id) as usage_count
+		FROM frames f
+		LEFT JOIN sessions s ON s.frame_id = f.id
+		GROUP BY f.id
+		ORDER BY usage_count DESC
+		LIMIT 5
+	`).Scan(&topFrames)
+
+	// Filter Leaderboard
+	type FilterLeaderboard struct {
+		FilterApplied string
+		Count         int
+	}
+	var topFilters []FilterLeaderboard
+	h.db.Raw(`
+		SELECT COALESCE(NULLIF(filter_applied, ''), 'normal') as filter_applied, count(*) as count
+		FROM sessions
+		GROUP BY filter_applied
+		ORDER BY count DESC
+		LIMIT 6
+	`).Scan(&topFilters)
+
+	// Recent QRIS Transactions
+	var recentOrders []kiosk.PaymentOrder
+	h.db.Order("id desc").Limit(8).Find(&recentOrders)
+
+	c.HTML(http.StatusOK, "analytics", core.PageData{
+		Title:    "Laporan Finansial & Analitik · Photobooth",
+		UserName: middleware.CurrentUserName(c),
+		Path:     "/admin/analytics",
+		Data: gin.H{
+			"TotalSessions":      totalSessions,
+			"TotalPrints":        totalPrints,
+			"TotalDownloads":     totalDownloads,
+			"QRISRevenue":        qrisRevenue,
+			"QRISPaidOrders":     qrisPaidOrders,
+			"UsedVouchers":       usedVouchers,
+			"VoucherRevenue":     voucherRevenue,
+			"TotalGrossRevenue":  totalGrossRevenue,
+			"PaperUsed":          paperUsed,
+			"EstimatedCost":      estimatedCost,
+			"EstimatedNetProfit": estimatedNetProfit,
+			"Config":             cfgMap,
+			"HourlyBars":         hourlyBars,
+			"TopFrames":          topFrames,
+			"TopFilters":         topFilters,
+			"RecentOrders":       recentOrders,
+		},
 	})
 }
 

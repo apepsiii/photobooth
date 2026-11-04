@@ -74,6 +74,9 @@ func PrintPhoto(db *gorm.DB, imagePath string, copies int) error {
 	printerName := settings.Get(db, "printer_name")
 	log.Printf("[PRINT] Spooling photo %s (copies: %d) to printer '%s'", absPath, copies, printerName)
 
+	// Increment paper counter
+	settings.IncrementPaperUsed(db, copies)
+
 	if runtime.GOOS == "windows" {
 		// On Windows, use PowerShell Start-Process with Print verb or mspaint /pt
 		for i := 0; i < copies; i++ {

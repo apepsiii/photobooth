@@ -1,0 +1,890 @@
+{{define "live-wall"}}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Live Projector Wall - {{.Config.EventName}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Ambient Background Glow */
+    .bg-glow-1 {
+      position: absolute;
+      top: -20%;
+      left: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(236,72,153,0.18) 0%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: -15%;
+      right: 15%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header Nav */
+    .wall-header {
+      height: 72px;
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
+      background: linear-gradient(180deg, rgba(9,9,11,0.92) 0%, transparent 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.35);
+      color: #f87171;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 10px #ef4444;
+      animation: livePulse 1.4s infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.6; }
+    }
+
+    .event-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .event-school {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      font-weight: 500;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .clock-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-family: monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 0.08em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .stat-pill {
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(59,130,246,0.35);
+      color: #93c5fd;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ctrl-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d4d4d8;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.05rem;
+      transition: all 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    /* Main Stage */
+    .wall-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 10;
+      overflow: hidden;
+      padding: 1.5rem 2.5rem 2rem;
+    }
+
+    /* SPOTLIGHT VIEW */
+    .spotlight-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3.5rem;
+      position: relative;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .featured-photo-card {
+      position: relative;
+      max-height: calc(100vh - 230px);
+      max-width: 48vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85));
+    }
+
+    .featured-photo-img {
+      max-height: calc(100vh - 230px);
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: 16px;
+      border: 3px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 50px rgba(0,0,0,0.7);
+      animation: gentleZoom 12s infinite alternate ease-in-out;
+      transition: opacity 0.4s ease;
+    }
+
+    @keyframes gentleZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
+    }
+
+    .featured-info-panel {
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .queue-badge-large {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .queue-label {
+      font-size: 0.85rem;
+      color: #a1a1aa;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .queue-val {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .session-code-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #facc15;
+      width: fit-content;
+    }
+
+    .featured-quote {
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #e4e4e7;
+    }
+
+    .featured-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .meta-tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+    }
+
+    /* BOTTOM CAROUSEL TICKER */
+    .carousel-bar {
+      height: 110px;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      overflow-x: auto;
+      padding: 0.5rem 0.5rem 0.5rem 0;
+      scrollbar-width: none;
+    }
+
+    .carousel-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .thumb-card {
+      height: 90px;
+      width: 60px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s ease;
+      opacity: 0.65;
+    }
+
+    .thumb-card:hover, .thumb-card.active {
+      opacity: 1;
+      transform: scale(1.12) translateY(-4px);
+      border-color: #38bdf8;
+      box-shadow: 0 4px 16px rgba(56,189,248,0.4);
+    }
+
+    .thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* GRID WALL VIEW */
+    .grid-container {
+      display: none;
+      flex: 1;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.25rem;
+      overflow-y: auto;
+      padding: 1rem;
+      scrollbar-width: thin;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .grid-photo-card {
+      aspect-ratio: 1 / 2.6;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.08);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .grid-photo-card:hover {
+      transform: scale(1.05) translateY(-4px);
+      border-color: #ec4899;
+      box-shadow: 0 10px 25px rgba(236,72,153,0.3);
+      z-index: 10;
+    }
+
+    .grid-photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .grid-card-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(9,9,11,0.85);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* FLOATING QR CORNER */
+    .floating-qr-card {
+      position: fixed;
+      bottom: 2rem;
+      right: 2.5rem;
+      z-index: 30;
+      background: rgba(18,18,22,0.88);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      animation: floatSubtle 4s infinite ease-in-out;
+    }
+
+    @keyframes floatSubtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .qr-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 4px;
+    }
+
+    .qr-text-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .qr-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .qr-subtitle {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      line-height: 1.3;
+      max-width: 180px;
+    }
+
+    /* NEW PHOTO CELEBRATION MODAL OVERLAY */
+    .celebration-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(9,9,11,0.92);
+      backdrop-filter: blur(16px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: celebrationIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes celebrationIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .celebration-banner {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #facc15;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .celebration-img {
+      max-height: 72vh;
+      border-radius: 20px;
+      border: 4px solid #38bdf8;
+      box-shadow: 0 0 60px rgba(56,189,248,0.5);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      animation: pulse 2s infinite;
+    }
+
+    .empty-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .empty-sub {
+      color: #a1a1aa;
+      font-size: 1rem;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient glow background -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Header -->
+  <header class="wall-header">
+    <div style="display: flex; align-items: center; gap: 1.25rem;">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span>LIVE WALL</span>
+      </div>
+      <div class="event-info">
+        <h1 class="event-title">
+          <span>{{.Config.EventName}}</span>
+        </h1>
+        <div class="event-school">{{.Config.SchoolName}}</div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="clock-pill" id="liveClock">00:00:00 WIB</div>
+    </div>
+
+    <div class="header-actions">
+      <div class="stat-pill">
+        <span>📸</span>
+        <span id="statTodayCount">{{.TodayCount}}</span>
+        <span>Foto Hari Ini</span>
+      </div>
+
+      <button type="button" class="ctrl-btn" id="viewToggleBtn" onclick="toggleViewMode()" title="Ganti Tampilan (Spotlight / Galeri Grid)">
+        <span id="viewIcon">🔲</span>
+      </button>
+
+      <button type="button" class="ctrl-btn" id="playPauseBtn" onclick="togglePlayPause()" title="Jeda / Lanjut Slideshow">
+        <span id="playIcon">⏸️</span>
+      </button>
+
+      <button type="button" class="ctrl-btn" id="sfxBtn" onclick="toggleSFX()" title="Suara Shutter Baru">
+        <span id="sfxIcon">🔊</span>
+      </button>
+
+      <button type="button" class="ctrl-btn" onclick="toggleFullscreen()" title="Layar Penuh (Projector Mode)">
+        <span>⛶</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Wall Stage -->
+  <main class="wall-stage">
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="empty-state">
+      <div class="empty-icon">📸✨</div>
+      <h2 class="empty-title">Siap Mengabadikan Momen</h2>
+      <p class="empty-sub">Belum ada sesi foto yang selesai hari ini. Kunjungi photobooth sekarang dan jadilah momen pertama yang tampil di layar raksasa!</p>
+    </div>
+
+    <!-- SPOTLIGHT VIEW -->
+    <div id="spotlightView" class="spotlight-container">
+      <div class="featured-photo-card">
+        <img id="featuredImg" class="featured-photo-img" src="" alt="Featured Shot" />
+      </div>
+
+      <div class="featured-info-panel">
+        <div class="queue-badge-large">
+          <div class="queue-label">Nomor Antrean</div>
+          <div class="queue-val" id="featuredQueue">#01</div>
+        </div>
+
+        <div class="session-code-pill" id="featuredSessionCode">
+          PB-00000
+        </div>
+
+        <div class="featured-quote">
+          "Setiap senyuman punya cerita. Abadikan dan bawa pulang kenangan terbaikmu!"
+        </div>
+
+        <div class="featured-meta">
+          <span class="meta-tag" id="featuredFilterTag">🎨 Filter: Normal</span>
+          <span class="meta-tag" id="featuredTimeAgo">⏱️ Baru saja</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM CAROUSEL TICKER -->
+    <div id="carouselBar" class="carousel-bar">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- GRID VIEW -->
+    <div id="gridView" class="grid-container">
+      <!-- Populated by JS -->
+    </div>
+  </main>
+
+  <!-- FLOATING QR CORNER -->
+  <div class="floating-qr-card">
+    <img class="qr-thumb" src="/api/qr?text=http://{{.Config.LocalServerIP}}:{{.Config.Port}}/" alt="Scan QR" />
+    <div class="qr-text-block">
+      <div class="qr-title">Cari Fotomu Disini!</div>
+      <div class="qr-subtitle">Scan QR dengan HP untuk melihat atau download softfile fotomu.</div>
+    </div>
+  </div>
+
+  <!-- NEW PHOTO CELEBRATION OVERLAY -->
+  <div id="celebrationOverlay" class="celebration-overlay" onclick="closeCelebration()">
+    <div class="celebration-banner">
+      <span>🎉</span>
+      <span id="celebrationBannerText">MOMEN BARU BARUSAN TERTANGKAP!</span>
+      <span>⚡</span>
+    </div>
+    <img id="celebrationImg" class="celebration-img" src="" alt="New Moment" />
+  </div>
+
+  <script>
+    // State
+    let sessions = [];
+    let currentIndex = 0;
+    let isPlaying = true;
+    let currentView = 'spotlight'; // 'spotlight' | 'grid'
+    let autoRotateTimer = null;
+    let pollTimer = null;
+    let isSFXMuted = false;
+    let lastLatestID = 0;
+    const ROTATE_INTERVAL = 7000; // 7 seconds per slide
+    const POLL_INTERVAL = 4000;   // 4 seconds poll
+
+    // Audio SFX Synthesis
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playChime() {
+      if (isSFXMuted) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15); // G5
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch(e) {}
+    }
+
+    function toggleSFX() {
+      isSFXMuted = !isSFXMuted;
+      document.getElementById('sfxIcon').innerText = isSFXMuted ? '🔇' : '🔊';
+    }
+
+    // Live Digital Clock
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('liveClock').innerText = `${h}:${m}:${s} WIB`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Data Fetching
+    async function fetchRecentSessions() {
+      try {
+        const res = await fetch('/api/live-wall/recent');
+        const data = await res.json();
+
+        if (data.success && data.sessions) {
+          // Update live counter badge
+          document.getElementById('statTodayCount').innerText = data.today_count || 0;
+
+          // Check if there is a brand new photo
+          if (data.sessions.length > 0) {
+            const newest = data.sessions[0];
+            if (lastLatestID > 0 && newest.id > lastLatestID) {
+              // Brand new session captured! Trigger fanfare!
+              triggerNewPhotoCelebration(newest);
+            }
+            lastLatestID = newest.id;
+          }
+
+          sessions = data.sessions;
+          renderWall();
+        }
+      } catch(e) {
+        console.warn('Live wall poll error:', e);
+      }
+    }
+
+    function renderWall() {
+      const emptyEl = document.getElementById('emptyState');
+      const spotlightEl = document.getElementById('spotlightView');
+      const gridEl = document.getElementById('gridView');
+      const carouselEl = document.getElementById('carouselBar');
+
+      if (!sessions || sessions.length === 0) {
+        emptyEl.style.display = 'flex';
+        spotlightEl.style.display = 'none';
+        gridEl.style.display = 'none';
+        carouselEl.style.display = 'none';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+
+      if (currentView === 'spotlight') {
+        spotlightEl.style.display = 'flex';
+        carouselEl.style.display = 'flex';
+        gridEl.style.display = 'none';
+        showSpotlightItem(currentIndex);
+        renderCarousel();
+      } else {
+        spotlightEl.style.display = 'none';
+        carouselEl.style.display = 'none';
+        gridEl.style.display = 'grid';
+        renderGrid();
+      }
+    }
+
+    function showSpotlightItem(idx) {
+      if (!sessions || sessions.length === 0) return;
+      if (idx < 0) idx = sessions.length - 1;
+      if (idx >= sessions.length) idx = 0;
+      currentIndex = idx;
+
+      const item = sessions[currentIndex];
+      const img = document.getElementById('featuredImg');
+      img.style.opacity = '0';
+      setTimeout(() => {
+        img.src = item.composite_path;
+        img.style.opacity = '1';
+      }, 150);
+
+      document.getElementById('featuredQueue').innerText = `#${String(item.queue_number).padStart(2, '0')}`;
+      document.getElementById('featuredSessionCode').innerText = item.session_code;
+      document.getElementById('featuredFilterTag').innerText = `🎨 Filter: ${item.filter_applied || 'Normal'}`;
+      document.getElementById('featuredTimeAgo').innerText = `⏱️ ${item.time_ago || 'Baru saja'}`;
+
+      // Update active state in carousel
+      document.querySelectorAll('.thumb-card').forEach((el, i) => {
+        el.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function renderCarousel() {
+      const bar = document.getElementById('carouselBar');
+      bar.innerHTML = '';
+      sessions.forEach((s, i) => {
+        const card = document.createElement('div');
+        card.className = 'thumb-card' + (i === currentIndex ? ' active' : '');
+        card.onclick = () => {
+          showSpotlightItem(i);
+          resetAutoRotate();
+        };
+        card.innerHTML = `<img class="thumb-img" src="${s.composite_path}" alt="thumb" />`;
+        bar.appendChild(card);
+      });
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('gridView');
+      grid.innerHTML = '';
+      sessions.forEach((s, i) => {
+        const card = document.createElement('div');
+        card.className = 'grid-photo-card';
+        card.onclick = () => {
+          currentIndex = i;
+          currentView = 'spotlight';
+          document.getElementById('viewIcon').innerText = '🔲';
+          renderWall();
+          resetAutoRotate();
+        };
+        card.innerHTML = `
+          <img src="${s.composite_path}" alt="strip" loading="lazy" />
+          <div class="grid-card-badge">#${s.queue_number}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Auto-rotation
+    function startAutoRotate() {
+      clearInterval(autoRotateTimer);
+      autoRotateTimer = setInterval(() => {
+        if (isPlaying && currentView === 'spotlight' && sessions.length > 1) {
+          currentIndex = (currentIndex + 1) % sessions.length;
+          showSpotlightItem(currentIndex);
+        }
+      }, ROTATE_INTERVAL);
+    }
+
+    function resetAutoRotate() {
+      clearInterval(autoRotateTimer);
+      startAutoRotate();
+    }
+
+    function togglePlayPause() {
+      isPlaying = !isPlaying;
+      document.getElementById('playIcon').innerText = isPlaying ? '⏸️' : '▶️';
+    }
+
+    function toggleViewMode() {
+      currentView = currentView === 'spotlight' ? 'grid' : 'spotlight';
+      document.getElementById('viewIcon').innerText = currentView === 'spotlight' ? '🔲' : '🖼️';
+      renderWall();
+    }
+
+    function triggerNewPhotoCelebration(item) {
+      playChime();
+      const modal = document.getElementById('celebrationOverlay');
+      const img = document.getElementById('celebrationImg');
+      const banner = document.getElementById('celebrationBannerText');
+      
+      banner.innerText = `FOTO BARU BARUSAN DIAMBIL! (ANTREAN #${item.queue_number})`;
+      img.src = item.composite_path;
+      modal.style.display = 'flex';
+
+      // Auto close after 5 seconds and display spotlight
+      setTimeout(() => {
+        closeCelebration();
+      }, 5000);
+    }
+
+    function closeCelebration() {
+      const modal = document.getElementById('celebrationOverlay');
+      modal.style.display = 'none';
+      currentIndex = 0;
+      showSpotlightItem(0);
+      resetAutoRotate();
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Keyboard Shortcuts for Projector Operator
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayPause();
+      } else if (e.key === 'ArrowRight') {
+        showSpotlightItem(currentIndex + 1);
+        resetAutoRotate();
+      } else if (e.key === 'ArrowLeft') {
+        showSpotlightItem(currentIndex - 1);
+        resetAutoRotate();
+      } else if (e.key === 'g' || e.key === 'G') {
+        toggleViewMode();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      } else if (e.key === 'm' || e.key === 'M') {
+        toggleSFX();
+      }
+    });
+
+    // Auto-hide controls when idle
+    let mouseIdleTimer = null;
+    window.addEventListener('mousemove', () => {
+      document.querySelector('.wall-header').style.opacity = '1';
+      clearTimeout(mouseIdleTimer);
+      mouseIdleTimer = setTimeout(() => {
+        document.querySelector('.wall-header').style.opacity = '0.15';
+      }, 4000);
+    });
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchRecentSessions();
+      startAutoRotate();
+      pollTimer = setInterval(fetchRecentSessions, POLL_INTERVAL);
+    });
+  </script>
+</body>
+</html>
+{{end}}

@@ -29,6 +29,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB, cfg *core.Config) {
 	private.Use(middleware.RequireAuth(cfg))
 	{
 		private.GET("/dashboard", h.Dashboard)
+		private.GET("/admin/analytics", h.AnalyticsPage)
 		private.GET("/orders", h.Orders)
 		private.GET("/orders/new", h.OrderNew)
 		private.GET("/orders/:id", h.OrderDetail)

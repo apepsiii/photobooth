@@ -32,13 +32,37 @@
 └─────────────────┘       └─────────────────┘       └─────────────────┘
 ```
 
+- 📺 **Live Projector Slideshow Wall (`/live-wall`):**
+  - **Proyektor / TV Antrean Venue:** Layar khusus full-screen resolusi tinggi untuk ditayangkan ke proyektor aula, videotron LED, atau monitor antrean.
+  - **Live Auto-Sync & Polling:** Otomatis memperbarui foto secara real-time setiap kali ada pengunjung yang menyelesaikan sesi di kiosk.
+  - **Celebration Fanfare Overlay:** Begitu foto baru terambil, proyektor otomatis memunculkan pop-up animasi *"FOTO BARU BARUSAN DIAMBIL! (ANTREAN #...)"* lengkap dengan efek audio chime perayaan.
+  - **Dual Mode (Spotlight vs Mosaic Grid):** Mode sorotan utama dengan efek Ken Burns halus atau galeri dinding multi-foto (*shortcut: tekan G*).
+  - **Pojok Scan QR Cepat:** Memudahkan tamu di aula memindai QR langsung dari layar panggung untuk mencari dan mengunduh foto mereka.
 - 🎨 **Creative Neobrutalism Landing Page (`/`):** Tampilan retro-pop modern dengan marquee running ticker, bilah pencarian instan kode softfile (`/d/PB-XXXXX`), kartu fitur pop-out, dan galeri pameran hasil jepretan live.
 - 📸 **Fullscreen Kiosk Layar Sentuh (`/kiosk`):**
+  - **💳 Mode Self-Service Vending QRIS:** Kiosk mandiri tanpa operator; pengunjung memilih varian (Paket Single / Double Bestie), scan QRIS di layar via GoPay/OVO/BCA/Dana, dan sesi otomatis terbuka begitu terkonfirmasi.
+  - **✋ Hands-Free Optical Gesture Shutter:** Pengunjung berpose dari jarak 1-2 meter dan cukup mengangkat tangan ✋ ke target HUD di sudut kamera untuk memicu hitungan mundur secara otomatis (atau via tombol remote Bluetooth/Spasi).
+  - **🗣️ Audio Voice Assistant & Pemandu Pose Bahasa Indonesia:** Suara pemandu interaktif yang memandu pengunjung dari hitungan mundur ("3... 2... 1... Senyum!"), rekomendasi gaya pose bergantian di sela-sela jepretan, hingga instruksi pengambilan foto cetak dan scan QR.
   - **Live Webcam Switcher:** Deteksi multi-kamera (Webcam laptop, USB Cam, Cam Link DSLR) + saklar *Mirroring*.
   - **Audio & Visual Beep Countdown:** Hitungan mundur 3-2-1 disertai efek suara dan *flash screen* putih real-time.
   - **Freeze-Frame Preview per Shot:** Begitu foto terambil, hasil langsung tampil membeku selama 1.2 detik sebelum lanjut ke pose berikutnya!
   - **Single-Shot Retake:** Kurang puas dengan pose ke-2? Cukup klik tombol `↺ Retake Shot 2` tanpa harus mengulang dari awal.
-  - **Stiker & Filter:** Filter Monokrom, Warm Vintage, Cool Pastel, serta stiker emoji (🎓, 👑, 🎀, 💖, ⭐, 👓) yang bisa di-drag langsung di layar sentuh.
+  - **✏️ Freehand Doodle & Tanda Tangan Digital:** Goreskan kuas neon atau tanda tangan langsung di atas canvas foto dengan 8 warna cerah, 3 ukuran kuas, penghapus pintar, dan fitur Undo.
+  - **10 Filter Estetik & K-Beauty Glow:** K-Glow peach smoothing, Korean Mono, Golden Hour, 90s Film Grain, Cyber Y2K, Noir Dramatic, Nordic Matte, dan Cinematic Cine.
+  - **Universal Inactivity Watchdog:** Reset otomatis dengan countdown dialog jika booth ditinggalkan pengunjung, serta proteksi anti-tamper.
+- 📊 **Laporan Finansial & Analitik Booth (`/admin/analytics`):**
+  - **Financial Summary Cards:** Omzet kotor gabungan, pendapatan QRIS mandiri, pendapatan tiket/voucher tunai, serta estimasi margin laba bersih setelah HPP kertas foto.
+  - **⏱️ Grafik Jam Ramai (Hourly Rush Hours):** Distribusi kepadatan sesi dari pukul 07:00 hingga 22:00 dalam bentuk bar chart interaktif untuk evaluasi alur antrean pengunjung.
+  - **🏆 Leaderboard Template Frame Terlaris:** Peringkat frame favorit yang paling sering dipilih pengunjung.
+  - **🎨 Leaderboard Filter Terpopuler:** Statistik pemakaian filter estetik (K-Glow, Monochrome, 90s Vintage, dll.).
+  - **💳 Log Transaksi QRIS Mandiri:** Riwayat pesanan vending dengan ID transaksi, nominal, varian paket, status pembayaran, dan stempel waktu.
+- 📱 **Remote Operator Mobile Web Controller (`/operator`):**
+  - **Live Booth Status & Screen Monitor:** Memantau status kiosk secara nirkabel (Online/Offline, layar aktif saat ini, dan latency ping).
+  - **📸 Remote Shutter Trigger:** Picu timer hitungan mundur kamera dari HP operator saat mengarahkan rombongan atau foto bersama.
+  - **🔄 Emergency Force Reset:** Kembalikan kiosk yang macet atau ditinggalkan pengunjung ke layar awal Standby dengan satu sentuhan.
+  - **🎟️ Pembuat Kupon Tiket Cepat:** Hasilkan kode tiket voucher baru dalam 1 tap langsung di meja resepsionis/kasir untuk dibagikan ke pengunjung.
+  - **🖨️ Cetak Ulang Instan (Reprint):** Menampilkan thumbnail foto komposit sesi terakhir dan tombol spool cetak ulang tanpa perlu buka laptop.
+  - **📜 Pemantau Stok Kertas & Ribbon:** Gauge visual kapasitas kertas tersisa dengan indikator peringatan warna kuning/merah saat kertas hampir habis, serta tombol reset roll baru.
 - 📐 **Visual Frame Studio & Interactive Mapper (`/admin/frames`):**
   - **Direct On-Screen Drag & Resize:** Geser dan ubah ukuran slot foto langsung dengan mouse/touchpad tanpa perlu menebak koordinat pixel!
   - **8-Handle Bounding Box:** Kontrol sudut dan sisi box dengan presisi tinggi (60 FPS smooth rendering).

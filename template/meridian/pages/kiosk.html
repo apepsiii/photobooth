@@ -515,7 +515,7 @@
     }
 
     .filters-sidebar {
-      width: 340px;
+      width: 360px;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
@@ -527,16 +527,16 @@
       padding: 4px;
       border-radius: 12px;
       border: 1px solid #27272a;
-      gap: 4px;
+      gap: 3px;
       margin-bottom: 0.5rem;
     }
 
     .studio-tab-btn {
       flex: 1;
-      padding: 0.65rem 0.4rem;
+      padding: 0.55rem 0.2rem;
       border: none;
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.74rem;
       font-weight: 700;
       color: #a1a1aa;
       background: transparent;
@@ -544,7 +544,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 3px;
+      white-space: nowrap;
       transition: all 0.2s;
     }
 
@@ -552,6 +553,107 @@
       background: #27272a;
       color: #ffffff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Doodle & Signature Pad Styles */
+    .doodle-color-btn {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .doodle-color-btn:hover, .doodle-color-btn.active {
+      transform: scale(1.18);
+      border-color: #ffffff;
+      box-shadow: 0 0 12px rgba(255,255,255,0.6);
+    }
+
+    .doodle-tool-btn.active, .doodle-size-btn.active {
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border-color: #3b82f6 !important;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    /* Self-Service Payment Card Styles */
+    .pay-package-card {
+      background: #18181b;
+      border: 2px solid #27272a;
+      border-radius: 14px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pay-package-card:hover, .pay-package-card.selected {
+      border-color: #38bdf8;
+      background: rgba(56,189,248,0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(56,189,248,0.25);
+    }
+
+    .pay-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56,189,248,0.4);
+    }
+
+    /* Hands-free Gesture Shutter HUD */
+    .gesture-target-zone {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      width: 84px;
+      height: 84px;
+      border: 2px dashed rgba(56,189,248,0.6);
+      border-radius: 16px;
+      background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 32;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+    .gesture-target-zone.detecting {
+      border-color: #4ade80;
+      border-style: solid;
+      background: rgba(34,197,94,0.25);
+      box-shadow: 0 0 24px rgba(74,222,128,0.7);
+      transform: scale(1.1);
+    }
+
+    .gesture-target-icon {
+      font-size: 1.7rem;
+      line-height: 1;
+    }
+
+    .gesture-target-text {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .gesture-target-zone.detecting .gesture-target-text {
+      color: #4ade80;
     }
 
     .color-swatch-grid {
@@ -769,6 +871,9 @@
       <button type="button" class="operator-btn" id="sfxToggleBtn" onclick="toggleAudioSFX()" title="Mute/Unmute Suara">
         <span id="sfxIcon">🔊</span>
       </button>
+      <button type="button" class="operator-btn" id="fullscreenToggleBtn" onclick="toggleKioskFullscreen()" title="Layar Penuh (Kiosk Mode)">
+        <span id="fsIcon" style="font-size: 1.05rem; line-height: 1;">⛶</span>
+      </button>
       <button type="button" class="operator-btn" onclick="openOperatorPin()" title="Menu Operator">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
@@ -830,6 +935,70 @@
     </div>
   </section>
 
+  <!-- SCREEN 1B: SELF-SERVICE QRIS PAYMENT -->
+  <section id="screenPayment" class="screen">
+    <div class="welcome-box" style="max-width: 680px; width: 95%;">
+      <div class="welcome-pill">
+        <span>💳</span> Self-Service Vending Kiosk
+      </div>
+      <h2 style="font-size: 1.85rem; font-weight: 800; margin-bottom: 0.35rem;">Pilih Paket Foto</h2>
+      <p style="color: #a1a1aa; font-size: 0.9rem; margin-bottom: 1.5rem;">Pilih jumlah cetak fisik dan lakukan pembayaran instan via QRIS:</p>
+
+      <!-- Package Selection Cards -->
+      <div id="paymentPackageGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; text-align: left;">
+        <div class="pay-package-card selected" id="pkgSingle" onclick="selectPaymentPackage('single', {{.Config.PriceSingle}}, this)">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.5rem;">🎟️</span>
+            <span class="pay-badge">1 CETAK</span>
+          </div>
+          <div style="font-weight: 800; font-size: 1.1rem; color: #fff; margin-bottom: 0.25rem;">Paket Single Strip</div>
+          <div style="font-size: 0.8rem; color: #a1a1aa; margin-bottom: 0.75rem;">1 lembar foto cetak fisik + akses softfile & Live Photo MP4.</div>
+          <div style="font-size: 1.35rem; font-weight: 900; color: #38bdf8;">Rp {{.Config.PriceSingle}}</div>
+        </div>
+
+        <div class="pay-package-card" id="pkgDouble" onclick="selectPaymentPackage('double', {{.Config.PriceDouble}}, this)">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.5rem;">🎟️🎟️</span>
+            <span class="pay-badge" style="background: rgba(236,72,153,0.2); color: #f472b6; border-color: rgba(236,72,153,0.4);">BESTIE PACK</span>
+          </div>
+          <div style="font-weight: 800; font-size: 1.1rem; color: #fff; margin-bottom: 0.25rem;">Paket Double Strip</div>
+          <div style="font-size: 0.8rem; color: #a1a1aa; margin-bottom: 0.75rem;">2 lembar foto cetak kembar (pas untuk berdua) + softfile.</div>
+          <div style="font-size: 1.35rem; font-weight: 900; color: #ec4899;">Rp {{.Config.PriceDouble}}</div>
+        </div>
+      </div>
+
+      <!-- QRIS Display Section -->
+      <div id="qrisDisplayArea" style="background: #18181b; border: 1px solid #27272a; border-radius: 16px; padding: 1.25rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #4ade80;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80; animation: pulse 1s infinite;"></span>
+          <span id="qrisStatusText">Scan QRIS untuk Menyelesaikan Pembayaran:</span>
+        </div>
+
+        <div style="background: #fff; padding: 10px; border-radius: 12px; display: inline-flex;">
+          <img id="qrisImage" src="" alt="QRIS Code" style="width: 170px; height: 170px; display: block;" />
+        </div>
+
+        <div style="font-size: 0.78rem; color: #71717a; text-align: center; line-height: 1.4;">
+          Mendukung semua aplikasi perbankan & e-wallet:<br>
+          <strong style="color: #d4d4d8;">BCA Mobile • GoPay • OVO • DANA • ShopeePay • LinkAja</strong>
+        </div>
+
+        <!-- Testing / Cashier Bypass simulator -->
+        <div style="margin-top: 0.25rem;">
+          <button type="button" onclick="simulateKioskPayment()" style="background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.2); color: #a1a1aa; padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; cursor: pointer;">
+            ⚡ Uji Coba Bayar (Simulasi Bayar)
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button type="button" class="action-btn action-btn-outline" onclick="cancelPaymentAndBack()">
+          Batal
+        </button>
+      </div>
+    </div>
+  </section>
+
   <!-- SCREEN 2: FRAME SELECTION -->
   <section id="screenFrames" class="screen">
     <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Pilih Template Foto</h2>
@@ -865,6 +1034,9 @@
       <div class="camera-viewport">
         <video id="webcamVideo" autoplay playsinline muted></video>
         <div style="position: absolute; top: 14px; right: 14px; z-index: 35; display: flex; gap: 8px;">
+          <button type="button" id="gestureToggleBtn" onclick="toggleGestureShutter()" style="background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px);">
+            <span id="gestureToggleText">✋ Gestur: Aktif</span>
+          </button>
           <button type="button" id="mirrorToggleBtn" onclick="toggleCameraMirror()" style="background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px);">
             <span>🪞 Cermin: Aktif</span>
           </button>
@@ -872,6 +1044,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/><circle cx="12" cy="12" r="3"/><path d="m18 22 4-4-4-4"/><path d="M22 18h-8a4 4 0 0 1-4-4V7"/></svg>
             <span>Ganti Kamera</span>
           </button>
+        </div>
+
+        <!-- Gesture Shutter Target HUD -->
+        <div id="gestureTargetZone" class="gesture-target-zone">
+          <div class="gesture-target-icon">✋</div>
+          <div class="gesture-target-text">Pose di Sini</div>
         </div>
         <!-- Circular Glowing Countdown -->
         <div class="countdown-container" id="countdownContainer">
@@ -947,33 +1125,52 @@
           <button type="button" class="studio-tab-btn" id="tabBtnTexts" onclick="switchStudioTab('texts')">
             ✍️ Teks
           </button>
+          <button type="button" class="studio-tab-btn" id="tabBtnDoodle" onclick="switchStudioTab('doodle')">
+            ✏️ Coretan
+          </button>
         </div>
 
         <!-- PANEL 1: FILTERS -->
-        <div id="panelFilters" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div id="panelFilters" style="display: flex; flex-direction: column; gap: 0.45rem; max-height: 350px; overflow-y: auto; padding-right: 4px;">
           <button type="button" class="filter-btn selected" onclick="applyFilter('normal', this)">
-            <span>Normal (Asli)</span>
-            <span style="font-size: 1.2rem;">🌸</span>
+            <span>🌸 Normal (Asli)</span>
+            <small style="color: #a1a1aa; font-size: 0.72rem; font-weight: 500;">Natural Tone</small>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('kglow', this)">
+            <span>✨ K-Glow Beauty</span>
+            <small style="color: #f472b6; font-size: 0.72rem; font-weight: 600;">Smooth & Peach</small>
           </button>
           <button type="button" class="filter-btn" onclick="applyFilter('bw', this)">
-            <span>B&W Classic (Korean Mono)</span>
-            <span style="font-size: 1.2rem;">🎞️</span>
+            <span>🎞️ Korean Monochrome</span>
+            <small style="color: #a1a1aa; font-size: 0.72rem; font-weight: 500;">Classic B&W</small>
           </button>
           <button type="button" class="filter-btn" onclick="applyFilter('warm', this)">
-            <span>Warm Retro (Golden Hour)</span>
-            <span style="font-size: 1.2rem;">☀️</span>
+            <span>☀️ Golden Hour</span>
+            <small style="color: #fbbf24; font-size: 0.72rem; font-weight: 500;">Warm Retro</small>
           </button>
           <button type="button" class="filter-btn" onclick="applyFilter('cool', this)">
-            <span>Cool Tokyo (Pastel Mood)</span>
-            <span style="font-size: 1.2rem;">🧊</span>
-          </button>
-          <button type="button" class="filter-btn" onclick="applyFilter('soft', this)">
-            <span>Soft Glow (Beauty Skin)</span>
-            <span style="font-size: 1.2rem;">✨</span>
+            <span>🧊 Tokyo Pastel</span>
+            <small style="color: #38bdf8; font-size: 0.72rem; font-weight: 500;">Cool Mood</small>
           </button>
           <button type="button" class="filter-btn" onclick="applyFilter('vintage', this)">
-            <span>Vintage 90s (Film Grain)</span>
-            <span style="font-size: 1.2rem;">📽️</span>
+            <span>📽️ 90s Film Grain</span>
+            <small style="color: #fb923c; font-size: 0.72rem; font-weight: 500;">Analog Look</small>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('y2k', this)">
+            <span>💖 Cyber Y2K</span>
+            <small style="color: #f43f5e; font-size: 0.72rem; font-weight: 600;">Magenta Pop</small>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('noir', this)">
+            <span>🎬 Noir Dramatic</span>
+            <small style="color: #94a3b8; font-size: 0.72rem; font-weight: 500;">Deep Contrast</small>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('nordic', this)">
+            <span>🌿 Nordic Forest</span>
+            <small style="color: #4ade80; font-size: 0.72rem; font-weight: 500;">Moody Matte</small>
+          </button>
+          <button type="button" class="filter-btn" onclick="applyFilter('cinematic', this)">
+            <span>🍿 Cinematic Cine</span>
+            <small style="color: #38bdf8; font-size: 0.72rem; font-weight: 500;">Teal & Orange</small>
           </button>
         </div>
 
@@ -1050,6 +1247,62 @@
           </small>
         </div>
 
+        <!-- PANEL 5: FREEHAND DOODLE & DIGITAL SIGNATURE -->
+        <div id="panelDoodle" style="display: none; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Coretan & Tanda Tangan</span>
+            <div style="display: flex; gap: 0.4rem;">
+              <button type="button" onclick="undoDoodle()" title="Batalkan Goresan Terakhir" style="background: #27272a; border: 1px solid #3f3f46; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; cursor: pointer;">↩️ Undo</button>
+              <button type="button" onclick="clearDoodles()" title="Hapus Semua Coretan" style="background: none; border: none; color: #f87171; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Hapus Semua</button>
+            </div>
+          </div>
+
+          <!-- Tool Mode: Pen vs Eraser -->
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" id="doodleToolPen" class="doodle-tool-btn active" onclick="setDoodleTool('pen')" style="flex: 1; padding: 0.55rem; background: #2563eb; color: #fff; border: 1px solid #3b82f6; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              🖌️ Kuas Neon
+            </button>
+            <button type="button" id="doodleToolEraser" class="doodle-tool-btn" onclick="setDoodleTool('eraser')" style="flex: 1; padding: 0.55rem; background: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              🧽 Penghapus
+            </button>
+          </div>
+
+          <!-- Brush Color Swatches -->
+          <div id="doodleColorPickerSection">
+            <div style="font-size: 0.75rem; color: #a1a1aa; font-weight: 600; margin-bottom: 0.4rem;">Warna Tinta:</div>
+            <div class="doodle-colors-grid" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;">
+              <button type="button" class="doodle-color-btn active" onclick="setDoodleColor('#f43f5e', this)" style="background: #f43f5e; border-color: #fff;" title="Pink Neon"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#06b6d4', this)" style="background: #06b6d4;" title="Cyan Glow"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#facc15', this)" style="background: #facc15;" title="Kuning Terang"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#22c55e', this)" style="background: #22c55e;" title="Lime Neon"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#c084fc', this)" style="background: #c084fc;" title="Lilac Pastel"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#ffffff', this)" style="background: #ffffff;" title="Putih"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#18181b', this)" style="background: #18181b; border: 1px solid #52525b;" title="Hitam"></button>
+              <button type="button" class="doodle-color-btn" onclick="setDoodleColor('#fb923c', this)" style="background: #fb923c;" title="Coral Orange"></button>
+            </div>
+          </div>
+
+          <!-- Brush Size Selector -->
+          <div>
+            <div style="font-size: 0.75rem; color: #a1a1aa; font-weight: 600; margin-bottom: 0.4rem;">Ketebalan Garis:</div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="doodle-size-btn" onclick="setDoodleSize(5, this)" style="flex: 1; padding: 0.45rem; background: #27272a; border: 1px solid #3f3f46; color: #fff; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <span style="display: inline-block; width: 6px; height: 6px; background: #fff; border-radius: 50%;"></span> Tipis
+              </button>
+              <button type="button" class="doodle-size-btn active" onclick="setDoodleSize(12, this)" style="flex: 1; padding: 0.45rem; background: #2563eb; border: 1px solid #3b82f6; color: #fff; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <span style="display: inline-block; width: 10px; height: 10px; background: #fff; border-radius: 50%;"></span> Sedang
+              </button>
+              <button type="button" class="doodle-size-btn" onclick="setDoodleSize(24, this)" style="flex: 1; padding: 0.45rem; background: #27272a; border: 1px solid #3f3f46; color: #fff; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: #fff; border-radius: 50%;"></span> Tebal
+              </button>
+            </div>
+          </div>
+
+          <div style="background: rgba(37,99,235,0.1); border: 1px dashed rgba(59,130,246,0.3); border-radius: 8px; padding: 0.6rem; color: #93c5fd; font-size: 0.75rem; line-height: 1.4;">
+            ✨ <strong>Tips:</strong> Sentuh dan goreskan jarimu langsung di atas foto untuk tanda tangan, gambar hati, atau doodle lucu!
+          </div>
+        </div>
+
         <!-- Action Buttons -->
         <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
           <button type="button" class="action-btn action-btn-primary" onclick="submitSession()">
@@ -1109,6 +1362,25 @@
     </div>
   </section>
 
+  <!-- MODAL: IDLE INACTIVITY WARNING -->
+  <div id="modalIdleWarning" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(9,9,11,0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; animation: fadeIn 0.25s ease;">
+    <div style="background: #18181b; border: 2px solid #3f3f46; border-radius: 24px; padding: 2.25rem 2.5rem; max-width: 440px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85);">
+      <div style="font-size: 3rem; margin-bottom: 0.75rem; animation: pulse 1.2s infinite ease-in-out;">⏳</div>
+      <h2 style="font-size: 1.4rem; font-weight: 800; color: #ffffff; margin-bottom: 0.5rem; letter-spacing: -0.01em;">Sesi Masih Berlangsung?</h2>
+      <p style="color: #a1a1aa; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+        Tidak ada aktivitas terdeteksi di layar. Sesi akan otomatis direset ke awal dalam:
+      </p>
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 68px; height: 68px; border-radius: 50%; background: #ef4444; color: #ffffff; font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem; box-shadow: 0 0 24px rgba(239,68,68,0.5);" id="idleSecondsRemaining">
+        15
+      </div>
+      <div>
+        <button type="button" onclick="dismissIdleWarning()" style="width: 100%; padding: 0.95rem; background: #2563eb; color: #ffffff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.4); transition: transform 0.1s;">
+          👆 Sentuh Layar untuk Melanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Audio elements Synthesized via Web Audio API -->
   <script>
     // Audio synthesis for countdown beep & shutter
@@ -1143,13 +1415,37 @@
       setTimeout(() => playBeep(500, 0.08), 60);
     }
 
+    // Voice Assistant Prompts (Indonesian Audio Guide)
+    const poseTips = [
+      "Pose pertama! Bersiap.",
+      "Gaya bebas! Senyum ceria!",
+      "Tunjukkan senyum termanismu!",
+      "Gaya love sign atau peace!",
+      "Pose candid seru bareng teman!"
+    ];
+
+    function speakPrompt(text) {
+      if (isAudioMuted || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = 'id-ID';
+        utt.rate = 1.05;
+        utt.pitch = 1.1;
+        window.speechSynthesis.speak(utt);
+      } catch (e) {}
+    }
+
     // App state
     const appConfig = {
       countdownSeconds: {{.Config.CountdownSeconds}},
       kioskPin: "{{.Config.KioskPin}}",
       autoPrint: {{.Config.AutoPrint}},
       printEnabled: {{.Config.PrintEnabled}},
-      voucherModeEnabled: {{.Config.VoucherModeEnabled}}
+      voucherModeEnabled: {{.Config.VoucherModeEnabled}},
+      paymentModeEnabled: {{.Config.PaymentModeEnabled}},
+      priceSingle: {{.Config.PriceSingle}},
+      priceDouble: {{.Config.PriceDouble}}
     };
 
     let selectedFrame = null;
@@ -1164,6 +1460,23 @@
     let activeVoucherCode = "";
     let currentFrameBgColor = "#ffffff";
 
+    // Doodle & Signature Studio state
+    let currentStudioTab = 'filters';
+    let doodleStrokes = [];
+    let currentDoodleStroke = null;
+    let doodleColor = '#f43f5e';
+    let doodleSize = 12;
+    let isDoodleEraser = false;
+    let doodleOffscreenCanvas = null;
+    let cachedShotImages = [];
+    let cachedOverlayImg = null;
+
+    // Universal Idle Safety Monitor
+    let idleTimer = null;
+    let idleWarningCountdownTimer = null;
+    const IDLE_LIMIT_SECONDS = 60;
+    const IDLE_WARNING_SECONDS = 15;
+
     function setFrameBgColor(color, el) {
       currentFrameBgColor = color;
       document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
@@ -1172,15 +1485,27 @@
     }
 
     function switchStudioTab(tab) {
+      currentStudioTab = tab;
       document.getElementById('panelFilters').style.display = tab === 'filters' ? 'flex' : 'none';
       document.getElementById('panelColors').style.display = tab === 'colors' ? 'flex' : 'none';
       document.getElementById('panelStickers').style.display = tab === 'stickers' ? 'flex' : 'none';
       document.getElementById('panelTexts').style.display = tab === 'texts' ? 'flex' : 'none';
+      document.getElementById('panelDoodle').style.display = tab === 'doodle' ? 'flex' : 'none';
 
       document.getElementById('tabBtnFilters').classList.toggle('active', tab === 'filters');
       document.getElementById('tabBtnColors').classList.toggle('active', tab === 'colors');
       document.getElementById('tabBtnStickers').classList.toggle('active', tab === 'stickers');
       document.getElementById('tabBtnTexts').classList.toggle('active', tab === 'texts');
+      document.getElementById('tabBtnDoodle').classList.toggle('active', tab === 'doodle');
+
+      const canvas = document.getElementById('renderCanvas');
+      if (canvas) {
+        if (tab === 'doodle') {
+          canvas.style.cursor = isDoodleEraser ? 'cell' : 'crosshair';
+        } else {
+          canvas.style.cursor = 'default';
+        }
+      }
 
       if (tab === 'stickers' && document.getElementById('stickerPaletteGrid').children.length === 0) {
         renderStickerPalette('all');
@@ -1247,6 +1572,12 @@
       renderStickerPalette(cat);
     }
 
+    // Self-Service Vending Payment State
+    let currentPaymentOrderId = "";
+    let paymentPollInterval = null;
+    let selectedPaymentPackage = "single";
+    let selectedPaymentCopies = 1;
+
     function handleStartClick() {
       // Resume audio context on user interaction
       try {
@@ -1254,7 +1585,9 @@
         if (actx && actx.state === 'suspended') actx.resume();
       } catch(e) {}
 
-      if (appConfig.voucherModeEnabled) {
+      if (appConfig.paymentModeEnabled) {
+        openPaymentScreen();
+      } else if (appConfig.voucherModeEnabled) {
         document.getElementById('modalVoucherInput').style.display = 'flex';
         document.getElementById('voucherInputCode').value = '';
         document.getElementById('voucherInputError').innerText = '';
@@ -1262,6 +1595,83 @@
       } else {
         goToScreen('screenFrames');
       }
+    }
+
+    function openPaymentScreen() {
+      goToScreen('screenPayment');
+      selectPaymentPackage('single', appConfig.priceSingle, document.getElementById('pkgSingle'));
+    }
+
+    async function selectPaymentPackage(pkg, price, el) {
+      selectedPaymentPackage = pkg;
+      selectedPaymentCopies = (pkg === 'double') ? 2 : 1;
+      document.querySelectorAll('.pay-package-card').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+
+      clearInterval(paymentPollInterval);
+      document.getElementById('qrisStatusText').innerText = 'Menyiapkan QRIS pembayaran...';
+
+      try {
+        const res = await fetch('/api/kiosk/payment/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ package_type: pkg })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentPaymentOrderId = data.order_id;
+          document.getElementById('qrisImage').src = data.qr_url;
+          document.getElementById('qrisStatusText').innerText = `Scan QRIS (Total: Rp ${data.amount.toLocaleString('id-ID')}):`;
+          startPaymentPolling(data.order_id);
+        }
+      } catch(e) {
+        document.getElementById('qrisStatusText').innerText = 'Gagal memuat QRIS: ' + e.message;
+      }
+    }
+
+    function startPaymentPolling(orderId) {
+      clearInterval(paymentPollInterval);
+      paymentPollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/kiosk/payment/status?order_id=${encodeURIComponent(orderId)}`);
+          const data = await res.json();
+          if (data.success && data.status === 'paid') {
+            clearInterval(paymentPollInterval);
+            handlePaymentSuccess(data);
+          }
+        } catch(e) {}
+      }, 2000);
+    }
+
+    function handlePaymentSuccess(orderData) {
+      playShutter();
+      document.getElementById('qrisStatusText').innerHTML = '<span style="color:#4ade80; font-weight:800;">✓ Pembayaran Terkonfirmasi! Memulai...</span>';
+      setTimeout(() => {
+        goToScreen('screenFrames');
+      }, 1200);
+    }
+
+    async function simulateKioskPayment() {
+      if (!currentPaymentOrderId) return;
+      try {
+        const res = await fetch('/api/kiosk/payment/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: currentPaymentOrderId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          clearInterval(paymentPollInterval);
+          handlePaymentSuccess(data.order);
+        }
+      } catch(e) {
+        alert('Simulasi gagal: ' + e.message);
+      }
+    }
+
+    function cancelPaymentAndBack() {
+      clearInterval(paymentPollInterval);
+      goToScreen('screenWelcome');
     }
 
     function keypadPress(val) {
@@ -1378,7 +1788,50 @@
       composeCanvas();
     }
 
-    // Touch & Mouse Dragging for Stickers on Canvas
+    // Doodle & Digital Signature Studio Helpers
+    function undoDoodle() {
+      if (doodleStrokes.length > 0) {
+        doodleStrokes.pop();
+        composeCanvas();
+      }
+    }
+
+    function clearDoodles() {
+      doodleStrokes = [];
+      composeCanvas();
+    }
+
+    function setDoodleTool(tool) {
+      isDoodleEraser = (tool === 'eraser');
+      const penBtn = document.getElementById('doodleToolPen');
+      const eraserBtn = document.getElementById('doodleToolEraser');
+      if (penBtn) penBtn.classList.toggle('active', !isDoodleEraser);
+      if (eraserBtn) eraserBtn.classList.toggle('active', isDoodleEraser);
+      const colorSection = document.getElementById('doodleColorPickerSection');
+      if (colorSection) {
+        colorSection.style.opacity = isDoodleEraser ? '0.35' : '1';
+        colorSection.style.pointerEvents = isDoodleEraser ? 'none' : 'auto';
+      }
+      const canvas = document.getElementById('renderCanvas');
+      if (canvas && currentStudioTab === 'doodle') {
+        canvas.style.cursor = isDoodleEraser ? 'cell' : 'crosshair';
+      }
+    }
+
+    function setDoodleColor(color, el) {
+      doodleColor = color;
+      document.querySelectorAll('.doodle-color-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+      if (isDoodleEraser) setDoodleTool('pen');
+    }
+
+    function setDoodleSize(size, el) {
+      doodleSize = size;
+      document.querySelectorAll('.doodle-size-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    // Touch & Mouse Interaction for Stickers & Doodles on Canvas
     function setupCanvasStickerInteraction() {
       const canvas = document.getElementById('renderCanvas');
       if (!canvas) return;
@@ -1395,8 +1848,27 @@
         };
       }
 
+      let isDrawingDoodle = false;
+
       function onStart(e) {
         const pt = getCoords(e);
+
+        if (currentStudioTab === 'doodle') {
+          isDrawingDoodle = true;
+          const scaleFactor = (canvas.width || 600) / 600;
+          const strokeSize = (doodleSize || 12) * scaleFactor;
+          currentDoodleStroke = {
+            color: doodleColor,
+            size: strokeSize,
+            isEraser: isDoodleEraser,
+            points: [{ x: pt.x, y: pt.y }]
+          };
+          doodleStrokes.push(currentDoodleStroke);
+          composeCanvas();
+          if (e.cancelable) e.preventDefault();
+          return;
+        }
+
         for (let i = activeStickers.length - 1; i >= 0; i--) {
           const st = activeStickers[i];
           if (st.type === 'text') {
@@ -1423,6 +1895,18 @@
       }
 
       function onMove(e) {
+        if (currentStudioTab === 'doodle' && isDrawingDoodle && currentDoodleStroke) {
+          const pt = getCoords(e);
+          const pts = currentDoodleStroke.points;
+          const lastPt = pts[pts.length - 1];
+          if (Math.hypot(pt.x - lastPt.x, pt.y - lastPt.y) > 2) {
+            pts.push({ x: pt.x, y: pt.y });
+            composeCanvas();
+          }
+          if (e.cancelable) e.preventDefault();
+          return;
+        }
+
         if (!draggingSticker) return;
         const pt = getCoords(e);
         draggingSticker.x = pt.x - dragOffset.x;
@@ -1432,6 +1916,11 @@
       }
 
       function onEnd() {
+        if (isDrawingDoodle) {
+          isDrawingDoodle = false;
+          currentDoodleStroke = null;
+          composeCanvas();
+        }
         draggingSticker = null;
       }
 
@@ -1444,10 +1933,14 @@
       window.addEventListener('touchend', onEnd);
     }
 
+    let currentActiveScreen = 'screenWelcome';
+
     function goToScreen(screenId) {
+      currentActiveScreen = screenId;
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const target = document.getElementById(screenId);
       if (target) target.classList.add('active');
+      resetIdleTimer();
     }
 
     function chooseFrame(el) {
@@ -1498,6 +1991,7 @@
     }
 
     function stopCamera() {
+      stopGestureDetector();
       if (cameraStream) {
         try {
           cameraStream.getTracks().forEach(t => t.stop());
@@ -1612,6 +2106,7 @@
           console.warn('enumerateDevices error:', e);
         }
 
+        startGestureDetector();
         return true;
       } catch (err) {
         console.error('Camera init error:', err);
@@ -1623,6 +2118,128 @@
       if (videoDevices.length <= 1) return;
       currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
       await initCamera();
+    }
+
+    // Hands-Free Gesture Shutter Detector (Zero-dependency Canvas Optical Differencing)
+    let gestureDetectorCanvas = null;
+    let gestureDetectorCtx = null;
+    let prevFrameData = null;
+    let gestureDetectionInterval = null;
+    let isGestureShutterEnabled = true;
+    let gestureHoldCount = 0;
+    const GESTURE_TRIGGER_THRESHOLD = 4; // ~0.5s sustained motion in HUD zone
+
+    function startGestureDetector() {
+      if (!isGestureShutterEnabled) return;
+      stopGestureDetector();
+
+      const video = document.getElementById('webcamVideo');
+      if (!video) return;
+
+      if (!gestureDetectorCanvas) {
+        gestureDetectorCanvas = document.createElement('canvas');
+        gestureDetectorCanvas.width = 64;
+        gestureDetectorCanvas.height = 48;
+        gestureDetectorCtx = gestureDetectorCanvas.getContext('2d', { willReadFrequently: true });
+      }
+
+      gestureHoldCount = 0;
+      prevFrameData = null;
+
+      gestureDetectionInterval = setInterval(() => {
+        if (!video.videoWidth || !isGestureShutterEnabled) return;
+
+        // Skip detection while active countdown is running
+        const cdContainer = document.getElementById('countdownContainer');
+        if (cdContainer && cdContainer.classList.contains('active')) {
+          gestureHoldCount = 0;
+          updateGestureHUD(false);
+          return;
+        }
+
+        try {
+          gestureDetectorCtx.drawImage(video, 0, 0, 64, 48);
+          const curr = gestureDetectorCtx.getImageData(0, 0, 64, 48);
+
+          if (prevFrameData) {
+            // Target zone at top-left of video feed
+            let diffScore = 0;
+            const zoneW = 20;
+            const zoneH = 18;
+
+            for (let y = 3; y < zoneH; y++) {
+              for (let x = 3; x < zoneW; x++) {
+                const idx = (y * 64 + x) * 4;
+                const rDiff = Math.abs(curr.data[idx] - prevFrameData.data[idx]);
+                const gDiff = Math.abs(curr.data[idx+1] - prevFrameData.data[idx+1]);
+                const bDiff = Math.abs(curr.data[idx+2] - prevFrameData.data[idx+2]);
+                if ((rDiff + gDiff + bDiff) > 60) {
+                  diffScore++;
+                }
+              }
+            }
+
+            const zonePixels = (zoneW - 3) * (zoneH - 3);
+            const ratio = diffScore / zonePixels;
+
+            if (ratio > 0.15) {
+              gestureHoldCount++;
+              updateGestureHUD(true);
+              playBeep(850, 0.04);
+
+              if (gestureHoldCount >= GESTURE_TRIGGER_THRESHOLD) {
+                gestureHoldCount = 0;
+                updateGestureHUD(false);
+                onGestureDetected();
+              }
+            } else {
+              if (gestureHoldCount > 0) gestureHoldCount--;
+              updateGestureHUD(gestureHoldCount > 0);
+            }
+          }
+
+          prevFrameData = curr;
+        } catch (e) {}
+      }, 130);
+    }
+
+    function stopGestureDetector() {
+      clearInterval(gestureDetectionInterval);
+      gestureDetectionInterval = null;
+      updateGestureHUD(false);
+    }
+
+    function updateGestureHUD(isDetecting) {
+      const el = document.getElementById('gestureTargetZone');
+      if (el) {
+        el.classList.toggle('detecting', isDetecting);
+      }
+    }
+
+    function toggleGestureShutter() {
+      isGestureShutterEnabled = !isGestureShutterEnabled;
+      const text = document.getElementById('gestureToggleText');
+      const hud = document.getElementById('gestureTargetZone');
+      if (text) {
+        text.innerText = isGestureShutterEnabled ? '✋ Gestur: Aktif' : '✋ Gestur: Nonaktif';
+      }
+      if (hud) {
+        hud.style.display = isGestureShutterEnabled ? 'flex' : 'none';
+      }
+      if (isGestureShutterEnabled) {
+        startGestureDetector();
+      } else {
+        stopGestureDetector();
+      }
+    }
+
+    function onGestureDetected() {
+      playBeep(1100, 0.18);
+      const hud = document.getElementById('gestureTargetZone');
+      if (hud) {
+        hud.style.transform = 'scale(1.25)';
+        setTimeout(() => { hud.style.transform = ''; }, 300);
+      }
     }
 
     // Live Frame Mini-Preview on the right side
@@ -1805,6 +2422,7 @@
       isSingleRetake = true;
       retakeTargetIndex = shotIndex;
       goToScreen('screenCamera');
+      speakPrompt("Foto ulang! Bersiap.");
 
       // Update right-side frame preview active slot
       updateLiveSlotActive(shotIndex);
@@ -1863,6 +2481,7 @@
     async function runCaptureCycle(shotIndex) {
       if (shotIndex >= selectedFrame.totalShots) {
         // All shots taken -> go to review
+        speakPrompt("Sesi foto selesai! Silakan hias fotomu.");
         stopCamera();
         composeCanvas();
         goToScreen('screenFilter');
@@ -1872,6 +2491,7 @@
 
       updateLiveSlotActive(shotIndex);
       startLiveClipRecording(shotIndex);
+      speakPrompt(poseTips[shotIndex % poseTips.length]);
 
       const cdContainer = document.getElementById('countdownContainer');
       const cdDisplay = document.getElementById('countdownDisplay');
@@ -1974,10 +2594,16 @@
           const loadPromises = slots.map((slot, idx) => {
             return new Promise(resolve => {
               const shotIdx = idx % capturedShots.length;
+              const cached = cachedShotImages[shotIdx];
+              if (cached && cached.complete && cached.naturalWidth) {
+                drawImageCover(ctx, cached, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
+                return resolve();
+              }
               const shotSrc = capturedShots[shotIdx];
               if (!shotSrc) return resolve();
               const img = new Image();
               img.onload = () => {
+                cachedShotImages[shotIdx] = img;
                 drawImageCover(ctx, img, slot.x, slot.y, slot.w, slot.h, currentFilter, slot.r || 0);
                 resolve();
               };
@@ -2024,7 +2650,61 @@
       }
     }
 
+    function renderDoodleLayer(ctx, canvas) {
+      if (!doodleStrokes || doodleStrokes.length === 0) return;
+      if (!doodleOffscreenCanvas) {
+        doodleOffscreenCanvas = document.createElement('canvas');
+      }
+      if (doodleOffscreenCanvas.width !== canvas.width || doodleOffscreenCanvas.height !== canvas.height) {
+        doodleOffscreenCanvas.width = canvas.width;
+        doodleOffscreenCanvas.height = canvas.height;
+      }
+      const dctx = doodleOffscreenCanvas.getContext('2d');
+      dctx.clearRect(0, 0, doodleOffscreenCanvas.width, doodleOffscreenCanvas.height);
+
+      doodleStrokes.forEach(stroke => {
+        if (!stroke.points || stroke.points.length === 0) return;
+        dctx.save();
+        if (stroke.isEraser) {
+          dctx.globalCompositeOperation = 'destination-out';
+          dctx.lineWidth = stroke.size * 2.2;
+        } else {
+          dctx.globalCompositeOperation = 'source-over';
+          dctx.strokeStyle = stroke.color;
+          dctx.lineWidth = stroke.size;
+          dctx.shadowColor = stroke.color;
+          dctx.shadowBlur = 4;
+        }
+        dctx.lineCap = 'round';
+        dctx.lineJoin = 'round';
+
+        dctx.beginPath();
+        dctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        if (stroke.points.length === 1) {
+          dctx.lineTo(stroke.points[0].x + 0.1, stroke.points[0].y + 0.1);
+        } else {
+          for (let i = 1; i < stroke.points.length; i++) {
+            const p1 = stroke.points[i - 1];
+            const p2 = stroke.points[i];
+            const midX = (p1.x + p2.x) / 2;
+            const midY = (p1.y + p2.y) / 2;
+            dctx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+          }
+          const last = stroke.points[stroke.points.length - 1];
+          dctx.lineTo(last.x, last.y);
+        }
+        dctx.stroke();
+        dctx.restore();
+      });
+
+      ctx.drawImage(doodleOffscreenCanvas, 0, 0);
+    }
+
     function drawDecorationsOnContext(ctx, canvas) {
+      // 1. Render Freehand Doodles layer
+      renderDoodleLayer(ctx, canvas);
+
+      // 2. Render Stickers & Text Stamps
       activeStickers.forEach(st => {
         ctx.save();
         if (st.type === 'text') {
@@ -2046,7 +2726,7 @@
         ctx.restore();
       });
 
-      // School & Event Brand Footer Watermark
+      // 3. School & Event Brand Footer Watermark
       ctx.save();
       const isDark = currentFrameBgColor === '#18181b';
       ctx.fillStyle = isDark ? '#f4f4f5' : '#475569';
@@ -2060,17 +2740,25 @@
     function drawImageCover(ctx, img, x, y, w, h, filterName, radius = 0) {
       ctx.save();
       
-      // Apply CSS-like filter in canvas
+      // Apply CSS-like filter presets in canvas
       if (filterName === 'bw') {
-        ctx.filter = 'grayscale(100%) contrast(120%)';
+        ctx.filter = 'grayscale(100%) contrast(125%)';
+      } else if (filterName === 'kglow' || filterName === 'soft') {
+        ctx.filter = 'brightness(110%) contrast(98%) saturate(118%)';
       } else if (filterName === 'warm') {
-        ctx.filter = 'sepia(30%) saturate(130%) contrast(105%) brightness(102%)';
+        ctx.filter = 'sepia(32%) saturate(135%) contrast(105%) brightness(102%)';
       } else if (filterName === 'cool') {
-        ctx.filter = 'hue-rotate(185deg) saturate(90%) brightness(105%)';
-      } else if (filterName === 'soft') {
-        ctx.filter = 'brightness(108%) contrast(96%) saturate(108%)';
+        ctx.filter = 'hue-rotate(185deg) saturate(95%) brightness(105%)';
       } else if (filterName === 'vintage') {
-        ctx.filter = 'contrast(115%) sepia(20%) saturate(110%) hue-rotate(-8deg)';
+        ctx.filter = 'contrast(118%) sepia(24%) saturate(108%) hue-rotate(-8deg)';
+      } else if (filterName === 'y2k') {
+        ctx.filter = 'contrast(120%) saturate(155%) hue-rotate(330deg)';
+      } else if (filterName === 'noir') {
+        ctx.filter = 'grayscale(100%) contrast(175%) brightness(88%)';
+      } else if (filterName === 'nordic') {
+        ctx.filter = 'contrast(106%) saturate(72%) sepia(12%) brightness(98%)';
+      } else if (filterName === 'cinematic') {
+        ctx.filter = 'contrast(116%) saturate(125%) hue-rotate(12deg)';
       } else {
         ctx.filter = 'none';
       }
@@ -2285,6 +2973,7 @@
           const qrUrl = encodeURIComponent(data.qr_url);
           document.getElementById('qrImage').src = `/api/qr?text=${qrUrl}`;
 
+          speakPrompt("Foto kamu selesai! Silakan ambil hasil cetak dan scan QR code.");
           goToScreen('screenFinal');
           startAutoResetTimer(60);
         } else {
@@ -2329,7 +3018,10 @@
 
     function finishAndReset() {
       clearInterval(autoResetTimer);
+      clearInterval(paymentPollInterval);
+      currentPaymentOrderId = "";
       stopCamera();
+      stopGestureDetector();
       if (shotVideoClips && shotVideoClips.length > 0) {
         shotVideoClips.forEach(url => {
           try { URL.revokeObjectURL(url); } catch(e) {}
@@ -2338,9 +3030,15 @@
       }
       capturedShots = [];
       activeStickers = [];
+      doodleStrokes = [];
+      cachedShotImages = [];
+      cachedOverlayImg = null;
       activeVoucherCode = "";
       currentFilter = 'normal';
       currentFrameBgColor = '#ffffff';
+      currentStudioTab = 'filters';
+      setDoodleTool('pen');
+      hideIdleWarningModal();
       goToScreen('screenWelcome');
     }
 
@@ -2352,6 +3050,156 @@
         alert('PIN salah!');
       }
     }
+
+    // Universal Idle Monitor
+    function resetIdleTimer() {
+      const activeScreen = document.querySelector('.screen.active');
+      if (!activeScreen) return;
+      const screenId = activeScreen.id;
+      if (screenId === 'screenWelcome' || screenId === 'screenCamera') {
+        clearTimeout(idleTimer);
+        clearInterval(idleWarningCountdownTimer);
+        hideIdleWarningModal();
+        return;
+      }
+
+      clearTimeout(idleTimer);
+      clearInterval(idleWarningCountdownTimer);
+      hideIdleWarningModal();
+
+      // Start idle timeout countdown
+      idleTimer = setTimeout(() => {
+        showIdleWarningModal();
+      }, (IDLE_LIMIT_SECONDS - IDLE_WARNING_SECONDS) * 1000);
+    }
+
+    function showIdleWarningModal() {
+      const modal = document.getElementById('modalIdleWarning');
+      const countEl = document.getElementById('idleSecondsRemaining');
+      if (!modal || !countEl) return;
+
+      modal.style.display = 'flex';
+      let remaining = IDLE_WARNING_SECONDS;
+      countEl.innerText = remaining;
+
+      clearInterval(idleWarningCountdownTimer);
+      idleWarningCountdownTimer = setInterval(() => {
+        remaining--;
+        countEl.innerText = remaining;
+        if (remaining <= 0) {
+          clearInterval(idleWarningCountdownTimer);
+          hideIdleWarningModal();
+          finishAndReset();
+        }
+      }, 1000);
+    }
+
+    function dismissIdleWarning() {
+      hideIdleWarningModal();
+      resetIdleTimer();
+    }
+
+    function hideIdleWarningModal() {
+      const modal = document.getElementById('modalIdleWarning');
+      if (modal) modal.style.display = 'none';
+      clearInterval(idleWarningCountdownTimer);
+    }
+
+    // User interaction listeners to keep kiosk alive
+    ['touchstart', 'mousedown', 'mousemove', 'keydown', 'click'].forEach(evt => {
+      window.addEventListener(evt, () => {
+        resetIdleTimer();
+      }, { passive: true });
+    });
+
+    // Anti-Tamper & Kiosk Lockdown Safeguards
+    window.addEventListener('contextmenu', e => e.preventDefault());
+
+    window.addEventListener('keydown', e => {
+      // Prevent browser reload & closing shortcuts in kiosk
+      if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && ['r', 'R', 'w', 'W', 'u', 'U'].includes(e.key))) {
+        e.preventDefault();
+        return false;
+      }
+      // Prevent Backspace navigating back unless typing in text field
+      if (e.key === 'Backspace' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    function toggleKioskFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+          updateFullscreenIcon(true);
+        }).catch(err => {
+          console.warn('Fullscreen request failed:', err);
+        });
+      } else {
+        document.exitFullscreen().then(() => {
+          updateFullscreenIcon(false);
+        }).catch(err => {});
+      }
+    }
+
+    function updateFullscreenIcon(isFullscreen) {
+      const icon = document.getElementById('fsIcon');
+      if (icon) {
+        icon.innerHTML = isFullscreen ? '🗗' : '⛶';
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      updateFullscreenIcon(!!document.fullscreenElement);
+    });
+
+    // --- KIOSK HEARTBEAT & REMOTE OPERATOR COMMAND DISPATCHER ---
+    async function sendKioskHeartbeat() {
+      try {
+        const res = await fetch('/api/kiosk/heartbeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ screen: currentActiveScreen })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.command) {
+            handleRemoteOperatorCommand(data.command);
+          }
+        }
+      } catch (e) {
+        // quiet error on local offline drops
+      }
+    }
+
+    function handleRemoteOperatorCommand(cmd) {
+      console.log('[REMOTE OPERATOR ACTION RECEIVED]:', cmd);
+      if (cmd === 'reset') {
+        finishAndReset();
+      } else if (cmd === 'shutter') {
+        if (currentActiveScreen === 'screenWelcome') {
+          handleStartClick();
+        } else if (currentActiveScreen === 'screenFrames') {
+          if (selectedFrame) {
+            startCameraSession();
+          } else {
+            const firstFrame = document.querySelector('.frame-card');
+            if (firstFrame) {
+              chooseFrame(firstFrame);
+              setTimeout(() => startCameraSession(), 300);
+            }
+          }
+        } else if (currentActiveScreen === 'screenCamera') {
+          const countdownEl = document.getElementById('cameraCountdown');
+          if (countdownEl && countdownEl.style.display !== 'block') {
+            runCaptureCycle(capturedShots.length);
+          }
+        }
+      }
+    }
+
+    setInterval(sendKioskHeartbeat, 2000);
+    setTimeout(sendKioskHeartbeat, 600);
   </script>
 </body>
 </html>

@@ -1,0 +1,222 @@
+{{define "analytics"}}
+{{template "master" .}}
+{{end}}
+
+{{define "content"}}
+<div class="content">
+  <!-- Page Header -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.6rem; font-weight: 800; color: #1e293b; margin: 0 0 0.25rem;">📊 Laporan Finansial & Analitik Booth</h1>
+      <p style="margin: 0; color: #64748b; font-size: 0.875rem;">
+        Statistik performa acara, pembagian omzet tunai vs QRIS, serta jam-jam puncak keramaian booth.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.6rem; align-items: center;">
+      <span style="background: #e0f2fe; color: #0284c7; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700;">
+        📍 {{.Data.Config.EventName}}
+      </span>
+      <button type="button" onclick="window.print()" class="btn btn--secondary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; font-size: 0.85rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600;">
+        🖨️ Cetak / Simpan PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Financial Metric Cards Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <!-- Card 1: Total Gross Revenue -->
+    <div style="background: linear-gradient(135deg, #1e3a8a, #2563eb); border-radius: 12px; padding: 1.25rem; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
+      <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; margin-bottom: 0.5rem;">
+        Total Omzet Kotor (Gross)
+      </div>
+      <div style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;">
+        Rp {{.Data.TotalGrossRevenue}}
+      </div>
+      <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 0.4rem;">
+        Kombinasi QRIS Mandiri & Tiket Masuk
+      </div>
+    </div>
+
+    <!-- Card 2: QRIS Revenue -->
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Omzet QRIS Mandiri</span>
+        <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{.Data.QRISPaidOrders}} Transaksi</span>
+      </div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a;">
+        Rp {{.Data.QRISRevenue}}
+      </div>
+      <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.4rem;">
+        Pembayaran mandiri via e-Wallet/Bank
+      </div>
+    </div>
+
+    <!-- Card 3: Voucher / Ticket Revenue -->
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Tiket & Kupon Terpakai</span>
+        <span style="background: #fef3c7; color: #92400e; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">{{.Data.UsedVouchers}} Kupon</span>
+      </div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a;">
+        Rp {{.Data.VoucherRevenue}}
+      </div>
+      <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.4rem;">
+        Penjualan fisik meja kasir/registrasi
+      </div>
+    </div>
+
+    <!-- Card 4: Estimated Net Profit -->
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Estimasi Laba Bersih</span>
+        <span style="color: #64748b; font-size: 0.7rem;">HPP: Rp {{.Data.EstimatedCost}}</span>
+      </div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: #16a34a;">
+        Rp {{.Data.EstimatedNetProfit}}
+      </div>
+      <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.4rem;">
+        Setelah biaya kertas {{.Data.PaperUsed}} lembar
+      </div>
+    </div>
+  </div>
+
+  <!-- Hourly Traffic Distribution Bar Chart -->
+  <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <div>
+        <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">⏱️ Pola Kepadatan Jam Ramai (Hourly Rush Hours)</h3>
+        <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: #64748b;">Distribusi waktu pemakaian booth oleh pengunjung dari pukul 07:00 hingga 22:00.</p>
+      </div>
+      <span style="font-size: 0.75rem; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 0.25rem 0.6rem; border-radius: 6px;">
+        Total Sesi: {{.Data.TotalSessions}}
+      </span>
+    </div>
+
+    <!-- Chart Container -->
+    <div style="display: flex; align-items: flex-end; gap: 0.5rem; height: 160px; padding: 1rem 0.5rem 0.25rem; border-bottom: 2px solid #cbd5e1;">
+      {{range .Data.HourlyBars}}
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; position: relative;" title="{{.Label}}: {{.Count}} sesi">
+        <span style="font-size: 0.65rem; font-weight: 700; color: {{if gt .Count 0}}#1e40af{{else}}#94a3b8{{end}}; margin-bottom: 4px;">
+          {{if gt .Count 0}}{{.Count}}{{else}}0{{end}}
+        </span>
+        <div style="width: 100%; max-width: 28px; height: {{.HeightPct}}%; min-height: 4px; background: {{if gt .Count 0}}linear-gradient(180deg, #3b82f6, #1d4ed8){{else}}#f1f5f9{{end}}; border-radius: 4px 4px 0 0; transition: height 0.3s;"></div>
+      </div>
+      {{end}}
+    </div>
+    <!-- X-axis labels -->
+    <div style="display: flex; gap: 0.5rem; padding: 0.5rem 0.5rem 0;">
+      {{range .Data.HourlyBars}}
+      <div style="flex: 1; text-align: center; font-size: 0.65rem; color: #64748b; font-weight: 600;">
+        {{.Label}}
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+  <!-- Leaderboards Grid (Frames & Filters) -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+    
+    <!-- Top Frames -->
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0 0 1rem; display: flex; align-items: center; gap: 6px;">
+        <span>🏆</span> Template Frame Terlaris
+      </h3>
+      {{if .Data.TopFrames}}
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {{range .Data.TopFrames}}
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">
+            <span>{{.FrameName}}</span>
+            <span style="color: #2563eb;">{{.UsageCount}} sesi</span>
+          </div>
+          <div style="background: #f1f5f9; height: 6px; border-radius: 999px; overflow: hidden;">
+            <div style="background: #2563eb; height: 100%; border-radius: 999px; width: 80%;"></div>
+          </div>
+        </div>
+        {{end}}
+      </div>
+      {{else}}
+      <p style="color: #94a3b8; font-size: 0.85rem; text-align: center; margin: 1rem 0;">Belum ada data frame tercatat.</p>
+      {{end}}
+    </div>
+
+    <!-- Top Filters -->
+    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0 0 1rem; display: flex; align-items: center; gap: 6px;">
+        <span>🎨</span> Filter Foto Paling Diminati
+      </h3>
+      {{if .Data.TopFilters}}
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {{range .Data.TopFilters}}
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">
+            <span style="text-transform: capitalize;">{{.FilterApplied}}</span>
+            <span style="color: #ec4899;">{{.Count}} kali dipakai</span>
+          </div>
+          <div style="background: #f1f5f9; height: 6px; border-radius: 999px; overflow: hidden;">
+            <div style="background: #ec4899; height: 100%; border-radius: 999px; width: 75%;"></div>
+          </div>
+        </div>
+        {{end}}
+      </div>
+      {{else}}
+      <p style="color: #94a3b8; font-size: 0.85rem; text-align: center; margin: 1rem 0;">Belum ada data filter tercatat.</p>
+      {{end}}
+    </div>
+
+  </div>
+
+  <!-- QRIS Payment Transactions Table -->
+  <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <div>
+        <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">💳 Transaksi Pembayaran Mandiri QRIS Terakhir</h3>
+        <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: #64748b;">Log pesanan yang diproses langsung oleh pengunjung di kiosk.</p>
+      </div>
+      <span style="font-size: 0.8rem; color: #64748b;">Menampilkan 8 transaksi terbaru</span>
+    </div>
+
+    {{if .Data.RecentOrders}}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+        <thead>
+          <tr style="border-bottom: 2px solid #f1f5f9; text-align: left; color: #64748b; font-size: 0.75rem; text-transform: uppercase;">
+            <th style="padding: 0.65rem 0.75rem;">Order ID</th>
+            <th style="padding: 0.65rem 0.75rem;">Varian Paket</th>
+            <th style="padding: 0.65rem 0.75rem;">Lembar Cetak</th>
+            <th style="padding: 0.65rem 0.75rem;">Nominal</th>
+            <th style="padding: 0.65rem 0.75rem;">Status</th>
+            <th style="padding: 0.65rem 0.75rem;">Waktu</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Data.RecentOrders}}
+          <tr style="border-bottom: 1px solid #f8fafc;">
+            <td style="padding: 0.65rem 0.75rem; font-family: monospace; font-weight: 700; color: #0f172a;">{{.OrderID}}</td>
+            <td style="padding: 0.65rem 0.75rem; text-transform: capitalize;">{{.PackageType}}</td>
+            <td style="padding: 0.65rem 0.75rem;">{{.Copies}} lembar</td>
+            <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #0f172a;">Rp {{.Amount}}</td>
+            <td style="padding: 0.65rem 0.75rem;">
+              {{if eq .Status "paid"}}
+              <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;">LUNAS</span>
+              {{else}}
+              <span style="background: #fef3c7; color: #92400e; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;">PENDING</span>
+              {{end}}
+            </td>
+            <td style="padding: 0.65rem 0.75rem; color: #64748b; font-size: 0.8rem;">
+              {{if .PaidAt}}{{.PaidAt.Format "15:04:05"}}{{else}}{{.CreatedAt.Format "15:04:05"}}{{end}}
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+    {{else}}
+    <div style="padding: 2rem; text-align: center; color: #94a3b8; font-size: 0.875rem;">
+      Belum ada transaksi QRIS mandiri yang tercatat. Aktifkan mode pembayaran mandiri di menu Pengaturan untuk mengaktifkannya.
+    </div>
+    {{end}}
+  </div>
+
+</div>
+{{end}}

@@ -59,6 +59,25 @@ func (h *Handler) UpdateSettings(c *gin.Context) {
 		_ = Set(h.db, "auto_print", "false")
 	}
 
+	if c.PostForm("voucher_mode_enabled") == "on" || c.PostForm("voucher_mode_enabled") == "true" {
+		_ = Set(h.db, "voucher_mode_enabled", "true")
+	} else {
+		_ = Set(h.db, "voucher_mode_enabled", "false")
+	}
+
+	_ = Set(h.db, "price_single", c.PostForm("price_single"))
+	_ = Set(h.db, "price_double", c.PostForm("price_double"))
+	_ = Set(h.db, "qris_static_code", c.PostForm("qris_static_code"))
+	if cap := c.PostForm("paper_capacity"); cap != "" {
+		_ = Set(h.db, "paper_capacity", cap)
+	}
+
+	if c.PostForm("payment_mode_enabled") == "on" || c.PostForm("payment_mode_enabled") == "true" {
+		_ = Set(h.db, "payment_mode_enabled", "true")
+	} else {
+		_ = Set(h.db, "payment_mode_enabled", "false")
+	}
+
 	config := GetConfig(h.db, h.cfg.Port)
 
 	c.HTML(http.StatusOK, "settings_app", core.PageData{

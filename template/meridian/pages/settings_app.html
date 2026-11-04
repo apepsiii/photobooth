@@ -14,8 +14,45 @@
 </div>
 {{end}}
 
+<div style="max-width: 800px; margin-bottom: 1.5rem; background: linear-gradient(135deg, #18181b 0%, #09090b 100%); border-radius: 12px; border: 1px solid #27272a; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.25rem;">
+      <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ec4899; box-shadow: 0 0 8px #ec4899;"></span>
+      <h3 style="margin: 0; color: #ffffff; font-size: 1.1rem; font-weight: 800;">Live Projector Wall</h3>
+      <span style="font-size: 0.7rem; background: rgba(236,72,153,0.2); color: #f472b6; padding: 2px 8px; border-radius: 999px; font-weight: 700;">PROYEKSI LAYAR BESAR</span>
+    </div>
+    <p style="margin: 0; color: #a1a1aa; font-size: 0.85rem;">Buka tayangan slide interaktif real-time di proyektor venue atau monitor TV antrean.</p>
+  </div>
+  <a href="/live-wall" target="_blank" style="padding: 0.65rem 1.25rem; background: #ec4899; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(236,72,153,0.3); transition: transform 0.15s;">
+    <span>Buka Live Wall ↗</span>
+  </a>
+</div>
+
 <div style="max-width: 800px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-  <form method="POST" action="/admin/settings">
+  <!-- PRESET PROFIL ACARA -->
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem;">
+    <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 6px;">
+      <span>⚡</span>
+      <span>Template Profil Acara Cepat (1-Klik Isi Otomatis)</span>
+    </div>
+    <p style="color: #64748b; font-size: 0.78rem; margin-bottom: 0.75rem;">Pilih jenis event kamu untuk mengisi konfigurasi nama, tema, dan durasi pose secara otomatis:</p>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button type="button" onclick="applyEventPreset('wisuda')" style="padding: 0.45rem 0.85rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #334155;">
+        🎓 Wisuda & Kelulusan
+      </button>
+      <button type="button" onclick="applyEventPreset('bazaar')" style="padding: 0.45rem 0.85rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #334155;">
+        🎪 Pentas Seni & Bazaar
+      </button>
+      <button type="button" onclick="applyEventPreset('wedding')" style="padding: 0.45rem 0.85rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #334155;">
+        💍 Wedding & Resepsi
+      </button>
+      <button type="button" onclick="applyEventPreset('corporate')" style="padding: 0.45rem 0.85rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #334155;">
+        🏢 Corporate Gathering
+      </button>
+    </div>
+  </div>
+
+  <form method="POST" action="/admin/settings" id="settingsForm">
     <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
       1. Identitas Acara & Sekolah
     </h3>
@@ -23,28 +60,28 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
       <div>
         <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Aplikasi Kiosk</label>
-        <input type="text" name="app_name" value="{{.Data.Config.AppName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+        <input type="text" id="inputAppName" name="app_name" value="{{.Data.Config.AppName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
       </div>
       <div>
-        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Sekolah / Institusi</label>
-        <input type="text" name="school_name" value="{{.Data.Config.SchoolName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Sekolah / Institusi / Host</label>
+        <input type="text" id="inputSchoolName" name="school_name" value="{{.Data.Config.SchoolName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
       </div>
     </div>
 
     <div style="margin-bottom: 2rem;">
       <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Nama Acara / Event</label>
-      <input type="text" name="event_name" value="{{.Data.Config.EventName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
-      <small style="color: #64748b; font-size: 0.75rem;">Akan ditampilkan di layar sambutan Kiosk dan header unduhan smartphone siswa.</small>
+      <input type="text" id="inputEventName" name="event_name" value="{{.Data.Config.EventName}}" required style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      <small style="color: #64748b; font-size: 0.75rem;">Akan ditampilkan di layar sambutan Kiosk, header unduhan smartphone, dan Live Projector Wall.</small>
     </div>
 
     <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
       2. Perilaku Kiosk & Kamera
     </h3>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
       <div>
         <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Durasi Hitungan Mundur (Countdown)</label>
-        <select name="countdown_seconds" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;">
+        <select id="selectCountdown" name="countdown_seconds" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;">
           <option value="3" {{if eq .Data.Config.CountdownSeconds 3}}selected{{end}}>3 Detik (Cepat & Dinamis)</option>
           <option value="5" {{if eq .Data.Config.CountdownSeconds 5}}selected{{end}}>5 Detik (Standar / Cukup untuk pose)</option>
           <option value="8" {{if eq .Data.Config.CountdownSeconds 8}}selected{{end}}>8 Detik (Rileks / Rombongan)</option>
@@ -57,8 +94,50 @@
       </div>
     </div>
 
+    <!-- Voucher Mode Toggle -->
+    <div style="margin-bottom: 2rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+      <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+        <input type="checkbox" id="checkVoucherMode" name="voucher_mode_enabled" value="true" {{if .Data.Config.VoucherModeEnabled}}checked{{end}} style="width: 18px; height: 18px;" />
+        🎟️ Wajibkan Tiket / Voucher Bazaar Sebelum Foto
+      </label>
+      <small style="display: block; color: #64748b; font-size: 0.75rem; margin-left: 2rem; margin-top: 0.25rem;">
+        Jika dicentang, layar Kiosk akan meminta pengunjung memasukkan kode tiket/voucher yang valid (dikelola di menu <a href="/admin/vouchers" style="color: #2563eb; text-decoration: underline;">Manajemen Tiket</a>) sebelum sesi kamera dapat dimulai.
+      </small>
+    </div>
+
     <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
-      3. Integrasi Hardware Printer Foto
+      3. Mode Pembayaran Mandiri / Vending Machine (QRIS)
+    </h3>
+
+    <div style="margin-bottom: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem;">
+      <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: #166534;">
+        <input type="checkbox" id="checkPaymentMode" name="payment_mode_enabled" value="true" {{if .Data.Config.PaymentModeEnabled}}checked{{end}} style="width: 18px; height: 18px;" />
+        💳 Aktifkan Mode Pembayaran Mandiri QRIS (Kiosk Tanpa Kasir)
+      </label>
+      <small style="display: block; color: #15803d; font-size: 0.75rem; margin-left: 2rem; margin-top: 0.25rem;">
+        Pengunjung akan diminta memilih paket foto dan melakukan pembayaran QRIS di layar Kiosk sebelum kamera terbuka.
+      </small>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Harga Paket 1 Strip Cetak (Rp)</label>
+        <input type="number" id="inputPriceSingle" name="price_single" value="{{.Data.Config.PriceSingle}}" step="1000" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      </div>
+      <div>
+        <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Harga Paket 2 Strip Cetak / Bestie (Rp)</label>
+        <input type="number" id="inputPriceDouble" name="price_double" value="{{.Data.Config.PriceDouble}}" step="1000" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      </div>
+    </div>
+
+    <div style="margin-bottom: 2rem;">
+      <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Kode / String QRIS Merchant (Opsional)</label>
+      <input type="text" name="qris_static_code" value="{{.Data.Config.QRISStaticCode}}" placeholder="00020101021126580014ID.GO.BOOTH..." style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      <small style="color: #64748b; font-size: 0.75rem;">Kosongkan untuk menggunakan QRIS simulator dinamis bawaan.</small>
+    </div>
+
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
+      4. Integrasi Hardware Printer Foto
     </h3>
 
     <div style="margin-bottom: 1.25rem;">
@@ -96,7 +175,7 @@
       </div>
     </div>
 
-    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
       <div>
         <div style="font-weight: 600; font-size: 0.875rem; color: #1e293b;">Uji Coba Koneksi Printer</div>
         <div style="font-size: 0.75rem; color: #64748b;">Kirim lembar cetak sampel untuk memastikan kertas & tinta printer siap.</div>
@@ -104,6 +183,32 @@
       <button type="submit" form="formTestPrint" class="btn btn--secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; background: #fff; color: #334155; font-weight: 600;">
         🖨️ Cetak Lembar Uji Coba
       </button>
+    </div>
+
+    <!-- Paper & Ribbon Roll Monitor -->
+    <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1.25rem; border-radius: 8px; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <div>
+          <span style="font-weight: 700; color: #1e40af; font-size: 0.95rem;">📜 Pemantau Stok Kertas & Ribbon Printer</span>
+          <p style="margin: 0.2rem 0 0; font-size: 0.75rem; color: #3b82f6;">Memantau konsumsi kertas foto secara otomatis agar operator tahu kapan harus reload roll baru.</p>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 1.25rem; font-weight: 800; color: #1e40af;">{{.Data.Config.PaperRemaining}}</span>
+          <span style="font-size: 0.8rem; color: #64748b;"> / {{.Data.Config.PaperCapacity}} lembar sisa</span>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label style="display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 0.35rem; color: #1e3a8a;">Kapasitas Roll Kertas (Lembar)</label>
+          <input type="number" name="paper_capacity" value="{{.Data.Config.PaperCapacity}}" min="10" max="1000" style="width: 100%; padding: 0.55rem; border: 1px solid #93c5fd; border-radius: 6px; font-size: 0.85rem;" />
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 0.35rem; color: #1e3a8a;">Kertas Terpakai Saat Ini</label>
+          <div style="padding: 0.55rem; background: #fff; border: 1px solid #93c5fd; border-radius: 6px; font-size: 0.85rem; font-weight: 700; color: #1e293b;">
+            {{.Data.Config.PaperUsed}} lembar tercetak
+          </div>
+        </div>
+      </div>
     </div>
 
     <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; color: #1e293b;">
@@ -130,6 +235,40 @@
 </div>
 
 <script>
+  function applyEventPreset(type) {
+    const appName = document.getElementById('inputAppName');
+    const schoolName = document.getElementById('inputSchoolName');
+    const eventName = document.getElementById('inputEventName');
+    const countdown = document.getElementById('selectCountdown');
+    const voucher = document.getElementById('checkVoucherMode');
+
+    if (type === 'wisuda') {
+      appName.value = "Graduation Photobooth";
+      schoolName.value = "SMA Negeri 1 Teladan";
+      eventName.value = "Wisuda & Pelepasan Angkatan 2026";
+      countdown.value = "5";
+      if (voucher) voucher.checked = false;
+    } else if (type === 'bazaar') {
+      appName.value = "Bazaar Fun Booth";
+      schoolName.value = "OSIS SMAN 1";
+      eventName.value = "Pentas Seni & Bazaar Senja 2026";
+      countdown.value = "3";
+      if (voucher) voucher.checked = true;
+    } else if (type === 'wedding') {
+      appName.value = "Wedding Memories";
+      schoolName.value = "Sarah & Kevin";
+      eventName.value = "The Wedding of Sarah & Kevin";
+      countdown.value = "5";
+      if (voucher) voucher.checked = false;
+    } else if (type === 'corporate') {
+      appName.value = "Brand Photo Lounge";
+      schoolName.value = "PT Teknologi Nusantara";
+      eventName.value = "Annual Gala Dinner & Awards 2026";
+      countdown.value = "3";
+      if (voucher) voucher.checked = false;
+    }
+  }
+
   if (window.location.search.includes('test_print=ok')) {
     alert('✓ Perintah uji coba cetak telah dikirim ke printer!');
     history.replaceState(null, '', window.location.pathname);

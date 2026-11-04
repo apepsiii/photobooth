@@ -23,6 +23,12 @@ var defaultSettings = map[string]struct {
 	"kiosk_pin":             {Value: "1234", Label: "PIN Kiosk / Operator"},
 	"local_server_ip":       {Value: "", Label: "IP Server Lokal (Kosongkan untuk Deteksi Otomatis)"},
 	"voucher_mode_enabled":  {Value: "false", Label: "Aktifkan Sistem Tiket / Voucher Berbayar"},
+	"payment_mode_enabled":  {Value: "false", Label: "Aktifkan Mode Pembayaran Mandiri (QRIS)"},
+	"price_single":          {Value: "20000", Label: "Harga Paket 1 Lembar Cetak (Rp)"},
+	"price_double":          {Value: "30000", Label: "Harga Paket 2 Lembar Cetak (Rp)"},
+	"qris_static_code":      {Value: "", Label: "Kode / URL String QRIS Merchant"},
+	"paper_capacity":        {Value: "100", Label: "Kapasitas Kertas / Ribbon Printer (Lembar)"},
+	"paper_used":            {Value: "0", Label: "Jumlah Kertas Terpakai (Lembar)"},
 }
 
 // SeedSettings ensures all required settings exist in the database.
@@ -110,19 +116,65 @@ func GetConfig(db *gorm.DB, port string) ConfigMap {
 		localIP = DetectLocalIP()
 	}
 
+	priceSingle, _ := strconv.Atoi(Get(db, "price_single"))
+	if priceSingle <= 0 {
+		priceSingle = 20000
+	}
+	priceDouble, _ := strconv.Atoi(Get(db, "price_double"))
+	if priceDouble <= 0 {
+		priceDouble = 30000
+	}
+
+	paperCapacity, _ := strconv.Atoi(Get(db, "paper_capacity"))
+	if paperCapacity <= 0 {
+		paperCapacity = 100
+	}
+	paperUsed, _ := strconv.Atoi(Get(db, "paper_used"))
+	paperRemaining := paperCapacity - paperUsed
+	if paperRemaining < 0 {
+		paperRemaining = 0
+	}
+
 	return ConfigMap{
-		AppName:          Get(db, "app_name"),
-		EventName:        Get(db, "event_name"),
-		SchoolName:       Get(db, "school_name"),
-		CountdownSeconds: countdown,
-		PrintEnabled:     Get(db, "print_enabled") == "true",
-		AutoPrint:        Get(db, "auto_print") == "true",
-		CopiesCount:      copies,
-		PrinterName:      Get(db, "printer_name"),
-		KioskPin:         Get(db, "kiosk_pin"),
+		AppName:            Get(db, "app_name"),
+		EventName:          Get(db, "event_name"),
+		SchoolName:         Get(db, "school_name"),
+		CountdownSeconds:   countdown,
+		PrintEnabled:       Get(db, "print_enabled") == "true",
+		AutoPrint:          Get(db, "auto_print") == "true",
+		CopiesCount:        copies,
+		PrinterName:        Get(db, "printer_name"),
+		KioskPin:           Get(db, "kiosk_pin"),
 		LocalServerIP:      localIP,
 		Port:               port,
 		VoucherModeEnabled: Get(db, "voucher_mode_enabled") == "true",
+		PaymentModeEnabled: Get(db, "payment_mode_enabled") == "true",
+		PriceSingle:        priceSingle,
+		PriceDouble:        priceDouble,
+		QRISStaticCode:     Get(db, "qris_static_code"),
+		PaperCapacity:      paperCapacity,
+		PaperUsed:          paperUsed,
+		PaperRemaining:     paperRemaining,
 	}
 }
+
+// IncrementPaperUsed adds count to paper_used counter.
+func IncrementPaperUsed(db *gorm.DB, count int) int {
+	if count <= 0 {
+		count = 1
+	}
+	used, _ := strconv.Atoi(Get(db, "paper_used"))
+	used += count
+	_ = Set(db, "paper_used", strconv.Itoa(used))
+	return used
+}
+
+// ResetPaperCounter resets paper_used to 0, optionally updating paper_capacity.
+func ResetPaperCounter(db *gorm.DB, capacity int) error {
+	if capacity > 0 {
+		_ = Set(db, "paper_capacity", strconv.Itoa(capacity))
+	}
+	return Set(db, "paper_used", "0")
+}
+
 
