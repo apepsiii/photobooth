@@ -2547,7 +2547,7 @@
           mimeType = 'video/webm';
         }
 
-        currentClipRecorder = new MediaRecorder(cameraStream, { mimeType, videoBitsPerSecond: 2500000 });
+        currentClipRecorder = new MediaRecorder(cameraStream, { mimeType, videoBitsPerSecond: 1000000 });
         currentClipRecorder.ondataavailable = (e) => {
           if (e.data && e.data.size > 0) currentClipChunks.push(e.data);
         };
@@ -2737,7 +2737,7 @@
       }
       ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
 
-      const shotDataURL = snapCanvas.toDataURL('image/jpeg', 0.92);
+      const shotDataURL = snapCanvas.toDataURL('image/jpeg', 0.82);
       if (isSingleRetake && retakeTargetIndex >= 0) {
         capturedShots[retakeTargetIndex] = shotDataURL;
       } else {
@@ -3000,14 +3000,19 @@
       composeCanvas();
     }
 
-    // Generate Animated MP4 Live Photo inside frame
+    // Generate Animated MP4 Live Photo inside frame (Optimized for speed & mobile)
     async function generateLivePhotoVideoMP4() {
       if (!shotVideoClips || shotVideoClips.length === 0) return "";
 
       try {
         const animCanvas = document.createElement('canvas');
-        animCanvas.width = selectedFrame.w;
-        animCanvas.height = selectedFrame.h;
+        // Scale down to max 720px dimension for super-fast mobile-friendly rendering & tiny payload
+        const origW = selectedFrame.w || 1200;
+        const origH = selectedFrame.h || 1800;
+        const maxDim = 720;
+        const scale = Math.min(1, maxDim / Math.max(origW, origH));
+        animCanvas.width = Math.round(origW * scale);
+        animCanvas.height = Math.round(origH * scale);
         const actx = animCanvas.getContext('2d');
 
         // Prepare video elements for each shot clip
@@ -3036,8 +3041,8 @@
         overlayImg.src = selectedFrame.overlay;
         await new Promise(r => { overlayImg.onload = r; overlayImg.onerror = r; });
 
-        // Stream from canvas
-        const animStream = animCanvas.captureStream(25);
+        // Stream from canvas (24 fps is lightweight & smooth)
+        const animStream = animCanvas.captureStream(24);
         let mimeType = 'video/mp4';
         if (MediaRecorder.isTypeSupported('video/mp4;codecs="avc1.42E01E"')) {
           mimeType = 'video/mp4;codecs="avc1.42E01E"';
@@ -3049,7 +3054,7 @@
           mimeType = 'video/webm';
         }
 
-        const animRecorder = new MediaRecorder(animStream, { mimeType, videoBitsPerSecond: 3000000 });
+        const animRecorder = new MediaRecorder(animStream, { mimeType, videoBitsPerSecond: 1000000 });
         const animChunks = [];
         animRecorder.ondataavailable = (e) => {
           if (e.data && e.data.size > 0) animChunks.push(e.data);
@@ -3057,9 +3062,9 @@
 
         animRecorder.start();
 
-        // Render animation loop for 3.2 seconds
+        // Render animation loop for 1.8 seconds (instant live photo)
         const startTime = Date.now();
-        const duration = 3200;
+        const duration = 1800;
 
         await new Promise((resolve) => {
           function renderLoop() {
@@ -3069,8 +3074,11 @@
               return;
             }
 
+            actx.save();
+            actx.scale(scale, scale);
+
             actx.fillStyle = currentFrameBgColor || '#ffffff';
-            actx.fillRect(0, 0, animCanvas.width, animCanvas.height);
+            actx.fillRect(0, 0, origW, origH);
 
             const drawVideos = () => {
               slots.forEach((slot, idx) => {
@@ -3087,14 +3095,16 @@
             };
 
             if (isPhotoOnTop) {
-              actx.drawImage(overlayImg, 0, 0, animCanvas.width, animCanvas.height);
+              actx.drawImage(overlayImg, 0, 0, origW, origH);
               drawVideos();
             } else {
               drawVideos();
-              actx.drawImage(overlayImg, 0, 0, animCanvas.width, animCanvas.height);
+              actx.drawImage(overlayImg, 0, 0, origW, origH);
             }
 
-            drawDecorationsOnContext(actx, animCanvas);
+            drawDecorationsOnContext(actx, { width: origW, height: origH });
+            actx.restore();
+
             requestAnimationFrame(renderLoop);
           }
           requestAnimationFrame(renderLoop);
@@ -3127,12 +3137,12 @@
     // Submit Session to Backend
     async function submitSession() {
       const canvas = document.getElementById('renderCanvas');
-      const compositeBase64 = canvas.toDataURL('image/jpeg', 0.95);
+      const compositeBase64 = canvas.toDataURL('image/jpeg', 0.88);
 
       const submitBtn = document.querySelector('#screenFilter .action-btn-primary');
       const originalText = submitBtn ? submitBtn.innerText : '';
       if (submitBtn) {
-        submitBtn.innerText = '⏳ Membuat Live Photo & Cetak...';
+        submitBtn.innerText = '⏳ Menyiapkan Live Photo...';
         submitBtn.disabled = true;
       }
 
@@ -3141,6 +3151,10 @@
         livePhotoBase64 = await generateLivePhotoVideoMP4();
       } catch (e) {
         console.warn('Live photo failed to generate:', e);
+      }
+
+      if (submitBtn) {
+        submitBtn.innerText = '⏳ Mengunggah foto & memproses...';
       }
 
       const payload = {
