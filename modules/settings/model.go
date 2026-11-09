@@ -29,6 +29,8 @@ type ConfigMap struct {
 	KioskPin           string `json:"kiosk_pin"`
 	LocalServerIP      string `json:"local_server_ip"`
 	Port               string `json:"port"`
+	Domain             string `json:"domain"`
+	BaseURL            string `json:"base_url"`
 	VoucherModeEnabled bool   `json:"voucher_mode_enabled"`
 	PaymentModeEnabled bool   `json:"payment_mode_enabled"`
 	PriceSingle        int    `json:"price_single"`

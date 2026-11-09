@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -99,6 +100,70 @@ func DetectLocalIP() string {
 	return "127.0.0.1"
 }
 
+// CleanDomain extracts a clean domain or host from any raw IP or URL string.
+// E.g. "http://https://photobooth.osisniba.my.id/:8080" -> "photobooth.osisniba.my.id"
+func CleanDomain(raw string) string {
+	raw = strings.TrimSpace(raw)
+	// Strip any leading protocols (even if accidentally duplicated like http://https://)
+	for strings.HasPrefix(strings.ToLower(raw), "http://") || strings.HasPrefix(strings.ToLower(raw), "https://") {
+		if strings.HasPrefix(strings.ToLower(raw), "http://") {
+			raw = raw[7:]
+		} else if strings.HasPrefix(strings.ToLower(raw), "https://") {
+			raw = raw[8:]
+		}
+	}
+
+	// Remove trailing slashes and paths
+	raw = strings.TrimRight(raw, "/")
+	if slashIdx := strings.Index(raw, "/"); slashIdx != -1 {
+		raw = raw[:slashIdx]
+	}
+
+	// Strip trailing port if present (e.g. :8080 or :80)
+	if colonIdx := strings.LastIndex(raw, ":"); colonIdx != -1 {
+		raw = raw[:colonIdx]
+	}
+
+	return strings.TrimSpace(raw)
+}
+
+// GetBaseURL returns a clean, fully-qualified base URL without broken double protocols or unwanted ports.
+func GetBaseURL(raw string, port string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		raw = DetectLocalIP()
+	}
+
+	isHTTPS := strings.Contains(strings.ToLower(raw), "https://")
+	domain := CleanDomain(raw)
+	if domain == "" {
+		domain = DetectLocalIP()
+	}
+
+	// Check if domain is a hostname (contains alphabet characters) vs raw numeric IP
+	isHostname := false
+	for _, r := range domain {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') {
+			isHostname = true
+			break
+		}
+	}
+
+	if isHostname {
+		// Domain name: use https:// unless http was explicitly specified without https
+		if isHTTPS || !strings.Contains(strings.ToLower(raw), "http://") {
+			return "https://" + domain
+		}
+		return "http://" + domain
+	}
+
+	// Raw IP address: use local port
+	if port != "" && port != "80" && port != "443" {
+		return fmt.Sprintf("http://%s:%s", domain, port)
+	}
+	return "http://" + domain
+}
+
 // GetConfig returns a typed ConfigMap with all settings resolved.
 func GetConfig(db *gorm.DB, port string) ConfigMap {
 	countdown, _ := strconv.Atoi(Get(db, "countdown_seconds"))
@@ -115,6 +180,9 @@ func GetConfig(db *gorm.DB, port string) ConfigMap {
 	if strings.TrimSpace(localIP) == "" {
 		localIP = DetectLocalIP()
 	}
+
+	cleanDomain := CleanDomain(localIP)
+	baseURL := GetBaseURL(localIP, port)
 
 	priceSingle, _ := strconv.Atoi(Get(db, "price_single"))
 	if priceSingle <= 0 {
@@ -145,7 +213,9 @@ func GetConfig(db *gorm.DB, port string) ConfigMap {
 		CopiesCount:        copies,
 		PrinterName:        Get(db, "printer_name"),
 		KioskPin:           Get(db, "kiosk_pin"),
-		LocalServerIP:      localIP,
+		LocalServerIP:      cleanDomain,
+		Domain:             cleanDomain,
+		BaseURL:            baseURL,
 		Port:               port,
 		VoucherModeEnabled: Get(db, "voucher_mode_enabled") == "true",
 		PaymentModeEnabled: Get(db, "payment_mode_enabled") == "true",

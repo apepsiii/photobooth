@@ -143,8 +143,8 @@ func (h *Handler) FinishSession(c *gin.Context) {
 	}
 
 	// 5. Build QR Code Download URL
-	// Uses the detected/configured LAN IP so mobile devices on the same WiFi can reach it
-	qrDownloadURL := fmt.Sprintf("http://%s:%s/d/%s", cfgMap.LocalServerIP, h.cfg.Port, sessionCode)
+	// Uses the detected/configured LAN IP or public domain so mobile devices can reach it
+	qrDownloadURL := fmt.Sprintf("%s/d/%s", cfgMap.BaseURL, sessionCode)
 
 	// 6. Redeem voucher if voucher was provided
 	if strings.TrimSpace(payload.VoucherCode) != "" {
@@ -525,6 +525,15 @@ func (h *Handler) OperatorResetPaperAPI(c *gin.Context) {
 // OperatorQuickVoucherAPI generates a single-use ticket code for fast hand-out to guests.
 func (h *Handler) OperatorQuickVoucherAPI(c *gin.Context) {
 	code := vouchers.GenerateRandomCode()
+	for {
+		var exists int64
+		h.db.Model(&vouchers.Voucher{}).Where("code = ?", code).Count(&exists)
+		if exists == 0 {
+			break
+		}
+		code = vouchers.GenerateRandomCode()
+	}
+
 	v := vouchers.Voucher{
 		Code:      code,
 		IsUsed:    false,

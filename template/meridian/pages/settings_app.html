@@ -216,11 +216,11 @@
     </h3>
 
     <div style="margin-bottom: 2rem;">
-      <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">IP Server Lokal untuk QR Code</label>
-      <input type="text" name="local_server_ip" value="{{.Data.Config.LocalServerIP}}" placeholder="{{.Data.DetectedLocalIP}}" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
+      <label style="display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem;">Domain / IP Server untuk Akses & QR Code</label>
+      <input type="text" name="local_server_ip" value="{{.Data.Config.LocalServerIP}}" placeholder="Contoh: photobooth.osisniba.my.id atau {{.Data.DetectedLocalIP}}" style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;" />
       <div style="margin-top: 0.5rem; background: #f8fafc; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem; color: #475569; border: 1px solid #e2e8f0;">
-        IP lokal yang terdeteksi otomatis saat ini: <strong>{{.Data.DetectedLocalIP}}</strong>.<br>
-        Pastikan smartphone siswa dan laptop Kiosk ini terhubung ke jaringan WiFi / Hotspot yang sama agar QR Code softfile dapat langsung dibuka tanpa internet luar!
+        Masukkan nama domain (misal: <strong>photobooth.osisniba.my.id</strong>) atau IP lokal.<br>
+        IP lokal yang terdeteksi otomatis saat ini: <strong>{{.Data.DetectedLocalIP}}</strong>. Sistem akan otomatis menyaring dan membersihkan protokol/port ganda.
       </div>
     </div>
 

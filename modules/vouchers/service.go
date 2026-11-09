@@ -10,15 +10,20 @@ import (
 	"gorm.io/gorm"
 )
 
-// GenerateRandomCode generates a short 6-character alphanumeric voucher code like "TK9482".
+// GenerateRandomCode generates a 6-digit numeric voucher code like "829401".
 func GenerateRandomCode() string {
-	const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
-	result := make([]byte, 4)
-	for i := range result {
-		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(chars))))
-		result[i] = chars[num.Int64()]
+	const firstDigits = "123456789"
+	const digits = "0123456789"
+	result := make([]byte, 6)
+
+	first, _ := rand.Int(rand.Reader, big.NewInt(int64(len(firstDigits))))
+	result[0] = firstDigits[first.Int64()]
+
+	for i := 1; i < 6; i++ {
+		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
+		result[i] = digits[num.Int64()]
 	}
-	return "TK" + string(result)
+	return string(result)
 }
 
 // GenerateBatch creates multiple unique vouchers in bulk for the ticketing desk.
@@ -33,6 +38,15 @@ func GenerateBatch(db *gorm.DB, count int) ([]Voucher, error) {
 	var vouchers []Voucher
 	for i := 0; i < count; i++ {
 		code := GenerateRandomCode()
+		for {
+			var exists int64
+			db.Model(&Voucher{}).Where("code = ?", code).Count(&exists)
+			if exists == 0 {
+				break
+			}
+			code = GenerateRandomCode()
+		}
+
 		v := Voucher{
 			Code:      code,
 			IsUsed:    false,
