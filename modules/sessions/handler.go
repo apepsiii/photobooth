@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -86,7 +87,9 @@ func (h *Handler) DeleteSession(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err == nil {
-		_ = DeleteSession(h.db, uint(id))
+		if err := DeleteSession(h.db, uint(id)); err != nil {
+			log.Printf("[ERROR] DeleteSession failed for ID %d: %v", id, err)
+		}
 	}
 	c.Redirect(http.StatusFound, "/admin/sessions")
 }

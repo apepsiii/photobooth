@@ -120,19 +120,32 @@ func DeleteSession(db *gorm.DB, id uint) error {
 
 	// Delete composite file
 	if s.CompositePath != "" {
-		_ = os.Remove(strings.TrimPrefix(s.CompositePath, "/"))
+		_ = os.Remove(filepath.FromSlash(strings.TrimPrefix(s.CompositePath, "/")))
+	}
+
+	// Delete live photo video file if exists
+	if s.LivePhotoPath != "" {
+		_ = os.Remove(filepath.FromSlash(strings.TrimPrefix(s.LivePhotoPath, "/")))
 	}
 
 	// Delete raw photos
 	for _, p := range s.Photos {
 		if p.PhotoPath != "" {
-			_ = os.Remove(strings.TrimPrefix(p.PhotoPath, "/"))
+			_ = os.Remove(filepath.FromSlash(strings.TrimPrefix(p.PhotoPath, "/")))
 		}
 	}
 
-	// Delete DB records
-	db.Where("session_id = ?", s.ID).Delete(&SessionPhoto{})
-	return db.Delete(&s).Error
+	// Delete DB records safely within a transaction
+	return db.Transaction(func(tx *gorm.DB) error {
+		// Clean up any voucher session_code link
+		if s.SessionCode != "" {
+			_ = tx.Exec("UPDATE vouchers SET session_code = '' WHERE session_code = ?", s.SessionCode).Error
+		}
+		if err := tx.Where("session_id = ?", s.ID).Delete(&SessionPhoto{}).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&s).Error
+	})
 }
 
 // ListRecentSessions returns sessions ordered by newest first.

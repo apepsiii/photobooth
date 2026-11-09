@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -43,9 +44,26 @@ func Update(db *gorm.DB, f *Frame) error {
 	return db.Save(f).Error
 }
 
-// Delete deletes a frame.
+// Delete deletes a frame and safely unlinks associated sessions so foreign key constraint does not block deletion.
 func Delete(db *gorm.DB, id uint) error {
-	return db.Delete(&Frame{}, id).Error
+	var f Frame
+	if err := db.First(&f, id).Error; err != nil {
+		return err
+	}
+
+	// Remove overlay image file from disk if exists
+	if f.OverlayImage != "" {
+		filePath := filepath.FromSlash(strings.TrimPrefix(f.OverlayImage, "/"))
+		_ = os.Remove(filePath)
+	}
+
+	// Safely unlink foreign key references in sessions table first, then delete frame
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("UPDATE sessions SET frame_id = NULL WHERE frame_id = ?", id).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&f).Error
+	})
 }
 
 // SeedDefaultFrames ensures standard default frame templates exist on disk and in database.

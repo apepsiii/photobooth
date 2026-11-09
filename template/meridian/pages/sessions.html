@@ -57,7 +57,7 @@
 <div id="sessionsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
   {{range .Data.Sessions}}
   <div class="card session-card" data-code="{{.SessionCode}}" data-frame="{{if .Frame.Name}}{{.Frame.Name}}{{else}}Default{{end}}" style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s;">
-    <div style="height: 280px; background: #f8fafc; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid #e2e8f0; overflow: hidden; cursor: pointer;" onclick="openPreviewModal('{{.CompositePath}}', '{{.SessionCode}}', '{{if .Frame.Name}}{{.Frame.Name}}{{else}}Default Frame{{end}}')">
+    <div style="height: 280px; background: #f8fafc; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid #e2e8f0; overflow: hidden; cursor: pointer;" onclick="openPreviewModal('{{.CompositePath}}', '{{.SessionCode}}', '{{if .Frame.Name}}{{.Frame.Name}}{{else}}Default Frame{{end}}', '{{.ID}}')">
       <img src="{{.CompositePath}}" alt="{{.SessionCode}}" style="max-height: 260px; max-width: 90%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12)); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" />
       <span style="position: absolute; top: 10px; left: 10px; background: rgba(15,23,42,0.85); color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; font-family: monospace;">
         {{.SessionCode}}
@@ -119,7 +119,14 @@
         <span id="modalCode" style="font-family: monospace; font-weight: 700; font-size: 1.1rem; color: #60a5fa;"></span>
         <span id="modalFrame" style="font-size: 0.85rem; color: #94a3b8; margin-left: 0.75rem;"></span>
       </div>
-      <button type="button" onclick="document.getElementById('modalPreview').style.display='none'" style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <form id="modalDeleteForm" method="POST" action="" onsubmit="return confirm('Yakin ingin menghapus sesi foto ini beserta filenya?')" style="margin: 0;">
+          <button type="submit" class="btn btn--sm" style="background: #ef4444; color: #fff; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">
+            🗑️ Hapus Foto
+          </button>
+        </form>
+        <button type="button" onclick="document.getElementById('modalPreview').style.display='none'" style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
+      </div>
     </div>
     <div style="background: #09090b; padding: 1rem; border-radius: 0 0 12px 12px; display: flex; justify-content: center; max-height: calc(90vh - 60px);">
       <img id="modalImg" src="" alt="Full Preview" style="max-height: 75vh; max-width: 80vw; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
@@ -128,10 +135,14 @@
 </div>
 
 <script>
-  function openPreviewModal(imgSrc, code, frame) {
+  function openPreviewModal(imgSrc, code, frame, id) {
     document.getElementById('modalImg').src = imgSrc;
     document.getElementById('modalCode').innerText = code;
     document.getElementById('modalFrame').innerText = frame;
+    const delForm = document.getElementById('modalDeleteForm');
+    if (delForm && id) {
+      delForm.action = `/admin/sessions/${id}/delete`;
+    }
     document.getElementById('modalPreview').style.display = 'flex';
   }
 

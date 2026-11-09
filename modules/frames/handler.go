@@ -2,6 +2,7 @@ package frames
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -195,8 +196,12 @@ func (h *Handler) ToggleFrame(c *gin.Context) {
 // DeleteFrame deletes a frame.
 func (h *Handler) DeleteFrame(c *gin.Context) {
 	idStr := c.Param("id")
-	id, _ := strconv.Atoi(idStr)
-	_ = Delete(h.db, uint(id))
+	id, err := strconv.Atoi(idStr)
+	if err == nil {
+		if err := Delete(h.db, uint(id)); err != nil {
+			log.Printf("[ERROR] DeleteFrame failed for ID %d: %v", id, err)
+		}
+	}
 	c.Redirect(http.StatusFound, "/admin/frames")
 }
 

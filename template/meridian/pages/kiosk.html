@@ -184,21 +184,106 @@
       50% { box-shadow: 0 0 45px rgba(255,255,255,0.45); }
     }
 
-    /* Screen 2: Frame Selection */
+    /* Screen 2: Frame Selection (Horizontal 1-Row Scrollable) */
+    .frame-carousel-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.75rem 0 1.25rem 0;
+      padding: 0 1.5rem;
+    }
+
     .frame-grid {
       display: flex;
-      gap: 2rem;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 1.5rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: 100%;
+      padding: 1.25rem 1rem 1.5rem 1rem;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      justify-content: flex-start;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.06);
+    }
+
+    @supports (justify-content: safe center) {
+      .frame-grid {
+        justify-content: safe center;
+      }
+    }
+
+    .frame-grid::-webkit-scrollbar {
+      height: 8px;
+    }
+    .frame-grid::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      margin: 0 2rem;
+    }
+    .frame-grid::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+    }
+    .frame-grid::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .frame-carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(24, 24, 27, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fafafa;
+      display: flex;
+      align-items: center;
       justify-content: center;
-      flex-wrap: wrap;
-      max-width: 1200px;
-      margin: 2rem 0;
+      cursor: pointer;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      user-select: none;
+    }
+
+    .frame-carousel-nav:hover {
+      background: #ffffff;
+      color: #09090b;
+      border-color: #ffffff;
+      transform: translateY(-50%) scale(1.08);
+    }
+
+    .frame-carousel-nav:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .frame-carousel-nav.prev {
+      left: 0;
+    }
+
+    .frame-carousel-nav.next {
+      right: 0;
     }
 
     .frame-card {
       background: #18181b;
       border: 2px solid #27272a;
       border-radius: 16px;
-      width: 260px;
+      width: 240px;
+      min-width: 240px;
+      max-width: 240px;
+      flex: 0 0 240px;
       padding: 1.25rem;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -206,6 +291,8 @@
       flex-direction: column;
       align-items: center;
       position: relative;
+      scroll-snap-align: center;
+      user-select: none;
     }
 
     .frame-card:hover, .frame-card.selected {
@@ -237,12 +324,13 @@
     }
 
     .frame-preview-img {
-      height: 260px;
+      height: 240px;
       max-width: 100%;
       object-fit: contain;
       margin-bottom: 1rem;
       border-radius: 8px;
       filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+      pointer-events: none;
     }
 
     .frame-name {
@@ -251,6 +339,7 @@
       color: #fafafa;
       margin-bottom: 0.25rem;
       text-align: center;
+      white-space: normal;
     }
 
     .frame-info {
@@ -1002,24 +1091,34 @@
   <!-- SCREEN 2: FRAME SELECTION -->
   <section id="screenFrames" class="screen">
     <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Pilih Template Foto</h2>
-    <p style="color: #71717a; margin-bottom: 1.5rem;">Pilih layout dan gaya frame yang kamu sukai</p>
+    <p style="color: #71717a; margin-bottom: 1rem;">Pilih layout dan gaya frame yang kamu sukai (geser ke kanan untuk pilihan lainnya)</p>
     
-    <div class="frame-grid">
-      {{range $i, $f := .Frames}}
-      <textarea id="kioskSlotsRaw_{{$f.ID}}" style="display:none;">{{$f.SlotsJSON}}</textarea>
-      <div class="frame-card {{if eq $i 0}}selected{{end}}"
-           data-id="{{$f.ID}}"
-           data-shots="{{$f.TotalShots}}"
-           data-w="{{$f.Width}}"
-           data-h="{{$f.Height}}"
-           data-overlay="{{$f.OverlayImage}}"
-           data-layer="{{$f.LayerOrder}}"
-           onclick="chooseFrame(this)">
-        <img src="{{$f.OverlayImage}}" alt="{{$f.Name}}" class="frame-preview-img" />
-        <div class="frame-name">{{$f.Name}}</div>
-        <div class="frame-info">{{if $f.Category}}{{$f.Category}} • {{end}}{{$f.TotalShots}} Shots</div>
+    <div class="frame-carousel-wrapper">
+      <button type="button" class="frame-carousel-nav prev" id="frameNavPrev" onclick="scrollFrameCarousel(-1)" aria-label="Geser ke kiri" title="Geser ke kiri">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+
+      <div class="frame-grid" id="kioskFrameGrid">
+        {{range $i, $f := .Frames}}
+        <textarea id="kioskSlotsRaw_{{$f.ID}}" style="display:none;">{{$f.SlotsJSON}}</textarea>
+        <div class="frame-card {{if eq $i 0}}selected{{end}}"
+             data-id="{{$f.ID}}"
+             data-shots="{{$f.TotalShots}}"
+             data-w="{{$f.Width}}"
+             data-h="{{$f.Height}}"
+             data-overlay="{{$f.OverlayImage}}"
+             data-layer="{{$f.LayerOrder}}"
+             onclick="chooseFrame(this)">
+          <img src="{{$f.OverlayImage}}" alt="{{$f.Name}}" class="frame-preview-img" />
+          <div class="frame-name">{{$f.Name}}</div>
+          <div class="frame-info">{{if $f.Category}}{{$f.Category}} • {{end}}{{$f.TotalShots}} Shots</div>
+        </div>
+        {{end}}
       </div>
-      {{end}}
+
+      <button type="button" class="frame-carousel-nav next" id="frameNavNext" onclick="scrollFrameCarousel(1)" aria-label="Geser ke kanan" title="Geser ke kanan">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
     </div>
 
     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
@@ -1438,7 +1537,7 @@
 
     // App state
     const appConfig = {
-      countdownSeconds: {{.Config.CountdownSeconds}},
+      countdownSeconds: 3,
       kioskPin: "{{.Config.KioskPin}}",
       autoPrint: {{.Config.AutoPrint}},
       printEnabled: {{.Config.PrintEnabled}},
@@ -1724,6 +1823,7 @@
 
     // Initialize with first frame if available
     window.addEventListener('DOMContentLoaded', () => {
+      initFrameCarousel();
       const firstCard = document.querySelector('.frame-card');
       if (firstCard) chooseFrame(firstCard);
       setupCanvasStickerInteraction();
@@ -1941,6 +2041,102 @@
       const target = document.getElementById(screenId);
       if (target) target.classList.add('active');
       resetIdleTimer();
+      if (screenId === 'screenFrames') {
+        setTimeout(updateFrameNavButtons, 60);
+      }
+    }
+
+    function scrollFrameCarousel(dir) {
+      const grid = document.getElementById('kioskFrameGrid');
+      if (!grid) return;
+      grid.scrollBy({ left: dir * 280, behavior: 'smooth' });
+      setTimeout(updateFrameNavButtons, 350);
+    }
+
+    function updateFrameNavButtons() {
+      const grid = document.getElementById('kioskFrameGrid');
+      const prevBtn = document.getElementById('frameNavPrev');
+      const nextBtn = document.getElementById('frameNavNext');
+      if (!grid || !prevBtn || !nextBtn) return;
+
+      const maxScrollLeft = grid.scrollWidth - grid.clientWidth;
+      if (maxScrollLeft <= 4) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        return;
+      }
+
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+
+      if (grid.scrollLeft <= 10) {
+        prevBtn.style.opacity = '0.25';
+        prevBtn.style.pointerEvents = 'none';
+      } else {
+        prevBtn.style.opacity = '1';
+        prevBtn.style.pointerEvents = 'auto';
+      }
+
+      if (grid.scrollLeft >= maxScrollLeft - 10) {
+        nextBtn.style.opacity = '0.25';
+        nextBtn.style.pointerEvents = 'none';
+      } else {
+        nextBtn.style.opacity = '1';
+        nextBtn.style.pointerEvents = 'auto';
+      }
+    }
+
+    function initFrameCarousel() {
+      const grid = document.getElementById('kioskFrameGrid');
+      if (!grid) return;
+
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      let hasDragged = false;
+
+      grid.addEventListener('mousedown', (e) => {
+        isDown = true;
+        hasDragged = false;
+        startX = e.pageX - grid.offsetLeft;
+        scrollLeft = grid.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDown = false;
+      });
+
+      grid.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const x = e.pageX - grid.offsetLeft;
+        const walk = (x - startX) * 1.3;
+        if (Math.abs(walk) > 6) {
+          hasDragged = true;
+        }
+        grid.scrollLeft = scrollLeft - walk;
+        updateFrameNavButtons();
+      });
+
+      grid.addEventListener('click', (e) => {
+        if (hasDragged) {
+          e.preventDefault();
+          e.stopPropagation();
+          hasDragged = false;
+        }
+      }, true);
+
+      // Support mousewheel horizontal scroll
+      grid.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          grid.scrollLeft += e.deltaY;
+          updateFrameNavButtons();
+        }
+      }, { passive: false });
+
+      grid.addEventListener('scroll', updateFrameNavButtons);
+      window.addEventListener('resize', updateFrameNavButtons);
+      updateFrameNavButtons();
     }
 
     function chooseFrame(el) {
@@ -1965,7 +2161,11 @@
         layerOrder = 'photo_on_top';
       }
       document.querySelectorAll('.frame-card').forEach(c => c.classList.remove('selected'));
-      if (el) el.classList.add('selected');
+      if (el) {
+        el.classList.add('selected');
+        // Smoothly center the selected frame card in the horizontal carousel
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
       layerOrder = (layerOrder && typeof layerOrder === 'string') ? layerOrder : 'photo_on_top';
       if (typeof slots === 'string') {
         try { slots = JSON.parse(slots); } catch (e) { slots = []; }
@@ -2444,7 +2644,7 @@
       const cdContainer = document.getElementById('countdownContainer');
       const cdDisplay = document.getElementById('countdownDisplay');
       const cdCircle = document.getElementById('countdownCircleBar');
-      const totalSec = appConfig.countdownSeconds;
+      const totalSec = 3;
       let count = totalSec;
       const circumference = 276.46;
 
@@ -2496,7 +2696,7 @@
       const cdContainer = document.getElementById('countdownContainer');
       const cdDisplay = document.getElementById('countdownDisplay');
       const cdCircle = document.getElementById('countdownCircleBar');
-      const totalSec = appConfig.countdownSeconds;
+      const totalSec = 3;
       let count = totalSec;
       const circumference = 276.46;
 
@@ -3190,8 +3390,8 @@
             }
           }
         } else if (currentActiveScreen === 'screenCamera') {
-          const countdownEl = document.getElementById('cameraCountdown');
-          if (countdownEl && countdownEl.style.display !== 'block') {
+          const countdownEl = document.getElementById('countdownContainer');
+          if (countdownEl && !countdownEl.classList.contains('active')) {
             runCaptureCycle(capturedShots.length);
           }
         }
